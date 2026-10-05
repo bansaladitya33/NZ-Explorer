@@ -148,6 +148,10 @@ details p{margin-top:8px}
 .lnk small{display:block;color:var(--muted);font-size:13px}
 .disclaimer{border:2px solid var(--ink);border-radius:10px;padding:16px;font-size:15px}
 .guide ol li,.guide ul li{overflow-wrap:anywhere}
+.field{margin-top:16px}
+input[type=password]{width:100%;padding:13px 14px;border:2px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);font:inherit}
+input[type=password]:focus{border-color:var(--accent);outline:none}
+.note2{margin-top:12px;border-left:4px solid var(--ink);padding-left:10px}
 
 /* waves rising from the bottom */
 .waves{position:relative;margin-top:auto}
@@ -179,9 +183,11 @@ nav{border-top:0}
   <button data-tab="home"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8M5 10v10h14V10"/></svg>Home</button>
   <button data-tab="activities"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Activities</button>
   <button data-tab="safety"><svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></svg>Safety</button>
-  <button data-tab="guide"><svg viewBox="0 0 24 24"><path d="M9 4h6v3H9zM6 5h3M15 5h3v16H6V5"/><path d="M9 12h6M9 16h4"/></svg>Build guide</button>
 </nav>
 
+<script src="firebase-config.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script>
 (function(){
   var DOMAIN = "@aucklanduni.ac.nz";
@@ -263,7 +269,7 @@ nav{border-top:0}
     ["UoA emergency and support","University of Auckland","https://www.auckland.ac.nz/en/students/student-support/personal-support/student-health-counselling/emergency-information.html"]
   ];
 
-  var state = {user:null, step:"email", code:null, email:"", error:"", tab:"home", sel:null, f:{dur:"Any",diff:"Any"}};
+  var state = {user:null, name:"", mode:"signin", step:"email", demoCode:null, issued:null, email:"", error:"", notice:"", pending:null, profile:{name:"",age:"",gender:""}, tab:"home", sel:null, f:{dur:"Any",diff:"Any"}};
   var app = document.getElementById("app");
   var nav = document.getElementById("nav");
   var waves = document.getElementById("waves");
@@ -273,47 +279,223 @@ nav{border-top:0}
   function bars(d){var n=lvl(d),h="";for(var i=1;i<=3;i++)h+='<i class="'+(i<=n?"on":"")+'"></i>';return '<span class="bars" aria-hidden="true">'+h+'</span>'}
   function validEmail(e){return /^[^\s@]+@aucklanduni\.ac\.nz$/i.test(e.trim())}
 
-  /* ---------- sign in ---------- */
-  function renderGate(){
-    nav.classList.add("hidden");waves.classList.remove("withnav");
-    var h='<div class="gate view"><img class="mark" src="'+LOGO+'" alt="NZ Explorer logo, a silver fern in black and white"><h1>NZ Explorer</h1><p class="lede">Weekend outings around Auckland, planned for students without a car. Open to University of Auckland students only.</p>';
-    if(state.step==="email"){
-      h+='<label for="em">University email</label><input id="em" type="email" autocomplete="email" placeholder="abcd123'+DOMAIN+'" value="'+esc(state.email)+'">';
-      if(state.error)h+='<p class="err" role="alert">'+esc(state.error)+'</p>';
-      h+='<div style="margin-top:16px"><button class="btn" id="send">Send me a code</button></div>';
-    } else {
-      h+='<p style="margin-bottom:14px">Enter the 6 digit code for <b>'+esc(state.email)+'</b>.</p><label for="cd">Code</label><input id="cd" type="text" inputmode="numeric" maxlength="6" autocomplete="one-time-code">';
-      if(state.error)h+='<p class="err" role="alert">'+esc(state.error)+'</p>';
-      h+='<div class="demo">Your code: <b>'+state.code+'</b></div>';
-      h+='<div style="margin-top:16px;display:flex;gap:12px;align-items:center"><button class="btn" id="verify">Sign in</button><button class="linkbtn" id="back">Use a different email</button></div>';
+  /* ---------- sign in and sign up ---------- */
+  /* Auth adapter. This is the demo version: it makes up a code and hands it back so the flow can be shown.
+     To make verification real, replace requestCode and checkCode with calls to an auth service
+     (for example Firebase Authentication or Supabase) that emails a one time code or link to the address
+     and only says yes once the person has confirmed it. A real requestCode must NOT return demoCode. */
+  var Auth = {
+    requestCode:function(email,profile){
+      var code=String(Math.floor(100000+Math.random()*900000));
+      return Promise.resolve({demoCode:code,issued:code});
+    },
+    checkCode:function(email,entered,issued){
+      return Promise.resolve(entered===issued);
     }
-    h+='<p class="fine">Access is limited to University of Auckland students with an '+DOMAIN+' email address.</p></div>';
-    app.innerHTML=h;
-    var em=document.getElementById("em");
-    if(em){
-      em.addEventListener("keydown",function(e){if(e.key==="Enter")send()});
-      document.getElementById("send").onclick=send;
-    } else {
-      var cd=document.getElementById("cd");
-      cd.addEventListener("keydown",function(e){if(e.key==="Enter")verify()});
-      document.getElementById("verify").onclick=verify;
-      document.getElementById("back").onclick=function(){state.step="email";state.error="";renderGate()};
-      cd.focus();
-    }
+  };
+  var GENDERS=["Woman","Man","Another gender","Prefer not to say"];
+
+  function gateShell(inner){
+    return '<div class="gate view"><img class="mark" src="'+LOGO+'" alt="NZ Explorer logo, a silver fern in black and white"><h1>NZ Explorer</h1>'+inner+
+    '<p class="fine">Access is limited to University of Auckland students with an '+DOMAIN+' email address.</p></div>';
+  }
+  function renderDemoGate(){
+    if(state.step==="code"){renderCode();return}
+    if(state.mode==="signup"){renderSignup();return}
+    var h='<p class="lede">Weekend outings around Auckland, planned for students without a car. Open to University of Auckland students only.</p>'+
+      '<label for="em">University email</label><input id="em" type="email" autocomplete="email" placeholder="abcd123'+DOMAIN+'" value="'+esc(state.email)+'">';
+    if(state.error)h+='<p class="err" role="alert">'+esc(state.error)+'</p>';
+    h+='<div style="margin-top:16px"><button class="btn" id="send">Send me a code</button></div>'+
+       '<p style="margin-top:18px">New here? <button class="linkbtn" id="tosignup">Create an account</button></p>';
+    app.innerHTML=gateShell(h);
+    document.getElementById("em").addEventListener("keydown",function(e){if(e.key==="Enter")send()});
+    document.getElementById("send").onclick=send;
+    document.getElementById("tosignup").onclick=function(){state.mode="signup";state.error="";renderGate()};
     function send(){
       var v=document.getElementById("em").value.trim();state.email=v;
       if(!validEmail(v)){state.error="NZ Explorer is only open to University of Auckland students. Please use your "+DOMAIN+" address.";renderGate();return}
-      state.error="";state.code=String(Math.floor(100000+Math.random()*900000));state.step="code";renderGate();
+      state.error="";requestCode();
     }
+  }
+  function requestCode(){
+    Auth.requestCode(state.email,state.profile).then(function(r){
+      state.demoCode=r.demoCode||null;state.issued=r.issued;state.step="code";renderGate();
+    });
+  }
+  function renderCode(){
+    var h='<p style="margin:20px 0 14px">Enter the 6 digit code for <b>'+esc(state.email)+'</b>.</p><label for="cd">Code</label><input id="cd" type="text" inputmode="numeric" maxlength="6" autocomplete="one-time-code">';
+    if(state.error)h+='<p class="err" role="alert">'+esc(state.error)+'</p>';
+    if(state.demoCode)h+='<div class="demo">Your code: <b>'+state.demoCode+'</b></div>';
+    h+='<div style="margin-top:16px;display:flex;gap:12px;align-items:center"><button class="btn" id="verify">Continue</button><button class="linkbtn" id="back">Use a different email</button></div>';
+    app.innerHTML=gateShell(h);
+    var cd=document.getElementById("cd");
+    cd.addEventListener("keydown",function(e){if(e.key==="Enter")verify()});
+    document.getElementById("verify").onclick=verify;
+    document.getElementById("back").onclick=function(){state.step="email";state.error="";renderGate()};
+    cd.focus();
     function verify(){
       var v=document.getElementById("cd").value.trim();
-      if(v!==state.code){state.error="That code does not match. Please try again.";renderGate();return}
-      state.user=state.email;state.error="";state.tab="home";render();
+      Auth.checkCode(state.email,v,state.issued).then(function(ok){
+        if(!ok){state.error="That code does not match. Please try again.";renderGate();return}
+        state.user=state.email;state.name=state.profile.name||"";state.error="";state.tab="home";render();
+      });
     }
+  }
+  function renderSignup(){
+    var p=state.profile;
+    var h='<p class="lede">Create your account to browse activities and, later, find other students to go with.</p>'+
+      '<div class="field"><label for="fn">First name</label><input id="fn" type="text" autocomplete="given-name" maxlength="40" value="'+esc(p.name)+'"></div>'+
+      '<div class="field"><label for="em">University email</label><input id="em" type="email" autocomplete="email" placeholder="abcd123'+DOMAIN+'" value="'+esc(state.email)+'"></div>'+
+      '<div class="field"><label for="ag">Age</label><input id="ag" type="text" inputmode="numeric" maxlength="3" value="'+esc(p.age)+'"></div>'+
+      '<div class="field"><label id="gl">Gender</label><div class="chips" role="group" aria-labelledby="gl">';
+    GENDERS.forEach(function(g){h+='<button type="button" class="chip" data-g="'+esc(g)+'" aria-pressed="'+(p.gender===g)+'">'+esc(g)+'</button>'});
+    h+='</div><p class="muted" style="margin-top:8px">Only used if groups for women only or men only are offered. Choose Prefer not to say if you would rather not answer.</p></div>';
+    if(state.error)h+='<p class="err" role="alert">'+esc(state.error)+'</p>';
+    h+='<div style="margin-top:18px"><button class="btn" id="create">Create account</button></div>'+
+       '<p style="margin-top:18px">Already have an account? <button class="linkbtn" id="tosignin">Sign in</button></p>'+
+       '<p class="muted" style="margin-top:10px">Nothing you enter here is saved or sent anywhere.</p>';
+    app.innerHTML=gateShell(h);
+    function grab(){p.name=document.getElementById("fn").value.trim();state.email=document.getElementById("em").value.trim();p.age=document.getElementById("ag").value.trim()}
+    Array.prototype.forEach.call(app.querySelectorAll(".chip"),function(b){b.onclick=function(){grab();p.gender=b.dataset.g;renderGate()}});
+    document.getElementById("tosignin").onclick=function(){grab();state.mode="signin";state.error="";renderGate()};
+    document.getElementById("create").onclick=function(){
+      grab();
+      if(!/^[\p{L}][\p{L}\s'\u2019-]{0,39}$/u.test(p.name)){state.error="Please enter your first name.";renderGate();return}
+      if(!validEmail(state.email)){state.error="NZ Explorer is only open to University of Auckland students. Please use your "+DOMAIN+" address.";renderGate();return}
+      var n=Number(p.age);
+      if(!/^\d{2,3}$/.test(p.age)||n<16||n>99){state.error="Please enter your age as a whole number, 16 or over.";renderGate();return}
+      if(!p.gender){state.error="Please choose an option for gender, or Prefer not to say.";renderGate();return}
+      state.error="";requestCode();
+    };
+  }
+
+  /* ---------- live sign in with Firebase (used only when firebase-config.js is filled in) ---------- */
+  var CFG = window.FIREBASE_CONFIG || {};
+  var WANT_LIVE = !!CFG.apiKey;
+  var LIVE = WANT_LIVE && !!window.firebase;
+  var auth = null;
+  if(LIVE){ try{ firebase.initializeApp(CFG); auth = firebase.auth(); }catch(err){ LIVE=false; auth=null; } }
+
+  function friendly(e){
+    var c=(e&&e.code)||"";
+    if(c==="auth/email-already-in-use")return "An account with that email already exists. Try signing in instead.";
+    if(c==="auth/invalid-credential"||c==="auth/wrong-password"||c==="auth/user-not-found"||c==="auth/invalid-login-credentials")return "That email and password do not match.";
+    if(c==="auth/too-many-requests")return "Too many attempts. Please wait a few minutes and try again.";
+    if(c==="auth/network-request-failed")return "Network problem. Check your connection and try again.";
+    if(c==="auth/unauthorized-domain")return "This site's address has not been added to Firebase yet. Add it under Authentication, Settings, Authorized domains.";
+    if(c==="auth/weak-password")return "Please choose a password of at least 8 characters.";
+    if(c==="auth/invalid-email")return "That email address does not look right.";
+    return "Something went wrong. Please try again.";
+  }
+  function enter(u){
+    state.user=u.email;state.name=u.displayName||"";state.step="email";state.mode="signin";state.error="";state.notice="";state.pending=null;state.tab="home";render();
+  }
+  function renderLive(){
+    if(state.step==="inbox"){renderInbox();return}
+    if(state.mode==="signup"){renderLiveSignup();return}
+    renderLiveSignin();
+  }
+  function renderLiveSignin(){
+    var h='<p class="lede">Weekend outings around Auckland, planned for students without a car. Open to University of Auckland students only.</p>'+
+      '<div class="field"><label for="em">University email</label><input id="em" type="email" autocomplete="email" placeholder="abcd123'+DOMAIN+'" value="'+esc(state.email)+'"></div>'+
+      '<div class="field"><label for="pw">Password</label><input id="pw" type="password" autocomplete="current-password"></div>';
+    if(state.error)h+='<p class="err" role="alert">'+esc(state.error)+'</p>';
+    if(state.notice)h+='<p class="note2" role="status">'+esc(state.notice)+'</p>';
+    h+='<div style="margin-top:16px"><button class="btn" id="go">Sign in</button></div>'+
+       '<p style="margin-top:6px"><button class="linkbtn" id="forgot">Forgot your password?</button></p>'+
+       '<p style="margin-top:6px">New here? <button class="linkbtn" id="tosignup">Create an account</button></p>';
+    app.innerHTML=gateShell(h);
+    function grab(){state.email=document.getElementById("em").value.trim()}
+    function go(){
+      grab();var pw=document.getElementById("pw").value;state.notice="";
+      if(!validEmail(state.email)){state.error="NZ Explorer is only open to University of Auckland students. Please use your "+DOMAIN+" address.";renderGate();return}
+      if(!pw){state.error="Please enter your password.";renderGate();return}
+      document.getElementById("go").disabled=true;
+      auth.signInWithEmailAndPassword(state.email,pw).then(function(cred){
+        var u=cred.user;
+        if(!u.emailVerified){state.pending=u;state.step="inbox";state.error="";state.notice="Your email is not verified yet. Open the link we sent to "+u.email+".";renderGate();return}
+        enter(u);
+      }).catch(function(e){state.error=friendly(e);renderGate()});
+    }
+    document.getElementById("go").onclick=go;
+    document.getElementById("pw").addEventListener("keydown",function(e){if(e.key==="Enter")go()});
+    document.getElementById("em").addEventListener("keydown",function(e){if(e.key==="Enter")go()});
+    document.getElementById("tosignup").onclick=function(){grab();state.mode="signup";state.error="";state.notice="";renderGate()};
+    document.getElementById("forgot").onclick=function(){
+      grab();state.error="";
+      if(!validEmail(state.email)){state.error="Enter your "+DOMAIN+" email above first, then tap Forgot your password.";renderGate();return}
+      auth.sendPasswordResetEmail(state.email).then(function(){
+        state.notice="If an account exists for that email, a reset link is on its way.";renderGate();
+      }).catch(function(e){
+        var c=(e&&e.code)||"";
+        if(c==="auth/too-many-requests"||c==="auth/network-request-failed"){state.error=friendly(e)}
+        else{state.notice="If an account exists for that email, a reset link is on its way."}
+        renderGate();
+      });
+    };
+  }
+  function renderLiveSignup(){
+    var p=state.profile;
+    var h='<p class="lede">Create your account to browse activities and, later, find other students to go with.</p>'+
+      '<div class="field"><label for="fn">First name</label><input id="fn" type="text" autocomplete="given-name" maxlength="40" value="'+esc(p.name)+'"></div>'+
+      '<div class="field"><label for="em">University email</label><input id="em" type="email" autocomplete="email" placeholder="abcd123'+DOMAIN+'" value="'+esc(state.email)+'"></div>'+
+      '<div class="field"><label for="pw">Password</label><input id="pw" type="password" autocomplete="new-password"><p class="muted" style="margin-top:6px">At least 8 characters.</p></div>';
+    if(state.error)h+='<p class="err" role="alert">'+esc(state.error)+'</p>';
+    h+='<div style="margin-top:18px"><button class="btn" id="create">Create account</button></div>'+
+       '<p style="margin-top:18px">Already have an account? <button class="linkbtn" id="tosignin">Sign in</button></p>'+
+       '<p class="muted" style="margin-top:10px">We keep your first name and email with Google Firebase so you can sign in. The NZ Explorer team can see them, and the data is stored outside New Zealand.</p>';
+    app.innerHTML=gateShell(h);
+    function grab(){p.name=document.getElementById("fn").value.trim();state.email=document.getElementById("em").value.trim()}
+    document.getElementById("tosignin").onclick=function(){grab();state.mode="signin";state.error="";renderGate()};
+    document.getElementById("create").onclick=function(){
+      grab();var pw=document.getElementById("pw").value;
+      if(!/^[\p{L}][\p{L}\s'\u2019-]{0,39}$/u.test(p.name)){state.error="Please enter your first name.";renderGate();return}
+      if(!validEmail(state.email)){state.error="NZ Explorer is only open to University of Auckland students. Please use your "+DOMAIN+" address.";renderGate();return}
+      if(pw.length<8){state.error="Please choose a password of at least 8 characters.";renderGate();return}
+      document.getElementById("create").disabled=true;
+      auth.createUserWithEmailAndPassword(state.email,pw).then(function(cred){
+        var u=cred.user;
+        return u.updateProfile({displayName:p.name}).then(function(){return u.sendEmailVerification()}).then(function(){
+          state.pending=u;state.step="inbox";state.error="";state.notice="We sent a verification link to "+u.email+".";renderGate();
+        });
+      }).catch(function(e){state.error=friendly(e);renderGate()});
+    };
+  }
+  function renderInbox(){
+    var h='<h2 style="margin-top:22px;font-size:24px">Check your inbox</h2><p style="margin-top:8px">'+esc(state.notice)+' Open the link in the email, then come back here. Check your spam folder too.</p>';
+    if(state.error)h+='<p class="err" role="alert">'+esc(state.error)+'</p>';
+    h+='<div style="margin-top:16px;display:flex;flex-direction:column;gap:10px"><button class="btn" id="cont">I have verified, continue</button><button class="btn ghost" id="resend">Send the email again</button></div>'+
+       '<p style="margin-top:12px"><button class="linkbtn" id="backin">Back to sign in</button></p>';
+    app.innerHTML=gateShell(h);
+    document.getElementById("cont").onclick=function(){
+      var u=state.pending;if(!u){state.step="email";renderGate();return}
+      u.reload().then(function(){
+        if(u.emailVerified){enter(u)}
+        else{state.error="Not verified yet. Open the link in your email first, then try again.";renderGate()}
+      }).catch(function(e){state.error=friendly(e);renderGate()});
+    };
+    document.getElementById("resend").onclick=function(){
+      var u=state.pending;if(!u)return;
+      u.sendEmailVerification().then(function(){state.error="";state.notice="We sent the verification link again to "+u.email+".";renderGate()}).catch(function(e){state.error=friendly(e);renderGate()});
+    };
+    document.getElementById("backin").onclick=function(){
+      if(auth)auth.signOut();state.pending=null;state.step="email";state.mode="signin";state.error="";state.notice="";renderGate();
+    };
+  }
+  if(auth){auth.onAuthStateChanged(function(u){
+    if(u&&u.emailVerified&&validEmail(u.email)&&!state.user)enter(u);
+  })}
+
+
+  function renderGate(){
+    nav.classList.add("hidden");waves.classList.remove("withnav");
+    if(WANT_LIVE&&!auth){app.innerHTML=gateShell('<p class="err" role="alert">Sign in is unavailable right now. Please try again later.</p>');return}
+    if(LIVE){renderLive();return}
+    renderDemoGate();
   }
 
   /* ---------- shared pieces ---------- */
-  function topbar(){return '<div class="topbar"><span><img class="mini" src="'+LOGO+'" alt="">NZ Explorer</span><small>'+esc(state.user)+' <button class="linkbtn" id="out">Sign out</button></small></div>'}
+  function topbar(){return '<div class="topbar"><span><img class="mini" src="'+LOGO+'" alt="">NZ Explorer</span><small>'+esc(state.name||state.user)+' <button class="linkbtn" id="out">Sign out</button></small></div>'}
   function kv(rows){
     var h='<dl class="kv">';
     rows.forEach(function(r){h+='<dt>'+esc(r[0])+'</dt><dd>'+r[1]+'</dd>'});
@@ -384,42 +566,11 @@ nav{border-top:0}
     return h;
   }
 
-  /* ---------- build guide ---------- */
-  function guideView(){
-    return '<div class="view guide">'+topbar()+'<div class="pagehead"><h1>Build guide</h1><p>Where each story stands, and what the team still has to decide.</p></div>'+
-    '<h2>Where each story stands</h2><table class="status">'+
-    '<tr><td><b>Ref 41</b> Platform base on Glide</td><td class="stop">Blocked on plan</td></tr>'+
-    '<tr><td><b>Ref 2</b> First 5 activities, with name, description, duration, difficulty and area</td><td class="ok">Content ready</td></tr>'+
-    '<tr><td><b>Ref 5</b> Transport route, time, fare and source for all five</td><td class="warn">Ready, 2 to check</td></tr>'+
-    '<tr><td><b>Ref 6</b> Weather dependence and a named backup for all five, checked 2 Oct</td><td class="warn">Ready, sheet to update</td></tr>'+
-    '<tr><td><b>Ref 4</b> Safety and Disclaimer page, built on this site</td><td class="warn">Wording needs PO approval</td></tr>'+
-    '<tr><td><b>Ref 8</b> How it works text, on Home</td><td class="ok">Text ready</td></tr>'+
-    '<tr><td><b>Ref 7</b> Duration and difficulty filters, built on this site</td><td class="warn">Categories need a decision</td></tr>'+
-    '<tr><td><b>Ref 3</b> Mobile display</td><td class="warn">Needs a real phone test</td></tr></table>'+
-    '<h2>Where the files disagree</h2><p>These are the places where one teammate\'s file says something different from another\'s. This site follows the newer or better sourced file, and each one needs a quick team decision.</p><ol>'+
-    '<li><b>Weather dependence.</b> The activities sheet marks Maungakiekie and Coast-to-Coast as not weather dependent, and its backups are parks and cafes. The Ref 6 plan marks all five as dependent and names an indoor backup for each, with sources. This site uses Ref 6, so the sheet should be updated to match.</li>'+
-    '<li><b>Duration bands.</b> Ref 7 puts anything from 2 up to 4 hours in Half day, and uses the upper value of a range. By that rule Rangitoto (2 hours) and Maungakiekie (1 to 2 hours) are Half day, but the sheet calls them Short. This site follows Ref 7. Filter answers on the five activities: Under 2 hours gives 1, Half day gives 3, Full day gives 1.</li>'+
-    '<li><b>Medium or Moderate.</b> The sheet says Medium and Ref 7 says Moderate, to match DOC track grades. This site shows Moderate. Filter answers: Easy gives 3, Moderate gives 1, Hard gives 1.</li>'+
-    '<li><b>Beachlands transport.</b> The sheet says bus, about 1 hour. Story 5 says ferry to Pine Harbour Marina, 35 min, $13.80. This site shows the ferry, but someone needs to confirm how you get from Pine Harbour to the start of the walkway.</li>'+
-    '<li><b>Coast-to-Coast transport source.</b> It says general knowledge, and the Definition of Done needs a source link and a check date. Rangitoto\'s fare is a return price while the others are one way, so label it clearly.</li>'+
-    '<li><b>Home page promise.</b> The Story 8 text mentions signalling interest, but that feature is not built yet. It shows as coming soon.</li></ol>'+
-    '<h2>Still missing for Ref 4</h2><ul><li>Last checked date and who checked each safety link.</li><li>Product Owner approval of the disclaimer wording.</li><li>Name of the peer checker.</li></ul>'+
-    '<h2>What happened with Glide</h2><p>The data imported fine, but Glide\'s AI builder stopped with an upgrade prompt before it built any screens. Several sources say the free plan allows drafts only, with one editor and no published app, and that free AI credits do not renew. Nobody in the group has a paid account yet.</p>'+
-    '<h2>Decisions on the platform</h2><ol>'+
-    '<li><b>Who pays, and whose account owns the app.</b> Pick someone who will still be around on 19 October. The charter says extra spending needs Product Owner and team approval.</li>'+
-    '<li><b>Which plan.</b> It must allow publishing, 7 editors and a restricted sign up. The charter budgets Glide Plus at US$50 a month for three members, which does not match 7 editors. Check the live pricing page before quoting a number.</li>'+
-    '<li><b>If the plan costs more than budgeted,</b> update the charter financial table before the Week 10 demo, or switch to Softr.</li>'+
-    '<li><b>Add a backlog story for UoA only sign up.</b> It is a safety decision we can justify to the lecturer, and it changes how the companion feature is tested.</li></ol>'+
-    '<h2>Sign up rule</h2><ul><li>Only addresses ending in <b>'+DOMAIN+'</b> can sign up.</li><li>The inbox must be verified by an emailed code or link. A typed address alone proves nothing.</li><li>Test it with a non university address and confirm it is rejected.</li></ul>'+
-    '<h2>Data sheet rules</h2><ul><li>One sheet called <b>NZ Explorer, Activities</b>, owned by one person, in a shared team folder.</li><li>Add the transport and weather columns to the sheet so Glide and this site show the same thing.</li><li>Never rename a column header without telling the group, because Glide breaks silently.</li><li>Every factual record needs a source link and a check date.</li></ul>'+
-    '<h2>Rebuild steps in Glide</h2><ol><li>Create the project from the activities data.</li><li>Home page with the How it works text and a Safety and Disclaimer button.</li><li>Activities page with cards showing name, duration and difficulty, plus the two filters.</li><li>Detail page with transport, weather and safety.</li><li>Safety and Disclaimer page, in the bottom menu.</li><li>Restrict sign up to '+DOMAIN+'.</li><li>Publish, test on an iPhone and an Android phone, have a second member test it, then invite the others.</li></ol></div>';
-  }
-
   /* ---------- shell ---------- */
   function render(){
     if(!state.user){renderGate();return}
     nav.classList.remove("hidden");waves.classList.add("withnav");
-    var v=state.tab==="home"?homeView():state.tab==="guide"?guideView():state.tab==="safety"?safetyView():(state.sel!==null?detailView():listView());
+    var v=state.tab==="home"?homeView():state.tab==="safety"?safetyView():(state.sel!==null?detailView():listView());
     app.innerHTML=v;
     Array.prototype.forEach.call(nav.querySelectorAll("button"),function(b){
       if(b.dataset.tab===state.tab)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current");
@@ -429,7 +580,7 @@ nav{border-top:0}
   }
   function rerenderList(){app.innerHTML=listView();bind()}
   function bind(){
-    var o=document.getElementById("out");if(o)o.onclick=function(){state.user=null;state.step="email";state.email="";state.error="";state.sel=null;state.f={dur:"Any",diff:"Any"};render()};
+    var o=document.getElementById("out");if(o)o.onclick=function(){if(auth)auth.signOut();state.user=null;state.name="";state.mode="signin";state.step="email";state.email="";state.error="";state.profile={name:"",age:"",gender:""};state.sel=null;state.f={dur:"Any",diff:"Any"};render()};
     Array.prototype.forEach.call(app.querySelectorAll("[data-go]"),function(b){b.onclick=function(){state.tab=b.dataset.go;state.sel=null;render()}});
     Array.prototype.forEach.call(app.querySelectorAll(".row"),function(b){b.onclick=function(){state.sel=+b.dataset.i;render()}});
     Array.prototype.forEach.call(app.querySelectorAll(".chip"),function(b){b.onclick=function(){state.f[b.dataset.f]=b.dataset.v;rerenderList()}});
