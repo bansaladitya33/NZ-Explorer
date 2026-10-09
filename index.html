@@ -13,20 +13,20 @@
   box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px);
   padding-bottom:0;
-  --bg:#FFFFFF; --surface:#FFFFFF; --ink:#000000; --muted:#4D4D4D; --line:#D2D2D2;
-  --accent:#000000; --accent-ink:#FFFFFF; --soft:#F0F0F0;
+  --bg:#FFFFFF; --surface:#FFFFFF; --ink:#1F1410; --muted:#5B4A43; --line:#DCCBC3;
+  --accent:#93442F; --accent-ink:#FFFFFF; --soft:#F8EFEA; --deep:#3A1C14; --deepink:#FFFFFF;
   --head:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
   --body:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
 }
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
-    --bg:#000000; --surface:#0D0D0D; --ink:#FFFFFF; --muted:#ABABAB; --line:#363636;
-    --accent:#FFFFFF; --accent-ink:#000000; --soft:#1A1A1A;
+    --bg:#140C0A; --surface:#1E1411; --ink:#FFFFFF; --muted:#C4B0A8; --line:#4A352D;
+    --accent:#E2937E; --accent-ink:#1A0E0A; --soft:#2A1C17; --deep:#2B1A15; --deepink:#FFFFFF;
   }
 }
 :root[data-theme="dark"]{
-  --bg:#000000; --surface:#0D0D0D; --ink:#FFFFFF; --muted:#ABABAB; --line:#363636;
-  --accent:#FFFFFF; --accent-ink:#000000; --soft:#1A1A1A;
+  --bg:#140C0A; --surface:#1E1411; --ink:#FFFFFF; --muted:#C4B0A8; --line:#4A352D;
+  --accent:#E2937E; --accent-ink:#1A0E0A; --soft:#2A1C17; --deep:#2B1A15; --deepink:#FFFFFF;
 }
 html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
 *,*::before,*::after{box-sizing:border-box}
@@ -36,9 +36,10 @@ p{margin:0}
 button{font:inherit;color:inherit;cursor:pointer}
 :focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:4px}
 .shell{width:100%;max-width:560px;margin:0 auto;flex:1;padding:0 20px 28px;position:relative}
-.topbar{display:flex;justify-content:space-between;align-items:center;padding:16px 0 4px;font-family:var(--head);font-weight:700;font-size:18px}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px 14px;margin-top:12px;border-radius:14px;background:linear-gradient(180deg,#8A3F2C,#A9532F);color:#fff;font-family:var(--head);font-weight:700;font-size:18px}
+.topbar .linkbtn{color:#fff}.topbar small{color:#fff}.topbar img.mini{filter:invert(1)}
 .topbar>span{display:flex;align-items:center}
-.topbar small{font-family:var(--body);font-weight:500;font-size:13px;color:var(--muted)}
+.topbar small{font-family:var(--body);font-weight:500;font-size:13px}
 .linkbtn{background:none;border:0;padding:6px 0;color:var(--accent);font-weight:600;text-decoration:underline;text-underline-offset:3px}
 .btn{display:inline-block;background:var(--accent);color:var(--accent-ink);border:0;border-radius:10px;padding:13px 20px;font-weight:600;font-size:16px}
 .btn.ghost{background:transparent;color:var(--accent);border:2px solid var(--accent)}
@@ -63,7 +64,7 @@ input:focus{border-color:var(--accent);outline:none}
 /* home */
 .hero{position:relative;padding:36px 0 28px;overflow:hidden}
 .hero svg{position:absolute;right:-90px;top:-10px;width:420px;height:420px;z-index:0;pointer-events:none}
-.hero svg path{fill:none;stroke:var(--line);stroke-width:1.5}
+
 .hero>*:not(svg){position:relative;z-index:1}
 .hero h1{font-size:44px;max-width:11ch;margin-bottom:16px}
 .hero p{color:var(--muted);max-width:42ch;margin-bottom:24px}
@@ -113,8 +114,10 @@ input:focus{border-color:var(--accent);outline:none}
 /* tap targets and new components */
 .linkbtn{min-height:44px;padding:10px 0}
 .btn{min-height:48px;text-align:center;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none}
-.hero{padding:22px 0 12px}
-.hero h1{font-size:38px;max-width:12ch;margin-bottom:0}
+.hero{padding:0;margin:14px 0 16px;border-radius:16px;min-height:290px;display:flex;align-items:flex-start;background:linear-gradient(180deg,#8A3F2C 0%,#B5603F 55%,#D98B54 100%)}
+.hero svg{position:absolute;inset:0;width:100%;height:100%;right:auto;top:auto}
+
+.hero h1{font-size:31px;max-width:13ch;margin:0;padding:24px 22px;color:#fff;text-shadow:0 1px 8px rgba(40,15,8,.35)}
 .how{border:2px solid var(--ink);border-radius:10px;padding:18px;margin:6px 0 18px;background:var(--surface)}
 .how h2{font-size:22px;margin-bottom:8px}
 .how p+p{margin-top:10px}
@@ -168,16 +171,58 @@ input[type=password]:focus{border-color:var(--accent);outline:none}
 .share{display:flex;gap:8px;align-items:flex-start;margin:8px 0;font-size:14px}.share input{margin-top:3px;width:20px;height:20px;flex:none}.trip .btn{margin-top:6px;width:100%}.who{margin:8px 0;padding:10px;background:var(--soft);border-radius:10px}
 .eat p{margin:2px 0}
 
+
+/* hero block like the theme mockup */
+.hero2{position:relative;overflow:hidden;margin:12px 0 18px;border-radius:20px;color:#fff;background:linear-gradient(180deg,#8A3F2C 0%,#B5603F 55%,#D98B54 100%)}
+.hero2 svg.scene{position:absolute;left:0;right:0;bottom:0;width:100%;height:62%;z-index:0;pointer-events:none}
+.hero2>*:not(svg){position:relative;z-index:1}
+.hbar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:14px 16px;background:rgba(58,28,20,.28);font-family:var(--head);font-weight:700;font-size:18px}
+.hbar>span{display:flex;align-items:center;gap:10px;white-space:nowrap}
+.hbar img{width:28px;height:28px;filter:invert(1)}
+.hbar small{font-family:var(--body);font-weight:500;font-size:13px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.hbar .linkbtn{color:#fff;min-height:36px;padding:6px 0}
+.hcopy{padding:26px 20px 30px}
+.hcopy h1{font-size:40px;max-width:10ch;color:#fff;text-shadow:0 1px 10px rgba(40,15,8,.3)}
+.hcopy p{margin-top:10px;max-width:30ch;color:#fff;font-size:17px;text-shadow:0 1px 6px rgba(40,15,8,.3)}
+.hcopy .btn{margin-top:22px;background:#4A1D12;color:#fff;border-radius:12px}
+.hero2.tall .hcopy{padding-bottom:180px}
+.hero2.short .hcopy{padding-bottom:120px}
+.hero2.tall svg.scene{height:48%}
+.hero2.short svg.scene{height:44%}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px;margin-bottom:16px}
+.card label{display:block;margin-top:14px;font-weight:600}
+.card .lede{margin-bottom:6px}
+.fcard{display:block;background:var(--soft);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-top:10px}
+.fmain{display:block;width:100%;text-align:left;background:none;border:0;padding:0}
+.fmain h3{font-size:19px;color:var(--accent);margin-bottom:4px}
+.fmain .meta{color:var(--muted);font-size:15px}
+.fsafe{color:#B42318;font-weight:700;text-decoration:none;display:inline-block;padding:6px 0 0;min-height:0}
+h2.sec{font-size:22px;margin:22px 0 4px}
+
+/* full page scene behind the sign in and home pages */
+.scenebg{display:none;position:fixed;top:0;bottom:0;left:50%;width:min(100%,560px);transform:translateX(-50%);z-index:0;pointer-events:none}
+.scenebg svg{display:block;width:100%;height:100%}
+body.scene{background:#2B130D}
+body.scene .scenebg{display:block}
+body.scene .waves{display:none}
+body.scene .shell{position:relative;z-index:1}
+body.scene .hero2{background:none;overflow:visible;border-radius:0;margin-top:8px}
+body.scene .hbar{background:rgba(40,16,10,.45);border-radius:14px}
+body.scene .hcopy{padding:30px 6px 0}
+body.scene .hero2.short .hcopy{padding-bottom:230px}
+body.scene .hero2.tall .hcopy{padding-bottom:210px}
+body.scene .fine,body.scene h2.sec{color:#FBEBDD;text-shadow:0 1px 6px rgba(30,10,5,.5)}
+body.scene .card,body.scene .how,body.scene .fcard{box-shadow:0 6px 24px rgba(20,8,4,.35)}
 /* waves rising from the bottom */
 .waves{position:relative;margin-top:auto}
 .waves svg{display:block;width:100%;height:150px}
 .waves .back{fill:var(--line)}
-.waves .front{fill:var(--ink)}
-.waves .base{background:var(--ink);height:env(safe-area-inset-bottom,0px)}
+.waves .front{fill:var(--deep)}
+.waves .base{background:var(--deep);height:env(safe-area-inset-bottom,0px)}
 .waves.withnav .base{height:calc(62px + env(safe-area-inset-bottom,0px))}
 /* nav */
-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(560px,100%);background:var(--ink);display:flex;padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px));z-index:5}
-nav button{flex:1;background:none;border:0;padding:8px 4px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:13px;font-weight:500;color:var(--bg);opacity:.65}
+nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(560px,100%);background:var(--deep);display:flex;padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px));z-index:5}
+nav button{flex:1;background:none;border:0;padding:8px 4px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:13px;font-weight:500;color:var(--deepink);opacity:.7}
 nav button svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 nav button[aria-current=page]{opacity:1;font-weight:600}
 nav{border-top:0}
@@ -186,6 +231,31 @@ nav{border-top:0}
 </style>
 </head>
 <body>
+<div class="scenebg" id="scenebg" aria-hidden="true"><svg viewBox="0 0 560 800" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5E2A20"/><stop offset=".28" stop-color="#8E442C"/><stop offset=".46" stop-color="#C46F43"/><stop offset=".54" stop-color="#EBA866"/></linearGradient>
+<radialGradient id="glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#FFE3A0" stop-opacity=".95"/><stop offset=".35" stop-color="#F7B96E" stop-opacity=".55"/><stop offset="1" stop-color="#F0985A" stop-opacity="0"/></radialGradient>
+<linearGradient id="sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8A4130"/><stop offset=".25" stop-color="#5A2619"/><stop offset="1" stop-color="#22100A"/></linearGradient>
+<clipPath id="aboveSea"><rect x="-200" y="0" width="900" height="440"/></clipPath>
+</defs>
+<rect width="560" height="800" fill="url(#sky)"/>
+<g transform="translate(80 0)">
+<g opacity=".3" fill="#F6C48A"><rect x="250" y="330" width="130" height="6" rx="3"/><rect x="280" y="346" width="90" height="4" rx="2"/><rect x="-60" y="360" width="120" height="5" rx="2.5"/><rect x="-30" y="376" width="80" height="4" rx="2"/></g>
+<circle cx="130" cy="440" r="150" fill="url(#glow)" clip-path="url(#aboveSea)"/>
+<circle cx="130" cy="440" r="46" fill="#FFE3A3" clip-path="url(#aboveSea)"/>
+</g>
+<path d="M0 432 C80 418 190 430 250 424 C330 418 420 410 560 422 L560 440 L0 440Z" fill="#9A4A33" opacity=".7"/>
+<rect x="0" y="440" width="560" height="360" fill="url(#sea)"/>
+<g transform="translate(80 0)">
+<g fill="#F7C27C"><rect x="96" y="446" width="68" height="4" rx="2" opacity=".75"/><rect x="104" y="456" width="52" height="3.5" rx="1.75" opacity=".6"/><rect x="88" y="466" width="76" height="3" rx="1.5" opacity=".5"/><rect x="108" y="477" width="46" height="3" rx="1.5" opacity=".4"/><rect x="94" y="489" width="62" height="2.5" rx="1.25" opacity=".3"/><rect x="112" y="502" width="36" height="2.5" rx="1.25" opacity=".22"/></g>
+<g fill="#B96A4A" opacity=".35"><rect x="-40" y="520" width="90" height="2.5" rx="1.25"/><rect x="190" y="540" width="110" height="2.5" rx="1.25"/><rect x="20" y="580" width="70" height="2" rx="1"/><rect x="230" y="610" width="90" height="2" rx="1"/></g>
+<path d="M210 800 C228 700 236 600 262 540 C276 506 298 470 322 452 C344 438 366 446 384 478 C394 498 410 535 450 552 L480 556 L480 800Z" fill="#2E150D"/>
+<path d="M270 800 C290 720 304 650 330 600 C346 570 366 560 384 580 C394 592 410 612 450 622 L480 624 L480 800Z" fill="#1F0E09"/>
+<path d="M232 640 C250 628 268 632 282 650" fill="none" stroke="#4A2519" stroke-width="2" opacity=".6"/>
+</g>
+
+<path d="M0 800 L0 742 C80 730 190 748 290 740 C390 732 480 744 560 736 L560 800Z" fill="#170A06"/>
+</svg></div>
 <div class="shell" id="app"></div>
 <div class="waves" id="waves" aria-hidden="true">
   <svg viewBox="0 0 1440 160" preserveAspectRatio="none">
@@ -317,8 +387,12 @@ nav{border-top:0}
   };
   var GENDERS=["Woman","Man","Another gender","Prefer not to say"];
 
+  function heroBlock(kind,bar,btn){
+    return '<section class="hero2 '+kind+'">'+bar+'<div class="hcopy"><h1>Weekends, sorted.</h1><p>Activities near Auckland without a car.</p>'+(btn||'')+'</div></section>';
+  }
   function gateShell(inner){
-    return '<div class="gate view"><img class="mark" src="'+LOGO+'" alt="NZ Explorer logo, volcanic hills above waves"><h1>NZ Explorer</h1>'+inner+
+    var bar='<div class="hbar"><span><img src="'+LOGO+'" alt="">NZ Explorer</span></div>';
+    return '<div class="view">'+heroBlock('short',bar)+'<div class="card">'+inner+'</div>'+
     '<p class="fine">Access is limited to University of Auckland students with an '+DOMAIN+' email address.</p></div>';
   }
   function renderDemoGate(){
@@ -537,14 +611,17 @@ nav{border-top:0}
 
   /* ---------- home (Ref 8 text from Story 8) ---------- */
   function homeView(){
-    return '<div class="view">'+topbar()+
-    '<section class="hero"><svg viewBox="0 0 420 420" aria-hidden="true"><path d="M60 230C40 130 140 40 240 60S390 150 360 250 250 390 150 360 70 310 60 230Z"/><path d="M95 225C80 145 160 78 238 92S350 160 328 240 238 350 160 330 108 290 95 225Z"/><path d="M130 220C120 165 175 120 232 130S312 175 296 232 232 312 178 298 140 262 130 220Z"/><path d="M168 215C162 185 195 160 228 166S276 192 266 224 228 272 198 262 172 240 168 215Z"/></svg>'+
-    '<h1>A free Saturday, planned without a car.</h1></section>'+
-    '<section class="how"><h2>How it works</h2>'+
+    var bar='<div class="hbar"><span><img src="'+LOGO+'" alt="">NZ Explorer</span><small>'+esc(state.name||state.user)+(db?' <button class="linkbtn" data-go="profile">Profile</button>':'')+' <button class="linkbtn" id="out">Sign out</button></small></div>';
+    var h='<div class="view">'+heroBlock('tall',bar,'<button class="btn" data-go="activities">Browse activities</button>');
+    h+='<h2 class="sec">Start here</h2>';
+    [0,1,5].forEach(function(i){var a=A[i];if(!a)return;
+      h+='<div class="fcard"><button class="fmain" data-feat="'+i+'"><h3>'+esc(a.name)+'</h3><p class="meta">'+esc(a.diff)+' \u00B7 '+esc(a.dur)+'</p></button><button class="linkbtn fsafe" data-go="safety">Safety</button></div>';
+    });
+    h+='<section class="how"><h2>How it works</h2>'+
     '<p>NZ Explorer is a place for University of Auckland students to find weekend activities near Auckland. Each activity includes transport options, weather notes, and safety information.</p>'+
-    '<p class="soon">Coming soon: signal interest in an activity to find other students to join you.</p></section>'+
-    '<div class="stack"><button class="btn" data-go="activities">Browse activities</button>'+
-    '<button class="btn ghost" data-go="safety">'+SHIELD+'Safety &amp; Disclaimer</button></div></div>';
+    '<p class="soon">Join a trip on any activity page, and see who else is going once enough students have joined.</p></section>'+
+    '<div class="stack"><button class="btn ghost" data-go="safety">'+SHIELD+'Safety &amp; Disclaimer</button></div></div>';
+    return h;
   }
 
   /* ---------- activities with filters (Ref 7) ---------- */
@@ -737,6 +814,8 @@ nav{border-top:0}
   }
 
   /* ---------- shell ---------- */
+  new MutationObserver(function(){document.body.classList.toggle("scene",!!app.querySelector(".hero2"))}).observe(app,{childList:true});
+  document.body.classList.toggle("scene",!!app.querySelector(".hero2"));
   function render(){
     if(!state.user){renderGate();return}
     nav.classList.remove("hidden");waves.classList.add("withnav");
@@ -755,6 +834,7 @@ nav{border-top:0}
     var o=document.getElementById("out");if(o)o.onclick=function(){if(auth)auth.signOut();state.user=null;state.name="";state.mode="signin";state.step="email";state.email="";state.error="";state.profile={name:"",age:"",gender:""};state.gender="";state.uid=null;state.gmsg="";state.sel=null;state.f={dur:"Any",diff:"Any"};render()};
     Array.prototype.forEach.call(app.querySelectorAll("[data-go]"),function(b){b.onclick=function(){state.tab=b.dataset.go;state.sel=null;render()}});
     Array.prototype.forEach.call(app.querySelectorAll(".row"),function(b){b.onclick=function(){state.sel=+b.dataset.i;render()}});
+    Array.prototype.forEach.call(app.querySelectorAll("[data-feat]"),function(b){b.onclick=function(){state.tab="activities";state.sel=+b.dataset.feat;render()}});
     Array.prototype.forEach.call(app.querySelectorAll(".chip"),function(b){b.onclick=function(){state.f[b.dataset.f]=b.dataset.v;rerenderList()}});
     Array.prototype.forEach.call(app.querySelectorAll("[data-clear]"),function(b){b.onclick=function(){state.f={dur:"Any",diff:"Any"};rerenderList()}});
     var bk=document.getElementById("bk");if(bk)bk.onclick=function(){state.sel=null;render()};
