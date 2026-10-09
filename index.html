@@ -229,10 +229,13 @@ nav{border-top:0}
 .hidden{display:none}
 @media (prefers-reduced-motion:no-preference){.view{animation:in .18s ease-out}@keyframes in{from{opacity:0}to{opacity:1}}}
 
-.gal{margin:12px 0 4px}.gal .gh{display:block;width:100%;height:auto;border-radius:14px;background:#eadfd8}
-.gal .gs{display:flex;gap:8px;margin-top:8px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding-bottom:4px}
-.gal .gs img{height:110px;width:auto;border-radius:10px;flex:0 0 auto;scroll-snap-align:start;background:#eadfd8;cursor:pointer}
-.gal .gh{cursor:pointer}
+.gal{position:relative;margin:12px 0 4px}
+.gal .gt{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;border-radius:14px;scrollbar-width:none}
+.gal .gt::-webkit-scrollbar{display:none}
+.gal .gt img{flex:0 0 100%;width:100%;height:auto;max-height:340px;object-fit:cover;scroll-snap-align:center;background:#eadfd8}
+.gal .ga{position:absolute;top:50%;transform:translateY(-50%);width:38px;height:38px;border-radius:50%;border:0;background:rgba(58,28,20,.65);color:#fff;font-size:22px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
+.gal .ga:hover{background:rgba(58,28,20,.9)}.gal .gp{left:8px}.gal .gn{right:8px}
+.gal .gc{position:absolute;right:10px;bottom:10px;background:rgba(58,28,20,.7);color:#fff;font-size:13px;padding:3px 9px;border-radius:12px}
 </style>
 </head>
 <body>
@@ -774,7 +777,7 @@ nav{border-top:0}
     };
   }
   var PH={"0":[["a01-rangitoto-2.jpg",2.0],["a01-rangitoto-1.jpg",2.331081081081081],["a01-rangitoto-3.jpg",4.0],["a01-rangitoto-4.jpg",1.7783505154639174]],"1":[["a02-one-tree-hill-4.jpg",1.6666666666666667],["a02-one-tree-hill-1.jpg",3.517857142857143],["a02-one-tree-hill-2.jpg",3.517857142857143]],"2":[["a03-devonport-3.jpg",2.059718969555035],["a03-devonport-2.jpg",4.109813084112149],["a03-devonport-4.jpg",1.9047619047619047]],"3":[["a04-beachlands-maraetai-1.jpg",1.5023474178403755],["a04-beachlands-maraetai-2.jpg",1.33375],["a04-beachlands-maraetai-3.jpg",1.7797552836484982]],"4":[["a05-coast-to-coast-2.jpg",1.9047619047619047],["a05-coast-to-coast-1.jpg",0.5626373626373626],["a05-coast-to-coast-3.jpg",1.0]],"5":[["a06-domain-wintergardens-2.jpg",1.3336557059961316],["a06-domain-wintergardens-1.jpg",0.75],["a06-domain-wintergardens-3.jpg",1.3333333333333333]],"6":[["a07-mt-eden-1.jpg",1.5015015015015014],["a07-mt-eden-2.jpg",1.0],["a07-mt-eden-3.jpg",1.7777777777777777]],"7":[["a08-tamaki-drive-2.jpg",1.3336557059961316],["a08-tamaki-drive-3.jpg",1.3330106485963213]],"8":[["a09-parnell-market-4.jpg",1.3333333333333333],["a09-parnell-market-5.jpg",1.5036710719530102]],"9":[["a10-takapuna-1.jpg",1.3725099601593624],["a10-takapuna-3.jpg",1.0]],"10":[["a11-hobsonville-1.jpg",1.910828025477707],["a11-hobsonville-4.jpg",1.5],["a11-hobsonville-5.jpg",1.3333333333333333]],"11":[["a12-ambury-1.jpg",1.3333333333333333],["a12-ambury-2.jpg",0.6666666666666666],["a12-ambury-3.jpg",1.0]],"12":[["a13-botanic-gardens-2.jpg",1.9],["a13-botanic-gardens-1.jpg",1.5]],"13":[["a14-western-springs-3.jpg",1.488146551724138],["a14-western-springs-1.jpg",2.6728971962616823],["a14-western-springs-2.jpg",2.6728971962616823]],"14":[["a15-otara-market-3.jpg",1.7751479289940828],["a15-otara-market-4.jpg",1.334]]};
-  function gallery(i){var l=PH[i];if(!l||!l.length)return '';var h='<div class="gal"><img class="gh" id="gh" src="photos/'+l[0][0]+'" alt="">';if(l.length>1){h+='<div class="gs">';l.forEach(function(p){h+='<img src="photos/'+p[0]+'" loading="lazy" alt="" data-src="photos/'+p[0]+'">'});h+='</div>'}return h+'</div>'}
+  function gallery(i){var l=PH[i];if(!l||!l.length)return '';var h='<div class="gal"><div class="gt" id="gt">';l.forEach(function(p,k){h+='<img src="photos/'+p[0]+'" alt=""'+(k?' loading="lazy"':'')+'>'});h+='</div>';if(l.length>1)h+='<button class="ga gp" id="gp" aria-label="Previous photo">&#8249;</button><button class="ga gn" id="gnx" aria-label="Next photo">&#8250;</button><span class="gc" id="gc">1 / '+l.length+'</span>';return h+'</div>'}
   function detailView(){
     var a=A[state.sel],t=a.t,w=a.w,bs=bringSection(a);
     var h='<div class="view detail">'+topbar()+'<button class="linkbtn back" id="bk">Back to activities</button>'+
@@ -844,7 +847,7 @@ nav{border-top:0}
     Array.prototype.forEach.call(app.querySelectorAll("[data-feat]"),function(b){b.onclick=function(){state.tab="activities";state.sel=+b.dataset.feat;render()}});
     Array.prototype.forEach.call(app.querySelectorAll(".chip"),function(b){b.onclick=function(){state.f[b.dataset.f]=b.dataset.v;rerenderList()}});
     Array.prototype.forEach.call(app.querySelectorAll("[data-clear]"),function(b){b.onclick=function(){state.f={dur:"Any",diff:"Any"};rerenderList()}});
-    var gh=document.getElementById("gh");if(gh)document.querySelectorAll(".gal .gs img").forEach(function(im){im.onclick=function(){gh.src=im.getAttribute("data-src")}});
+    var gt=document.getElementById("gt");if(gt){var gc=document.getElementById("gc"),n=gt.children.length,go=function(d){var w=gt.clientWidth,k=Math.round(gt.scrollLeft/w)+d;if(k<0)k=n-1;if(k>=n)k=0;gt.scrollTo({left:k*w,behavior:"smooth"})};gt.addEventListener("scroll",function(){if(gc)gc.textContent=(Math.round(gt.scrollLeft/gt.clientWidth)+1)+" / "+n});var gp=document.getElementById("gp"),gx=document.getElementById("gnx");if(gp)gp.onclick=function(){go(-1)};if(gx)gx.onclick=function(){go(1)}}
     var bk=document.getElementById("bk");if(bk)bk.onclick=function(){state.sel=null;render()};
   }
   nav.addEventListener("click",function(e){
