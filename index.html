@@ -164,6 +164,8 @@ input[type=password]:focus{border-color:var(--accent);outline:none}
 .check{padding-left:20px;margin:6px 0 12px}
 .check li{margin:5px 0}
 .eat{padding:10px 0;border-top:1px solid var(--line)}
+.pbar{height:8px;border-radius:99px;background:var(--line);margin:8px 0;overflow:hidden}.pbar i{display:block;height:100%;background:var(--ink)}
+.share{display:flex;gap:8px;align-items:flex-start;margin:8px 0;font-size:14px}.share input{margin-top:3px;width:20px;height:20px;flex:none}.trip .btn{margin-top:6px;width:100%}.who{margin:8px 0;padding:10px;background:var(--soft);border-radius:10px}
 .eat p{margin:2px 0}
 
 /* waves rising from the bottom */
@@ -609,21 +611,68 @@ nav{border-top:0}
   function tripsSection(a){
     return db?'<div class="section" id="trips"><h2>Planned trips</h2><p class="muted">Loading trips...</p></div>':"";
   }
+  function need(x){return Math.ceil((x.max||0)/2)}
+  function tripCard(x,mine,a){
+    var n=x.joined||0,full=n>=x.max,need_=need(x),h='<div class="eat trip" data-id="'+esc(x.id)+'"><p><b>'+esc(fmtDate(x.date))+', '+esc(fmtTime(x.time))+'</b>'+(x.women?' <span class="tag">Women only</span>':' <span class="tag">All genders</span>')+(mine?' <span class="tag">You are going</span>':'')+'</p>'+
+      '<p class="muted">Meet at '+esc(x.meeting)+(x.tbc?" (exact spot to be confirmed)":"")+'.</p>'+
+      '<p>'+(n===0?'No one yet, be the first':esc(n)+' of '+esc(x.max)+' places taken')+(full?' (full)':'')+'</p>';
+    h+='<div class="pbar" role="progressbar" aria-valuemin="0" aria-valuemax="'+esc(need_)+'" aria-valuenow="'+Math.min(n,need_)+'" aria-label="Students joined toward contact details"><i style="width:'+Math.min(100,Math.round(100*n/Math.max(need_,1)))+'%"></i></div>';
+    h+='<p class="muted">'+(n>=need_?'Enough students have joined ('+need_+' needed). Members can now see first names and any shared emails.':'Names and contact details unlock for members once '+need_+' of '+esc(x.max)+' places are taken'+(n>0?' ('+(need_-n)+' more needed)':'')+'.')+'</p>';
+    if(mine){
+      h+='<div class="who" id="who-'+esc(x.id)+'"></div><button class="btn ghost leave" data-id="'+esc(x.id)+'">Leave this trip</button><p class="muted">You can leave at any time.</p>';
+    }else if(full){
+      h+='<p class="muted">This trip is full. Check the other dates.</p>';
+    }else{
+      h+='<label class="share"><input type="checkbox" class="shr"> Share my university email with the group once enough students have joined</label><button class="btn join" data-id="'+esc(x.id)+'">Join this trip</button>';
+    }
+    return h+'<p class="muted tmsg" id="tm-'+esc(x.id)+'" role="status"></p></div>';
+  }
   function loadTrips(a){
-    var box=document.getElementById("trips");if(!box||!db)return;
+    var box=document.getElementById("trips");if(!box||!db||!state.uid)return;
     var today=new Date().toISOString().slice(0,10),col=db.collection("trips");
     var open=col.where("activityId","==",a.id).where("womenOnly","==",false).get();
     var women=col.where("activityId","==",a.id).where("womenOnly","==",true).get().then(function(r){return r},function(){return null});
     Promise.all([open,women]).then(function(res){
       var list=[];
-      res.forEach(function(r,i){if(r)r.forEach(function(d){var x=d.data();x.women=(i===1);list.push(x)})});
+      res.forEach(function(r,i){if(r)r.forEach(function(d){var x=d.data();x.id=d.id;x.women=(i===1);list.push(x)})});
       list=list.filter(function(x){return x.date>=today}).sort(function(p,q){return (p.date+p.time)<(q.date+q.time)?-1:1});
+      return Promise.all(list.map(function(x){return col.doc(x.id).collection("members").doc(state.uid).get().then(function(m){x.mine=m.exists;return x},function(){x.mine=false;return x})}));
+    }).then(function(list){
       if(state.sel===null||A[state.sel]!==a)return;
       if(!list.length){box.innerHTML="";return}
-      var h='<h2>Planned trips</h2><p class="muted" style="margin-bottom:8px">Joining a trip is coming soon. These are the dates the team has planned.</p>';
-      list.forEach(function(x){h+='<div class="eat"><p><b>'+esc(fmtDate(x.date))+', '+esc(fmtTime(x.time))+'</b>'+(x.women?' <span class="tag">Women only</span>':'')+'</p><p class="muted">Meet at '+esc(x.meeting)+(x.tbc?" (exact spot to be confirmed)":"")+'. Up to '+esc(x.max)+' students.</p></div>'});
+      var h='<h2>Upcoming trips</h2><p class="muted" style="margin-bottom:8px">Pick a date and join. Your name and email stay private until enough students have joined.</p>';
+      list.forEach(function(x){h+=tripCard(x,x.mine,a)});
       box.innerHTML=h;
-    }).catch(function(){box.innerHTML='<h2>Planned trips</h2><p class="muted">Trips could not be loaded right now. Please try again later.</p>'});
+      Array.prototype.forEach.call(box.querySelectorAll(".join"),function(b){b.onclick=function(){joinTrip(b,a)}});
+      Array.prototype.forEach.call(box.querySelectorAll(".leave"),function(b){b.onclick=function(){leaveTrip(b,a)}});
+      list.forEach(function(x){if(x.mine&&(x.joined||0)>=need(x))loadWho(x)});
+    }).catch(function(){box.innerHTML='<h2>Upcoming trips</h2><p class="muted">Trips could not be loaded right now. Please try again later.</p>'});
+  }
+  function loadWho(x){
+    db.collection("trips").doc(x.id).collection("members").get().then(function(r){
+      var el=document.getElementById("who-"+x.id);if(!el)return;
+      var h='<p><b>Who is going</b></p>';
+      r.forEach(function(d){var m=d.data();h+='<p>'+esc(m.name||"Student")+(d.id===state.uid?' (you)':'')+(m.email?' <span class="muted">'+esc(m.email)+'</span>':'')+'</p>'});
+      h+='<p class="muted">Only students who ticked share show an email. Meet in the public place listed above.</p>';
+      el.innerHTML=h;
+    }).catch(function(){});
+  }
+  function joinTrip(b,a){
+    var id=b.dataset.id,card=b.closest(".trip"),shr=card.querySelector(".shr"),msg=document.getElementById("tm-"+id);
+    b.disabled=true;msg.textContent="Joining...";
+    var first=(state.name||"").split(" ")[0]||"Student",m={name:first.slice(0,40),at:Date.now()};
+    if(shr&&shr.checked)m.email=state.user;
+    var batch=db.batch(),tr=db.collection("trips").doc(id);
+    batch.set(tr.collection("members").doc(state.uid),m);
+    batch.update(tr,{joined:firebase.firestore.FieldValue.increment(1)});
+    batch.commit().then(function(){loadTrips(a)}).catch(function(){b.disabled=false;msg.textContent="Could not join. The trip may be full, or you may not be able to join this one."});
+  }
+  function leaveTrip(b,a){
+    var id=b.dataset.id,msg=document.getElementById("tm-"+id);b.disabled=true;
+    var batch=db.batch(),tr=db.collection("trips").doc(id);
+    batch.delete(tr.collection("members").doc(state.uid));
+    batch.update(tr,{joined:firebase.firestore.FieldValue.increment(-1)});
+    batch.commit().then(function(){loadTrips(a)}).catch(function(){b.disabled=false;msg.textContent="Could not leave right now. Please try again."});
   }
   function profileView(){
     var h='<div class="view">'+topbar()+'<div class="pagehead"><h1>Your profile</h1><p>'+esc(state.name||"")+' '+esc(state.user||"")+'</p></div><div class="field"><label id="gl2">Gender</label><div class="chips" role="group" aria-labelledby="gl2">';
