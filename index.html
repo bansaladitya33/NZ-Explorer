@@ -202,6 +202,7 @@ h2.sec{font-size:22px;margin:22px 0 4px}
 /* full page scene behind the sign in and home pages */
 .scenebg{display:none;position:fixed;top:0;bottom:0;left:50%;width:min(100%,560px);transform:translateX(-50%);z-index:0;pointer-events:none}
 .scenebg svg{display:block;width:100%;height:100%}
+.scenebg svg.wide{display:none}
 body.scene{background:#2B130D}
 body.scene .scenebg{display:block}
 body.scene .waves{display:none}
@@ -236,10 +237,32 @@ nav{border-top:0}
 .gal .ga{position:absolute;top:50%;transform:translateY(-50%);width:38px;height:38px;border-radius:50%;border:0;background:rgba(58,28,20,.65);color:#fff;font-size:22px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
 .gal .ga:hover{background:rgba(58,28,20,.9)}.gal .gp{left:8px}.gal .gn{right:8px}
 .gal .gc{position:absolute;right:10px;bottom:10px;background:rgba(58,28,20,.7);color:#fff;font-size:13px;padding:3px 9px;border-radius:12px}
+
+/* laptop and desktop widths */
+.agrid{display:block}
+@media (min-width:900px){
+.shell{max-width:1080px;padding:0 32px 96px}
+.scenebg{width:100%}
+.scenebg svg.narrow{display:none}
+.scenebg svg.wide{display:block}
+nav{left:0;transform:none;width:100%;justify-content:center;gap:56px}
+nav button{flex:0 0 150px}
+.hero2 .hcopy h1{font-size:54px;max-width:14ch}
+.hero2 .hcopy p{font-size:20px}
+.hero2.tall .hcopy{padding-bottom:230px}
+.hero2.short ~ .card,.hero2.short ~ .fine{max-width:520px;margin-left:auto;margin-right:auto}
+.agrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;margin-top:12px}
+.agrid .row,.agrid .fcard{margin-top:0}
+.agrid .fcard{height:100%}
+.view.detail,.view.safety{max-width:860px;margin-left:auto;margin-right:auto}
+.gal .gt img{max-height:460px}
+.pagehead h1{font-size:40px}
+}
+@media (min-width:1300px){.shell{max-width:1200px}}
 </style>
 </head>
 <body>
-<div class="scenebg" id="scenebg" aria-hidden="true"><svg viewBox="0 0 560 800" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
+<div class="scenebg" id="scenebg" aria-hidden="true"><svg class="narrow" viewBox="0 0 560 800" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
 <defs>
 <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5E2A20"/><stop offset=".28" stop-color="#8E442C"/><stop offset=".46" stop-color="#C46F43"/><stop offset=".54" stop-color="#EBA866"/></linearGradient>
 <radialGradient id="glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#FFE3A0" stop-opacity=".95"/><stop offset=".35" stop-color="#F7B96E" stop-opacity=".55"/><stop offset="1" stop-color="#F0985A" stop-opacity="0"/></radialGradient>
@@ -263,6 +286,24 @@ nav{border-top:0}
 </g>
 
 <path d="M0 800 L0 742 C80 730 190 748 290 740 C390 732 480 744 560 736 L560 800Z" fill="#170A06"/>
+</svg><svg class="wide" viewBox="0 0 1440 800" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<linearGradient id="skyW" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5E2A20"/><stop offset=".28" stop-color="#8E442C"/><stop offset=".46" stop-color="#C46F43"/><stop offset=".55" stop-color="#EBA866"/></linearGradient>
+<radialGradient id="glowW" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#FFE3A0" stop-opacity=".95"/><stop offset=".35" stop-color="#F7B96E" stop-opacity=".55"/><stop offset="1" stop-color="#F0985A" stop-opacity="0"/></radialGradient>
+<linearGradient id="seaW" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8A4130"/><stop offset=".25" stop-color="#5A2619"/><stop offset="1" stop-color="#22100A"/></linearGradient>
+<clipPath id="aboveSeaW"><rect x="0" y="0" width="1440" height="470"/></clipPath>
+</defs>
+<rect width="1440" height="800" fill="url(#skyW)"/>
+<g opacity=".3" fill="#F6C48A"><rect x="620" y="300" width="260" height="8" rx="4"/><rect x="680" y="322" width="180" height="5" rx="2.5"/><rect x="60" y="360" width="220" height="7" rx="3.5"/><rect x="110" y="382" width="150" height="5" rx="2.5"/><rect x="1020" y="250" width="200" height="6" rx="3"/></g>
+<circle cx="470" cy="470" r="330" fill="url(#glowW)" clip-path="url(#aboveSeaW)"/>
+<circle cx="470" cy="470" r="72" fill="#FFE3A3" clip-path="url(#aboveSeaW)"/>
+<path d="M0 462 C200 446 420 458 640 452 C860 446 1100 440 1440 452 L1440 470 L0 470Z" fill="#9A4A33" opacity=".7"/>
+<rect x="0" y="470" width="1440" height="330" fill="url(#seaW)"/>
+<g fill="#F7C27C"><rect x="400" y="478" width="140" height="5" rx="2.5" opacity=".75"/><rect x="418" y="490" width="104" height="4" rx="2" opacity=".6"/><rect x="392" y="503" width="156" height="4" rx="2" opacity=".5"/><rect x="430" y="518" width="80" height="3.5" rx="1.75" opacity=".4"/><rect x="408" y="534" width="124" height="3" rx="1.5" opacity=".3"/></g>
+<g fill="#B96A4A" opacity=".35"><rect x="100" y="560" width="180" height="3" rx="1.5"/><rect x="700" y="590" width="240" height="3" rx="1.5"/><rect x="220" y="640" width="150" height="2.5" rx="1.2"/><rect x="820" y="660" width="200" height="2.5" rx="1.2"/></g>
+<path d="M880 800 C910 690 930 560 980 480 C1010 430 1060 380 1110 350 C1160 322 1210 336 1250 390 C1280 430 1320 490 1440 520 L1440 800Z" fill="#2E150D"/>
+<path d="M1040 800 C1070 720 1100 650 1160 600 C1200 568 1250 566 1290 600 C1320 626 1370 650 1440 660 L1440 800Z" fill="#1F0E09"/>
+<path d="M0 800 L0 752 C240 738 480 756 760 746 C1020 736 1220 752 1440 744 L1440 800Z" fill="#170A06"/>
 </svg></div>
 <div class="shell" id="app"></div>
 <div class="waves" id="waves" aria-hidden="true">
@@ -626,11 +667,11 @@ nav{border-top:0}
   function homeView(){
     var bar='<div class="hbar"><span><img src="'+LOGO+'" alt="">NZ Explorer</span><small>'+esc(state.name||state.user)+(db?' <button class="linkbtn" data-go="profile">Profile</button>':'')+' <button class="linkbtn" id="out">Sign out</button></small></div>';
     var h='<div class="view">'+heroBlock('tall',bar,'<button class="btn" data-go="activities">Browse activities</button>');
-    h+='<h2 class="sec">Start here</h2>';
+    h+='<h2 class="sec">Start here</h2><div class="agrid">';
     [0,1,5].forEach(function(i){var a=A[i];if(!a)return;
       h+='<div class="fcard"><button class="fmain" data-feat="'+i+'"><h3>'+esc(a.name)+'</h3><p class="meta">'+esc(a.diff)+' \u00B7 '+esc(a.dur)+'</p></button><button class="linkbtn fsafe" data-go="safety">Safety</button></div>';
     });
-    h+='<section class="how"><h2>How it works</h2>'+
+    h+='</div><section class="how"><h2>How it works</h2>'+
     '<p>NZ Explorer is a place for University of Auckland students to find weekend activities near Auckland. Each activity includes transport options, weather notes, and safety information.</p>'+
     '<p class="soon">Join a trip on any activity page, and see who else is going once enough students have joined.</p></section>'+
     '<div class="stack"><button class="btn ghost" data-go="safety">'+SHIELD+'Safety &amp; Disclaimer</button>'+ext(FORM_URL,"Suggest a trip","btn ghost")+'</div></div>';
@@ -652,11 +693,12 @@ nav{border-top:0}
     if(!shown.length){
       h+='<div class="empty"><b>No activities match</b><br>Try clearing a filter.<div style="margin-top:12px"><button class="btn ghost" data-clear="1">Clear filters</button></div></div>';
     }
+    h+='<div class="agrid">';
     shown.forEach(function(a){
       var i=A.indexOf(a);
       h+='<button class="row" data-i="'+i+'"><h3>'+esc(a.name)+'</h3><div class="meta"><span>'+bars(a.diff)+esc(a.diff)+'</span><span>'+esc(a.dur)+'</span>'+(a.partial?'<span class="tag">Transport coming</span>':'')+'</div></button>';
     });
-    return h+'</div>';
+    return h+'</div></div>';
   }
 
   /* ---------- detail (Refs 2, 5, 6, 18, 28, 45, 12) ---------- */
