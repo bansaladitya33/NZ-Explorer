@@ -367,6 +367,26 @@ body.scene .fcard .fsafe{color:#FFD2C2}
 .agrid .upc{margin-top:10px}
 @media (min-width:900px){.agrid .upc{margin-top:0}}
 :root[data-look="beach"] body.scene .fcard,:root[data-look="beach"] body.scene .how.glass,:root[data-look="beach"] body.scene .upc{background:rgba(11,59,64,.42)}
+
+/* trips, chats, reviews */
+.glass2{background:var(--soft);border:1px solid var(--line);border-radius:14px}
+.mt{padding:14px 16px;margin-top:12px}.mt b{display:block;font-size:18px;margin:6px 0 2px}.mt .upd{display:inline-block;font-size:12.5px;font-weight:700;padding:3px 10px;border-radius:999px;background:var(--surface);border:1px solid var(--line)}
+.mt .btn{margin-top:10px}.mt .btnrow{display:flex;gap:8px;flex-wrap:wrap}
+.chrow{display:block;width:100%;text-align:left;padding:14px 16px;margin-top:10px;color:var(--ink);font:inherit;cursor:pointer}
+.chrow b{display:block;font-size:17px}.chrow span{display:block;color:var(--muted);font-size:14px}.chrow em{display:block;font-style:normal;font-weight:700;color:var(--accent);margin-top:6px}
+.chrow[disabled]{cursor:default;opacity:.75}.chrow[disabled] em{color:var(--muted)}
+.cmsgs{height:min(52vh,460px);overflow:auto;border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:10px 0;background:var(--surface)}
+.cm{margin:8px 0;line-height:1.4}.cm small{color:var(--muted);font-size:12px}.cm.me{text-align:right}
+.cm .tx{display:inline-block;max-width:85%;text-align:left;padding:8px 12px;border-radius:14px;background:var(--soft);word-break:break-word}.cm.me .tx{background:var(--accent);color:var(--accent-ink)}
+.cform{display:flex;gap:8px;align-items:stretch;scroll-margin-bottom:110px}.cform input{flex:1 1 auto;width:auto;min-width:0}.cform .btn{width:auto;flex:0 0 auto}
+.rv-stars{color:#E0A100;letter-spacing:2px;font-size:18px}
+.rv-avg{font-weight:600;margin-bottom:8px}.rv{padding:10px 0;border-top:1px solid var(--line)}
+.rv-pick{display:flex;gap:6px}.rv-star{font-size:34px;line-height:1;background:none;border:0;color:#E0A100;cursor:pointer;padding:2px}
+.rv-ph{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.rv-th{position:relative;width:96px;height:96px;border-radius:10px;overflow:hidden;border:1px solid var(--line);padding:0;background:none}
+.rv-th img{width:100%;height:100%;object-fit:cover;display:block}.rv-del{position:absolute;top:4px;right:4px;width:26px;height:26px;border-radius:50%;border:0;background:rgba(0,0,0,.6);color:#fff;font-size:16px;line-height:1;cursor:pointer}
+textarea{width:100%;padding:12px 14px;border:2px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);font:inherit;resize:vertical}
+.apr{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-top:1px solid var(--line)}.apr img{width:140px;height:105px;object-fit:cover;border-radius:10px;flex:none;background:var(--soft)}.apr .btnrow{display:flex;gap:8px;margin-top:8px}
+@media (min-width:900px){nav button{flex:0 0 130px}}
 </style>
 <script>(function(){try{var l=localStorage.getItem("nzx_look"),z=localStorage.getItem("nzx_size"),r=document.documentElement;if(l==="night"){r.setAttribute("data-theme","dark");r.setAttribute("data-look","night")}else if(l&&l!=="clay"){r.setAttribute("data-look",l);r.setAttribute("data-theme","light")}if(z==="large")r.setAttribute("data-size","large")}catch(e){}})()</script>
 </head>
@@ -425,6 +445,8 @@ body.scene .fcard .fsafe{color:#FFD2C2}
 <nav id="nav" class="hidden" aria-label="Main">
   <button data-tab="home"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8M5 10v10h14V10"/></svg>Home</button>
   <button data-tab="activities"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Activities</button>
+  <button data-tab="trips"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Trips</button>
+  <button data-tab="chats"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></svg>Chats</button>
   <button data-tab="safety"><svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></svg>Safety</button>
 </nav>
 
@@ -770,7 +792,7 @@ body.scene .fcard .fsafe{color:#FFD2C2}
     return '<div class="umenu"><button type="button" class="mbtn" aria-label="Menu" aria-haspopup="true" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>'+
       '<div class="mlist" role="menu" hidden><p class="mwho">'+esc(state.name||"")+'<small>'+esc(state.user||"")+'</small></p>'+
       (db?'<button type="button" role="menuitem" data-go="profile">Profile</button>':'')+
-      '<button type="button" role="menuitem" data-go="look">Theme</button><button type="button" role="menuitem" id="out">Sign out</button></div></div>';
+      (isOwnerUser()?'<button type="button" role="menuitem" data-go="approvals">Photo approvals</button>':'')+'<button type="button" role="menuitem" data-go="look">Theme</button><button type="button" role="menuitem" id="out">Sign out</button></div></div>';
   }
   function topbar(){return '<div class="topbar"><span><img class="mini" src="'+LOGO+'" alt="">NZ Explorer</span>'+menuHtml()+'</div>'}
   function kv(rows){
@@ -914,14 +936,14 @@ body.scene .fcard .fsafe{color:#FFD2C2}
     var batch=db.batch(),tr=db.collection("trips").doc(id);
     batch.set(tr.collection("members").doc(state.uid),m);
     batch.update(tr,{joined:firebase.firestore.FieldValue.increment(1)});
-    batch.commit().then(function(){loadTrips(a)}).catch(function(){b.disabled=false;msg.textContent="Could not join. The trip may be full, or you may not be able to join this one."});
+    batch.commit().then(function(){MY.list=null;loadTrips(a)}).catch(function(){b.disabled=false;msg.textContent="Could not join. The trip may be full, or you may not be able to join this one."});
   }
   function leaveTrip(b,a){
     var id=b.dataset.id,msg=document.getElementById("tm-"+id);b.disabled=true;
     var batch=db.batch(),tr=db.collection("trips").doc(id);
     batch.delete(tr.collection("members").doc(state.uid));
     batch.update(tr,{joined:firebase.firestore.FieldValue.increment(-1)});
-    batch.commit().then(function(){loadTrips(a)}).catch(function(){b.disabled=false;msg.textContent="Could not leave right now. Please try again."});
+    batch.commit().then(function(){MY.list=null;loadTrips(a)}).catch(function(){b.disabled=false;msg.textContent="Could not leave right now. Please try again."});
   }
   function profileView(){
     var h='<div class="view">'+topbar()+'<div class="pagehead"><h1>Your profile</h1><p>'+esc(state.name||"")+' '+esc(state.user||"")+'</p></div><div class="field"><label id="gl2">Gender</label><div class="chips" role="group" aria-labelledby="gl2">';
@@ -990,7 +1012,7 @@ body.scene .fcard .fsafe{color:#FFD2C2}
       h+='<div class="section"><h2>If the weather turns</h2>'+wxSection(a)+'<p>A weather backup for this activity is still being added. Check the forecast before you go.</p></div>';
     }
     if(bs)h+=bs.section;
-    h+=foodSection(a)+tripsSection(a);
+    h+=foodSection(a)+tripsSection(a)+reviewsSection(a);
     if(a.safety){
       h+='<div class="section"><h2>Safety</h2>'+(a.risk?'<p style="margin-bottom:8px"><span class="tag">Risk level: '+esc(a.risk)+'</span></p>':'')+'<p>'+esc(a.safety)+'</p>'+(a.tip?'<p style="margin-top:8px"><b>Getting there and back.</b> '+esc(a.tip)+'</p>':'')+'<p style="margin-top:12px"><button class="linkbtn" data-go="safety">Read the full safety guidance</button></p></div>';
     } else {
@@ -1058,10 +1080,174 @@ body.scene .fcard .fsafe{color:#FFD2C2}
       Array.prototype.forEach.call(box.querySelectorAll("[data-feat]"),function(b){b.onclick=function(){state.tab="activities";state.sel=+b.dataset.feat;render()}});
     }).catch(function(){});
   }
+  /* ---------- my trips, chats and reviews ---------- */
+  var MY={list:null,loading:false};
+  var chatUnsub=null;
+  function stopChat(){if(chatUnsub){try{chatUnsub()}catch(e){}chatUnsub=null}}
+  function todayISO(){var d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,10)}
+  function actIndex(id){var r=-1;A.forEach(function(a,k){if(a.id===id)r=k});return r}
+  function loadMyTrips(done){
+    if(!db||!state.uid){MY.list=[];done();return}
+    var col=db.collection("trips");
+    var open=col.where("womenOnly","==",false).get();
+    var women=col.where("womenOnly","==",true).get().then(function(r){return r},function(){return null});
+    Promise.all([open,women]).then(function(res){
+      var all=[];res.forEach(function(r,i){if(r)r.forEach(function(d){var x=d.data();x.id=d.id;x.women=(i===1);all.push(x)})});
+      return Promise.all(all.map(function(x){return col.doc(x.id).collection("members").doc(state.uid).get().then(function(m){if(m.exists){x.mine=true;x.myName=(m.data()||{}).name||"Student"}return x},function(){return x})}));
+    }).then(function(all){
+      MY.list=all.filter(function(x){return x.mine}).sort(function(p,q){return (p.date+p.time)<(q.date+q.time)?-1:1});
+      var ids=MY.list.filter(function(x){return x.date<todayISO()}).map(function(x){return x.id});
+      return Promise.all(ids.map(function(id){return db.collection("reviews").doc(id+"_"+state.uid).get().then(function(r){if(r.exists){MY.list.forEach(function(x){if(x.id===id)x.review=r.data()})}},function(){})}));
+    }).then(function(){done()}).catch(function(){MY.list=[];done()});
+  }
+  function stars(n){var s="";for(var i=1;i<=5;i++)s+=i<=Math.round(n)?"★":"☆";return s}
+  function tripRow(x,extra){var i=actIndex(x.activityId),a=A[i]||{name:"Activity"};
+    return '<div class="mt glass2"><span class="upd">'+esc(fmtDate(x.date))+' · '+esc(fmtTime(x.time))+(x.women?' · Females only':'')+'</span><b>'+esc(a.name)+'</b><p class="muted">Meet at '+esc(x.meeting)+'. '+esc(x.joined||0)+' of '+esc(x.max)+' places taken.</p>'+(extra||'')+'</div>'}
+  function tripsView(){
+    var h='<div class="view">'+topbar()+'<div class="pagehead"><h1>My trips</h1><p>Trips you have joined, and trips you can now review.</p></div>'+(state.flash?'<p class="callout" role="status">'+esc(state.flash)+'</p>':'');state.flash="";
+    if(!db)return h+'<p class="muted">Sign in to see your trips.</p></div>';
+    if(MY.list===null)return h+'<p class="muted">Loading your trips...</p></div>';
+    var t=todayISO(),up=MY.list.filter(function(x){return x.date>=t}),past=MY.list.filter(function(x){return x.date<t});
+    h+='<h2>Upcoming</h2>';
+    if(!up.length)h+='<p class="muted">You have not joined any upcoming trips yet. Open an activity and tap Join this trip.</p><p style="margin-top:10px"><button class="btn" data-go="activities">Browse activities</button></p>';
+    up.forEach(function(x){var i=actIndex(x.activityId);h+=tripRow(x,'<div class="btnrow"><button class="btn ghost" data-feat="'+i+'">Open activity</button>'+((x.joined||0)>=need(x)?'<button class="btn" data-chat="'+esc(x.id)+'">Open chat</button>':'')+'</div>')});
+    h+='<h2 style="margin-top:22px">Past trips</h2>';
+    if(!past.length)h+='<p class="muted">Trips you went on will appear here so you can rate them and add photos.</p>';
+    past.slice().reverse().forEach(function(x){
+      var r=x.review;
+      h+=tripRow(x,r?'<p class="rv-stars">'+stars(r.stars)+'</p><p>'+esc(r.text||"")+'</p><button class="btn ghost" data-review="'+esc(x.id)+'">Edit your review</button>':'<button class="btn" data-review="'+esc(x.id)+'">Rate and review</button>');
+    });
+    return h+'</div>';
+  }
+  function chatsView(){
+    var h='<div class="view">'+topbar();
+    if(state.chat){
+      var x=(MY.list||[]).filter(function(t){return t.id===state.chat})[0];
+      if(!x)return h+'<p class="muted">Chat not found.</p></div>';
+      var a=A[actIndex(x.activityId)]||{name:"Trip"};
+      h+='<button class="linkbtn back" id="chatback">Back to chats</button><div class="pagehead"><h1>'+esc(a.name)+'</h1><p>'+esc(fmtDate(x.date))+' · '+esc(fmtTime(x.time))+' · '+esc(x.joined||0)+' going</p></div>';
+      h+='<p class="muted">Only students on this trip can see this chat. First names only. Do not share your phone number or home address, and meet at the public place listed on the activity page.</p>';
+      h+='<div class="cmsgs" id="cmsgs" aria-live="polite"><p class="muted">Loading messages...</p></div>';
+      h+='<form class="cform" id="cform"><input type="text" maxlength="300" placeholder="Write a message" aria-label="Message" autocomplete="off"><button class="btn" type="submit">Send</button></form><p class="muted" id="cerr" role="status"></p>';
+      return h+'<p class="muted" style="margin-top:6px">Something not right? '+ext(FORM_URL,"Report a problem")+'.</p></div>';
+    }
+    h+='<div class="pagehead"><h1>Chats</h1><p>A group chat opens for each trip once half its places are taken.</p></div>';
+    if(!db)return h+'<p class="muted">Sign in to see your chats.</p></div>';
+    if(MY.list===null)return h+'<p class="muted">Loading your chats...</p></div>';
+    var up=MY.list.filter(function(x){return x.date>=todayISO()});
+    if(!up.length)return h+'<p class="muted">Join a trip to get its group chat.</p><p style="margin-top:10px"><button class="btn" data-go="activities">Browse activities</button></p></div>';
+    up.forEach(function(x){var a=A[actIndex(x.activityId)]||{name:"Trip"},n=x.joined||0,ok=n>=need(x);
+      h+='<button class="chrow glass2" '+(ok?'data-chat="'+esc(x.id)+'"':'disabled')+'><b>'+esc(a.name)+'</b><span>'+esc(fmtDate(x.date))+' · '+esc(n)+' of '+esc(x.max)+' going</span><em>'+(ok?'Open chat':'Opens when '+(need(x)-n)+' more join')+'</em></button>'});
+    return h+'</div>';
+  }
+  function bindChat(){
+    var bk=document.getElementById("chatback");if(bk)bk.onclick=function(){state.chat=null;render()};
+    var box=document.getElementById("cmsgs");if(!box||!db)return;
+    var x=(MY.list||[]).filter(function(t){return t.id===state.chat})[0];if(!x)return;
+    var col=db.collection("trips").doc(x.id).collection("messages"),form=document.getElementById("cform"),err=document.getElementById("cerr");
+    stopChat();
+    chatUnsub=col.orderBy("at").limitToLast(200).onSnapshot(function(snap){
+      box.innerHTML="";
+      if(snap.empty)box.innerHTML='<p class="muted">No messages yet. Say hi to the group.</p>';
+      snap.forEach(function(d){var m=d.data(),row=document.createElement("div"),tx=document.createElement("span"),nm=document.createElement("small");
+        row.className="cm"+(m.uid===state.uid?" me":"");tx.className="tx";tx.textContent=m.text||"";
+        var dt=new Date(m.at||0);nm.textContent=(m.uid===state.uid?"You":(m.name||"Student"))+" · "+dt.toLocaleDateString("en-NZ",{day:"numeric",month:"short"})+" "+dt.toLocaleTimeString("en-NZ",{hour:"numeric",minute:"2-digit"});
+        row.appendChild(tx);row.appendChild(document.createElement("br"));row.appendChild(nm);box.appendChild(row)});
+      box.scrollTop=box.scrollHeight;
+    },function(){box.innerHTML='<p class="muted">This chat is not available right now.</p>';form.style.display="none"});
+    form.onsubmit=function(e){e.preventDefault();var inp=form.querySelector("input"),t=inp.value.trim();if(!t)return;var b=form.querySelector("button");b.disabled=true;err.textContent="";
+      col.add({uid:state.uid,name:x.myName||"Student",text:t.slice(0,300),at:Date.now()}).then(function(){inp.value="";b.disabled=false;inp.focus()}).catch(function(){b.disabled=false;err.textContent="Could not send. Please try again."})};
+  }
+  function reviewView(){
+    var x=(MY.list||[]).filter(function(t){return t.id===state.review})[0];
+    var h='<div class="view">'+topbar()+'<button class="linkbtn back" id="rvback">Back to my trips</button>';
+    if(!x)return h+'<p class="muted">Trip not found.</p></div>';
+    var a=A[actIndex(x.activityId)]||{name:"Trip"},r=x.review||{};
+    state.rv=state.rv||{stars:r.stars||0,text:r.text||"",photos:[]};
+    var v=state.rv;
+    h+='<div class="pagehead"><h1>Review your trip</h1><p>'+esc(a.name)+', '+esc(fmtDate(x.date))+'</p></div>';
+    h+='<p><b>Your rating</b></p><div class="rv-pick" role="radiogroup" aria-label="Stars">';
+    for(var i=1;i<=5;i++)h+='<button type="button" class="rv-star" data-st="'+i+'" aria-label="'+i+' star'+(i>1?'s':'')+'" aria-pressed="'+(v.stars>=i)+'">'+(v.stars>=i?'★':'☆')+'</button>';
+    h+='</div><div class="field" style="margin-top:14px"><label for="rvt">What was it like? (optional)</label><textarea id="rvt" maxlength="500" rows="4">'+esc(v.text)+'</textarea></div>';
+    h+='<p style="margin-top:14px"><b>Share photos</b> <span class="muted">(up to 3)</span></p><p class="muted">Photos go to the NZ Explorer team first. Once approved, they appear in this activity\'s photo gallery.'+(r.sent?' You have sent '+r.sent+' so far.':'')+'</p><div class="rv-ph">';
+    v.photos.forEach(function(p,k){h+='<div class="rv-th"><img src="'+p+'" alt="Your photo '+(k+1)+'"><button type="button" class="rv-del" data-del="'+k+'" aria-label="Remove photo">×</button></div>'});
+    h+='</div>'+(v.photos.length<3?'<label class="btn ghost" style="margin-top:8px">Add photos<input type="file" id="rvf" accept="image/*" multiple hidden></label>':'');
+    h+='<p class="muted" id="rvmsg" role="status" style="margin-top:10px"></p><div class="stack" style="margin-top:12px"><button class="btn" id="rvsave">Save review</button></div></div>';
+    return h;
+  }
+  function shrink(file){return new Promise(function(ok,bad){var fr=new FileReader();fr.onload=function(){var im=new Image();im.onload=function(){var m=900,w=im.width,h=im.height,k=Math.min(1,m/Math.max(w,h));var c=document.createElement("canvas");c.width=Math.round(w*k);c.height=Math.round(h*k);c.getContext("2d").drawImage(im,0,0,c.width,c.height);var q=.6,u=c.toDataURL("image/jpeg",q);while(u.length>280000&&q>.3){q-=.1;u=c.toDataURL("image/jpeg",q)}ok(u)};im.onerror=bad;im.src=fr.result};fr.onerror=bad;fr.readAsDataURL(file)})}
+  function bindReview(){
+    var v=state.rv,msg=document.getElementById("rvmsg");
+    var bk=document.getElementById("rvback");if(bk)bk.onclick=function(){state.review=null;state.rv=null;state.tab="trips";render()};
+    Array.prototype.forEach.call(app.querySelectorAll(".rv-star"),function(b){b.onclick=function(){v.text=document.getElementById("rvt").value;v.stars=+b.dataset.st;render()}});
+    Array.prototype.forEach.call(app.querySelectorAll(".rv-del"),function(b){b.onclick=function(){v.text=document.getElementById("rvt").value;v.photos.splice(+b.dataset.del,1);render()}});
+    var f=document.getElementById("rvf");if(f)f.onchange=function(){v.text=document.getElementById("rvt").value;var files=Array.prototype.slice.call(f.files,0,3-v.photos.length);msg.textContent="Preparing photos...";
+      Promise.all(files.map(shrink)).then(function(us){v.photos=v.photos.concat(us).slice(0,3);render()}).catch(function(){msg.textContent="One of those photos could not be read. Try a JPG or PNG."})};
+    var sv=document.getElementById("rvsave");if(sv)sv.onclick=function(){
+      v.text=document.getElementById("rvt").value.trim();
+      if(!v.stars){msg.textContent="Pick a star rating first.";return}
+      var x=(MY.list||[]).filter(function(t){return t.id===state.review})[0];if(!x)return;
+      sv.disabled=true;msg.textContent="Saving...";
+      var prev=(x.review&&x.review.sent)||0,ph=v.photos.slice(0,3);
+      var doc={uid:state.uid,name:(x.myName||"Student").slice(0,40),activityId:x.activityId,tripId:x.id,stars:v.stars,text:v.text.slice(0,500),sent:prev+ph.length,at:Date.now()};
+      db.collection("reviews").doc(x.id+"_"+state.uid).set(doc).then(function(){
+        return Promise.all(ph.map(function(p){return db.collection("photoSubs").add({uid:state.uid,name:doc.name,activityId:x.activityId,tripId:x.id,data:p,status:"pending",at:Date.now()})}));
+      }).then(function(){x.review=doc;state.review=null;state.rv=null;state.tab="trips";state.flash=ph.length?"Thanks! Your review is saved and your photos are waiting for approval.":"Thanks! Your review is saved.";render()}).catch(function(){sv.disabled=false;msg.textContent="Could not save. If you added photos, try fewer or smaller ones."});
+    };
+  }
+  function reviewsSection(a){return db?'<div class="section" id="reviews"><h2>Reviews</h2><p class="muted">Loading reviews...</p></div>':''}
+  function loadReviews(a){
+    var box=document.getElementById("reviews");if(!box||!db)return;
+    db.collection("reviews").where("activityId","==",a.id).get().then(function(r){
+      if(state.sel===null||A[state.sel]!==a)return;
+      var list=[];r.forEach(function(d){list.push(d.data())});list.sort(function(p,q){return (q.at||0)-(p.at||0)});
+      var h='<h2>Reviews</h2>';
+      if(!list.length){box.innerHTML=h+'<p class="muted">No reviews yet. After a trip, rate it from My trips.</p>';return}
+      var avg=list.reduce(function(s,x){return s+(x.stars||0)},0)/list.length;
+      h+='<p class="rv-avg"><span class="rv-stars">'+stars(avg)+'</span> '+avg.toFixed(1)+' from '+list.length+' review'+(list.length>1?'s':'')+'</p>';
+      list.slice(0,10).forEach(function(x){h+='<div class="rv"><p><span class="rv-stars">'+stars(x.stars)+'</span> <b>'+esc(x.name||"Student")+'</b> <span class="muted">'+esc(new Date(x.at||0).toLocaleDateString("en-NZ",{day:"numeric",month:"short"}))+'</span></p>'+(x.text?'<p>'+esc(x.text)+'</p>':'');
+        h+='</div>'});
+      box.innerHTML=h;
+    }).catch(function(){box.innerHTML='<h2>Reviews</h2><p class="muted">Reviews could not load right now.</p>'});
+  }
+  var OWNER="aban600@aucklanduni.ac.nz";
+  function isOwnerUser(){return (state.user||"").toLowerCase()===OWNER}
+  var APPROVED={};
+  function loadApprovedPhotos(a){
+    var gt=document.getElementById("gt");if(!db||!gt)return;
+    db.collection("photoSubs").where("activityId","==",a.id).where("status","==","approved").get().then(function(r){
+      if(state.sel===null||A[state.sel]!==a)return;var g=document.getElementById("gt");if(!g)return;
+      r.forEach(function(d){var p=d.data();if(!/^data:image\/(jpeg|png);base64,/.test(p.data||""))return;var im=document.createElement("img");im.src=p.data;im.alt="Photo from "+(p.name||"a student");im.loading="lazy";g.appendChild(im)});
+      var n=g.children.length,gc=document.getElementById("gc");
+      if(n>1&&!document.getElementById("gp")){var wrap=g.parentNode;wrap.insertAdjacentHTML("beforeend",'<button class="ga gp" id="gp" aria-label="Previous photo">&#8249;</button><button class="ga gn" id="gnx" aria-label="Next photo">&#8250;</button><span class="gc" id="gc">1 / '+n+'</span>');bindGallery()}
+      else if(gc)gc.textContent=(Math.round(g.scrollLeft/g.clientWidth)+1)+" / "+n;
+    }).catch(function(){});
+  }
+  function approvalsView(){
+    var h='<div class="view">'+topbar()+'<div class="pagehead"><h1>Photo approvals</h1><p>Photos students sent with their reviews. Approved photos join that activity\'s gallery.</p></div>';
+    if(!isOwnerUser())return h+'<p class="muted">Only the NZ Explorer team can see this page.</p></div>';
+    return h+'<div id="apq"><p class="muted">Loading photos...</p></div></div>';
+  }
+  function bindApprovals(){
+    var box=document.getElementById("apq");if(!box||!db)return;
+    db.collection("photoSubs").where("status","==","pending").get().then(function(r){
+      var list=[];r.forEach(function(d){var p=d.data();p.id=d.id;list.push(p)});list.sort(function(p,q){return (p.at||0)-(q.at||0)});
+      if(!list.length){box.innerHTML='<p class="muted">Nothing waiting. New photos will appear here.</p>';return}
+      var h='';list.forEach(function(p){var a=A[actIndex(p.activityId)]||{name:p.activityId};
+        h+='<div class="apr"><img alt="Photo waiting for approval"><div><b>'+esc(a.name)+'</b><p class="muted">From '+esc(p.name||"Student")+', '+esc(new Date(p.at||0).toLocaleDateString("en-NZ",{day:"numeric",month:"short"}))+'</p><div class="btnrow"><button class="btn" data-ap="'+esc(p.id)+'">Approve</button><button class="btn ghost" data-rj="'+esc(p.id)+'">Reject</button></div></div></div>'});
+      box.innerHTML=h;
+      Array.prototype.forEach.call(box.querySelectorAll(".apr img"),function(im,k){if(/^data:image\/(jpeg|png);base64,/.test(list[k].data||""))im.src=list[k].data});
+      function act(id,st,b){b.disabled=true;db.collection("photoSubs").doc(id).update({status:st}).then(function(){var c=b.closest(".apr");c.innerHTML='<p class="muted">'+(st==="approved"?"Approved. It now shows in the activity gallery.":"Rejected.")+'</p>'}).catch(function(){b.disabled=false})}
+      Array.prototype.forEach.call(box.querySelectorAll("[data-ap]"),function(b){b.onclick=function(){act(b.dataset.ap,"approved",b)}});
+      Array.prototype.forEach.call(box.querySelectorAll("[data-rj]"),function(b){b.onclick=function(){act(b.dataset.rj,"rejected",b)}});
+    }).catch(function(){box.innerHTML='<p class="muted">Could not load photos. Check the Firestore rules are published.</p>'});
+  }
+  function bindGallery(){var gt=document.getElementById("gt");if(!gt)return;var go=function(d){var n=gt.children.length,w=gt.clientWidth,k=Math.round(gt.scrollLeft/w)+d;if(k<0)k=n-1;if(k>=n)k=0;gt.scrollTo({left:k*w,behavior:"smooth"})};gt.onscroll=function(){var gc=document.getElementById("gc");if(gc)gc.textContent=(Math.round(gt.scrollLeft/gt.clientWidth)+1)+" / "+gt.children.length};var gp=document.getElementById("gp"),gx=document.getElementById("gnx");if(gp)gp.onclick=function(){go(-1)};if(gx)gx.onclick=function(){go(1)}}
   function render(){
+    stopChat();
     if(!state.user){renderGate();return}
     nav.classList.remove("hidden");waves.classList.add("withnav");
-    var v=state.tab==="home"?homeView():state.tab==="safety"?safetyView():state.tab==="profile"?profileView():state.tab==="look"?lookView():(state.sel!==null?detailView():listView());
+    var v=state.tab==="home"?homeView():state.tab==="safety"?safetyView():state.tab==="profile"?profileView():state.tab==="look"?lookView():state.tab==="trips"?(state.review?reviewView():tripsView()):state.tab==="chats"?chatsView():state.tab==="approvals"?approvalsView():(state.sel!==null?detailView():listView());
     app.innerHTML=v;
     Array.prototype.forEach.call(nav.querySelectorAll("button"),function(b){
       if(b.dataset.tab===state.tab)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current");
@@ -1070,6 +1256,11 @@ body.scene .fcard .fsafe{color:#FFD2C2}
     if(state.tab==="activities"&&state.sel!==null){loadTrips(A[state.sel]);loadWeather(A[state.sel])}
     if(state.tab==="profile")bindProfile();
     if(state.tab==="look")bindLook();
+    if((state.tab==="trips"||state.tab==="chats")&&MY.list===null&&!MY.loading&&db&&state.uid){MY.loading=true;loadMyTrips(function(){MY.loading=false;if(state.tab==="trips"||state.tab==="chats")render()})}
+    if(state.tab==="chats"&&state.chat)bindChat();
+    if(state.tab==="trips"&&state.review)bindReview();
+    if(state.tab==="approvals")bindApprovals();
+    if(state.tab==="activities"&&state.sel!==null){loadReviews(A[state.sel]);loadApprovedPhotos(A[state.sel])}
     if(state.tab==="home")loadUpcoming();
     window.scrollTo(0,0);
   }
@@ -1077,18 +1268,20 @@ body.scene .fcard .fsafe{color:#FFD2C2}
   function bind(){
     Array.prototype.forEach.call(app.querySelectorAll(".mbtn"),function(b){b.onclick=function(e){e.stopPropagation();var l=b.nextElementSibling,open=l.hidden;l.hidden=!open;b.setAttribute("aria-expanded",String(open))}});
     var o=document.getElementById("out");if(o)o.onclick=function(){if(auth)auth.signOut();state.user=null;state.name="";state.mode="signin";state.step="email";state.email="";state.error="";state.profile={name:"",age:"",gender:""};state.gender="";state.uid=null;state.gmsg="";state.sel=null;state.f={dur:"Any",diff:"Any"};render()};
-    Array.prototype.forEach.call(app.querySelectorAll("[data-go]"),function(b){b.onclick=function(){state.tab=b.dataset.go;state.sel=null;render()}});
+    Array.prototype.forEach.call(app.querySelectorAll("[data-go]"),function(b){b.onclick=function(){state.tab=b.dataset.go;state.sel=null;state.chat=null;state.review=null;if(state.tab==="trips"||state.tab==="chats")MY.list=null;render()}});
+    Array.prototype.forEach.call(app.querySelectorAll("[data-chat]"),function(b){b.onclick=function(){state.tab="chats";state.chat=b.dataset.chat;state.sel=null;render()}});
+    Array.prototype.forEach.call(app.querySelectorAll("[data-review]"),function(b){b.onclick=function(){state.tab="trips";state.review=b.dataset.review;state.rv=null;state.sel=null;render()}});
     Array.prototype.forEach.call(app.querySelectorAll(".row"),function(b){b.onclick=function(){state.sel=+b.dataset.i;render()}});
     Array.prototype.forEach.call(app.querySelectorAll("[data-feat]"),function(b){b.onclick=function(){state.tab="activities";state.sel=+b.dataset.feat;render()}});
     Array.prototype.forEach.call(app.querySelectorAll(".chip"),function(b){b.onclick=function(){state.f[b.dataset.f]=b.dataset.v;rerenderList()}});
     Array.prototype.forEach.call(app.querySelectorAll("[data-clear]"),function(b){b.onclick=function(){state.f={dur:"Any",diff:"Any"};rerenderList()}});
-    var gt=document.getElementById("gt");if(gt){var gc=document.getElementById("gc"),n=gt.children.length,go=function(d){var w=gt.clientWidth,k=Math.round(gt.scrollLeft/w)+d;if(k<0)k=n-1;if(k>=n)k=0;gt.scrollTo({left:k*w,behavior:"smooth"})};gt.addEventListener("scroll",function(){if(gc)gc.textContent=(Math.round(gt.scrollLeft/gt.clientWidth)+1)+" / "+n});var gp=document.getElementById("gp"),gx=document.getElementById("gnx");if(gp)gp.onclick=function(){go(-1)};if(gx)gx.onclick=function(){go(1)}}
+    bindGallery();
     var bk=document.getElementById("bk");if(bk)bk.onclick=function(){state.sel=null;render()};
   }
   document.addEventListener("click",function(e){if(!e.target.closest(".umenu"))Array.prototype.forEach.call(document.querySelectorAll(".mlist"),function(l){l.hidden=true})});
   document.addEventListener("keydown",function(e){if(e.key==="Escape")Array.prototype.forEach.call(document.querySelectorAll(".mlist"),function(l){l.hidden=true})});
   nav.addEventListener("click",function(e){
-    var b=e.target.closest("button");if(!b)return;state.tab=b.dataset.tab;state.sel=null;render();
+    var b=e.target.closest("button");if(!b)return;state.tab=b.dataset.tab;state.sel=null;state.chat=null;state.review=null;if(state.tab==="trips"||state.tab==="chats")MY.list=null;render();
   });
 
   render();
