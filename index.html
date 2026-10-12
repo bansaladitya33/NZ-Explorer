@@ -792,7 +792,7 @@ textarea{width:100%;padding:12px 14px;border:2px solid var(--line);border-radius
     return '<div class="umenu"><button type="button" class="mbtn" aria-label="Menu" aria-haspopup="true" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>'+
       '<div class="mlist" role="menu" hidden><p class="mwho">'+esc(state.name||"")+'<small>'+esc(state.user||"")+'</small></p>'+
       (db?'<button type="button" role="menuitem" data-go="profile">Profile</button>':'')+
-      (isOwnerUser()?'<button type="button" role="menuitem" data-go="approvals">Photo approvals</button>':'')+'<button type="button" role="menuitem" data-go="look">Theme</button><button type="button" role="menuitem" id="out">Sign out</button></div></div>';
+      '<button type="button" role="menuitem" data-go="look">Theme</button><button type="button" role="menuitem" id="out">Sign out</button></div></div>';
   }
   function topbar(){return '<div class="topbar"><span><img class="mini" src="'+LOGO+'" alt="">NZ Explorer</span>'+menuHtml()+'</div>'}
   function kv(rows){
@@ -1245,6 +1245,7 @@ textarea{width:100%;padding:12px 14px;border:2px solid var(--line);border-radius
   function bindGallery(){var gt=document.getElementById("gt");if(!gt)return;var go=function(d){var n=gt.children.length,w=gt.clientWidth,k=Math.round(gt.scrollLeft/w)+d;if(k<0)k=n-1;if(k>=n)k=0;gt.scrollTo({left:k*w,behavior:"smooth"})};gt.onscroll=function(){var gc=document.getElementById("gc");if(gc)gc.textContent=(Math.round(gt.scrollLeft/gt.clientWidth)+1)+" / "+gt.children.length};var gp=document.getElementById("gp"),gx=document.getElementById("gnx");if(gp)gp.onclick=function(){go(-1)};if(gx)gx.onclick=function(){go(1)}}
   function render(){
     stopChat();
+    if(state.user&&location.hash==="#approvals"&&isOwnerUser()&&!state.apSeen){state.apSeen=true;state.tab="approvals";state.sel=null}
     if(!state.user){renderGate();return}
     nav.classList.remove("hidden");waves.classList.add("withnav");
     var v=state.tab==="home"?homeView():state.tab==="safety"?safetyView():state.tab==="profile"?profileView():state.tab==="look"?lookView():state.tab==="trips"?(state.review?reviewView():tripsView()):state.tab==="chats"?chatsView():state.tab==="approvals"?approvalsView():(state.sel!==null?detailView():listView());
@@ -1280,6 +1281,7 @@ textarea{width:100%;padding:12px 14px;border:2px solid var(--line);border-radius
   }
   document.addEventListener("click",function(e){if(!e.target.closest(".umenu"))Array.prototype.forEach.call(document.querySelectorAll(".mlist"),function(l){l.hidden=true})});
   document.addEventListener("keydown",function(e){if(e.key==="Escape")Array.prototype.forEach.call(document.querySelectorAll(".mlist"),function(l){l.hidden=true})});
+  window.addEventListener("hashchange",function(){if(location.hash==="#approvals"&&state.user&&isOwnerUser()){state.tab="approvals";state.sel=null;render()}});
   nav.addEventListener("click",function(e){
     var b=e.target.closest("button");if(!b)return;state.tab=b.dataset.tab;state.sel=null;state.chat=null;state.review=null;if(state.tab==="trips"||state.tab==="chats")MY.list=null;render();
   });
