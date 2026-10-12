@@ -347,6 +347,11 @@ nav button{flex:0 0 150px}
 :root[data-look="beach"] .scenebg svg:not(.sc){display:none!important}
 :root[data-look="beach"] .scenebg svg.sc-beach.narrow{display:block!important}
 @media (min-width:900px){:root[data-look="beach"] .scenebg svg.sc-beach.narrow{display:none!important}:root[data-look="beach"] .scenebg svg.sc-beach.wide{display:block!important}}
+
+/* buttons on the landscape pages: solid so they read on any background */
+body.scene .btn.ghost{background:var(--surface);color:var(--accent);border:2px solid var(--surface);box-shadow:0 4px 14px rgba(0,0,0,.25)}
+body.scene .btn.ghost:hover{background:var(--soft);border-color:var(--soft)}
+body.scene .btn.ghost .ico{stroke:currentColor}
 </style>
 <script>(function(){try{var l=localStorage.getItem("nzx_look"),z=localStorage.getItem("nzx_size"),r=document.documentElement;if(l==="night"){r.setAttribute("data-theme","dark");r.setAttribute("data-look","night")}else if(l&&l!=="clay"){r.setAttribute("data-look",l);r.setAttribute("data-theme","light")}if(z==="large")r.setAttribute("data-size","large")}catch(e){}})()</script>
 </head>
