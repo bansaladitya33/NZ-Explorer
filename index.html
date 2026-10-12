@@ -1046,7 +1046,7 @@ body.scene .fcard .fsafe{color:#FFD2C2}
     Promise.all([open,women]).then(function(res){
       var list=[];
       res.forEach(function(r,i){if(r)r.forEach(function(d){var x=d.data();x.id=d.id;x.women=(i===1);list.push(x)})});
-      list=list.filter(function(x){return x.date>=today&&(x.joined||0)<x.max}).sort(function(p,q){return (p.date+p.time)<(q.date+q.time)?-1:1}).slice(0,6);
+      list=list.filter(function(x){return x.date>=today&&(x.joined||0)<x.max}).sort(function(p,q){return (p.date+p.time)<(q.date+q.time)?-1:1}).slice(0,3);
       if(!list.length||state.tab!=="home")return;
       var h='<h2 class="sec">Coming up</h2><div class="agrid">';
       list.forEach(function(x){
