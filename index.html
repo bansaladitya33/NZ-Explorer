@@ -387,6 +387,20 @@ body.scene .fcard .fsafe{color:#FFD2C2}
 textarea{width:100%;padding:12px 14px;border:2px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);font:inherit;resize:vertical}
 .apr{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-top:1px solid var(--line)}.apr img{width:140px;height:105px;object-fit:cover;border-radius:10px;flex:none;background:var(--soft)}.apr .btnrow{display:flex;gap:8px;margin-top:8px}
 @media (min-width:900px){nav button{flex:0 0 130px}}
+
+/* frosted sign in and sign up card */
+body.scene .card{background:rgba(10,8,8,.32);-webkit-backdrop-filter:blur(16px) saturate(140%);backdrop-filter:blur(16px) saturate(140%);border:1px solid rgba(255,255,255,.28);color:#fff;box-shadow:0 10px 32px rgba(0,0,0,.28)}
+body.scene .card h2,body.scene .card h3,body.scene .card label,body.scene .card p,body.scene .card .lede{color:#fff}
+body.scene .card .muted{color:rgba(255,255,255,.82)}
+body.scene .card input[type=text],body.scene .card input[type=email],body.scene .card input[type=password]{background:rgba(255,255,255,.94);color:#1F1410;border-color:rgba(255,255,255,.5)}
+body.scene .card .linkbtn{color:#fff}
+body.scene .card .err{color:#FFD0C7;border-left-color:#FFD0C7}
+body.scene .card .demo{border-color:rgba(255,255,255,.6);color:rgba(255,255,255,.85)}
+body.scene .card .demo b{color:#fff}
+body.scene .card .chip{background:transparent;border-color:rgba(255,255,255,.75);color:#fff}
+body.scene .card .chip[aria-pressed=true]{background:#fff;color:#1F1410;border-color:#fff}
+body.scene .card .btn.ghost{background:rgba(255,255,255,.94);border-color:transparent}
+:root[data-look="beach"] body.scene .card{background:rgba(11,59,64,.45)}
 </style>
 <script>(function(){try{var l=localStorage.getItem("nzx_look"),z=localStorage.getItem("nzx_size"),r=document.documentElement;if(l==="night"){r.setAttribute("data-theme","dark");r.setAttribute("data-look","night")}else if(l&&l!=="clay"){r.setAttribute("data-look",l);r.setAttribute("data-theme","light")}if(z==="large")r.setAttribute("data-size","large")}catch(e){}})()</script>
 </head>
