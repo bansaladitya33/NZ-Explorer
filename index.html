@@ -259,6 +259,12 @@ nav button{flex:0 0 150px}
 .pagehead h1{font-size:40px}
 }
 @media (min-width:1300px){.shell{max-width:1200px}}
+
+.wxbox{margin:12px 0 4px;padding:12px 14px;border-radius:12px;background:var(--soft);border:1px solid var(--line)}
+.wxnow{font-size:15px;margin-bottom:8px}.wxnow b{font-size:20px}
+.wxdays{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.wxday{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:14px;line-height:1.4}
+.wxday b{display:block}.wxwarn{margin-top:8px;font-weight:600;color:var(--accent)}
 </style>
 </head>
 <body>
@@ -827,6 +833,33 @@ nav button{flex:0 0 150px}
   }
   var PH={"0":[["a01-rangitoto-2.jpg",2.0],["a01-rangitoto-1.jpg",2.331081081081081],["a01-rangitoto-3.jpg",4.0],["a01-rangitoto-4.jpg",1.7783505154639174]],"1":[["a02-one-tree-hill-4.jpg",1.6666666666666667],["a02-one-tree-hill-1.jpg",3.517857142857143],["a02-one-tree-hill-2.jpg",3.517857142857143]],"2":[["a03-devonport-3.jpg",2.059718969555035],["a03-devonport-2.jpg",4.109813084112149],["a03-devonport-4.jpg",1.9047619047619047]],"3":[["a04-beachlands-maraetai-1.jpg",1.5023474178403755],["a04-beachlands-maraetai-2.jpg",1.33375],["a04-beachlands-maraetai-3.jpg",1.7797552836484982]],"4":[["a05-coast-to-coast-2.jpg",1.9047619047619047],["a05-coast-to-coast-1.jpg",0.5626373626373626],["a05-coast-to-coast-3.jpg",1.0]],"5":[["a06-domain-wintergardens-2.jpg",1.3336557059961316],["a06-domain-wintergardens-1.jpg",0.75],["a06-domain-wintergardens-3.jpg",1.3333333333333333]],"6":[["a07-mt-eden-1.jpg",1.5015015015015014],["a07-mt-eden-2.jpg",1.0],["a07-mt-eden-3.jpg",1.7777777777777777]],"7":[["a08-tamaki-drive-2.jpg",1.3336557059961316],["a08-tamaki-drive-3.jpg",1.3330106485963213]],"8":[["a09-parnell-market-4.jpg",1.3333333333333333],["a09-parnell-market-5.jpg",1.5036710719530102]],"9":[["a10-takapuna-1.jpg",1.3725099601593624],["a10-takapuna-3.jpg",1.0]],"10":[["a11-hobsonville-1.jpg",1.910828025477707],["a11-hobsonville-4.jpg",1.5],["a11-hobsonville-5.jpg",1.3333333333333333]],"11":[["a12-ambury-1.jpg",1.3333333333333333],["a12-ambury-2.jpg",0.6666666666666666],["a12-ambury-3.jpg",1.0]],"12":[["a13-botanic-gardens-2.jpg",1.9],["a13-botanic-gardens-1.jpg",1.5]],"13":[["a14-western-springs-3.jpg",1.488146551724138],["a14-western-springs-1.jpg",2.6728971962616823],["a14-western-springs-2.jpg",2.6728971962616823]],"14":[["a15-otara-market-3.jpg",1.7751479289940828],["a15-otara-market-4.jpg",1.334]]};
   function gallery(i){var l=PH[i];if(!l||!l.length)return '';var h='<div class="gal"><div class="gt" id="gt">';l.forEach(function(p,k){h+='<img src="photos/'+p[0]+'" alt=""'+(k?' loading="lazy"':'')+'>'});h+='</div>';if(l.length>1)h+='<button class="ga gp" id="gp" aria-label="Previous photo">&#8249;</button><button class="ga gn" id="gnx" aria-label="Next photo">&#8250;</button><span class="gc" id="gc">1 / '+l.length+'</span>';return h+'</div>'}
+  /* ---------- live weather (Open-Meteo, no key needed) ---------- */
+  var WXLL={A01:[-36.787,174.860],A02:[-36.900,174.783],A03:[-36.828,174.811],A04:[-36.884,174.998],A05:[-36.848,174.765],A06:[-36.860,174.776],A07:[-36.876,174.764],A08:[-36.848,174.832],A09:[-36.858,174.780],A10:[-36.788,174.772],A11:[-36.794,174.659],A12:[-36.937,174.770],A13:[-37.012,174.906],A14:[-36.866,174.722],A15:[-36.960,174.876]};
+  var WXC={};
+  function wxText(c){if(c===0)return "Clear";if(c<=2)return "Partly cloudy";if(c===3)return "Cloudy";if(c<=48)return "Fog";if(c<=57)return "Drizzle";if(c<=67)return "Rain";if(c<=77)return "Snow";if(c<=82)return "Showers";return "Thunderstorms"}
+  function wxIcon(c){if(c===0)return "☀️";if(c<=2)return "⛅";if(c===3)return "☁️";if(c<=48)return "🌫️";if(c<=67||(c>=80&&c<=82))return "🌧️";if(c<=77)return "❄️";return "⛈️"}
+  function wxSection(a){return WXLL[a.id]?'<div class="wxbox" id="wx" aria-live="polite"><p class="muted">Loading the live forecast...</p></div>':''}
+  function loadWeather(a){
+    var el=document.getElementById("wx"),ll=WXLL[a.id];if(!el||!ll)return;
+    var key=a.id,done=function(d){if(state.sel===null||A[state.sel]!==a)return;var box=document.getElementById("wx");if(box)box.innerHTML=wxHtml(a,d)};
+    if(WXC[key]&&Date.now()-WXC[key].t<30*60000){done(WXC[key].d);return}
+    var u="https://api.open-meteo.com/v1/forecast?latitude="+ll[0]+"&longitude="+ll[1]+"&current=temperature_2m,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,wind_speed_10m_max&timezone=Pacific%2FAuckland&forecast_days=8";
+    fetch(u).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(d){WXC[key]={t:Date.now(),d:d};done(d)}).catch(function(){var box=document.getElementById("wx");if(box)box.innerHTML='<p class="muted">The live forecast could not load right now. Check '+ext("https://www.metservice.com/towns-cities/locations/auckland","MetService")+' before you go.</p>'});
+  }
+  function wxHtml(a,d){
+    var h='<p><b>Live forecast</b></p>';
+    if(d.current)h+='<p class="wxnow">Now: <b>'+Math.round(d.current.temperature_2m)+'°C</b> '+wxIcon(d.current.weather_code)+' '+esc(wxText(d.current.weather_code))+', wind '+Math.round(d.current.wind_speed_10m)+' km/h</p>';
+    var dl=d.daily||{},days=[],wet=false;
+    (dl.time||[]).forEach(function(t,i){var wd=new Date(t+"T12:00:00").getDay();if((wd===6||wd===0)&&days.length<2)days.push(i)});
+    if(days.length){
+      h+='<div class="wxdays">';
+      days.forEach(function(i){var p=dl.precipitation_probability_max[i],c=dl.weather_code[i];if(p>=60)wet=true;
+        h+='<div class="wxday"><b>'+esc(fmtDate(dl.time[i]))+'</b>'+wxIcon(c)+' '+esc(wxText(c))+'<br>'+Math.round(dl.temperature_2m_min[i])+' to '+Math.round(dl.temperature_2m_max[i])+'°C<br>Rain chance '+(p==null?'n/a':p+'%')+'<br>Wind up to '+Math.round(dl.wind_speed_10m_max[i])+' km/h</div>'});
+      h+='</div>';
+    }
+    if(wet)h+='<p class="wxwarn">Rain is likely this weekend.'+(a.w?' Consider the backup: '+esc(a.w.backup)+'.':' Check the forecast again before you go.')+'</p>';
+    return h+'<p class="muted" style="margin-top:8px">Forecast from Open-Meteo, updated hourly. It can change, so check again on the day.</p>';
+  }
   function detailView(){
     var a=A[state.sel],t=a.t,w=a.w,bs=bringSection(a);
     var h='<div class="view detail">'+topbar()+'<button class="linkbtn back" id="bk">Back to activities</button>'+
@@ -842,10 +875,10 @@ nav button{flex:0 0 150px}
     }
     if(w){
       var src='';w.src.forEach(function(s){src+='<li><a href="'+esc(s[1])+'" target="_blank" rel="noopener">'+esc(s[0])+'</a></li>'});
-      h+='<div class="section"><h2>If the weather turns</h2>'+kv([["Weather dependent","Yes"],["Backup",esc(w.backup)]])+
+      h+='<div class="section"><h2>If the weather turns</h2>'+kv([["Weather dependent","Yes"],["Backup",esc(w.backup)]])+wxSection(a)+
       '<details><summary>Why this backup, and sources</summary><p><b>Why weather matters here.</b> '+esc(w.why)+'</p><p><b>Why this backup.</b> '+esc(w.whyBackup)+'</p><ul class="srcs">'+src+'</ul><p class="muted">'+(w.note?esc(w.note)+' ':'')+'Checked '+esc(w.date||'2 Oct 2026')+'. Check opening hours, admission conditions, weather warnings and transport alerts before you go.</p></details></div>';
     } else {
-      h+='<div class="section"><h2>If the weather turns</h2><p>A weather backup for this activity is still being added. Check the forecast before you go.</p></div>';
+      h+='<div class="section"><h2>If the weather turns</h2>'+wxSection(a)+'<p>A weather backup for this activity is still being added. Check the forecast before you go.</p></div>';
     }
     if(bs)h+=bs.section;
     h+=foodSection(a)+tripsSection(a);
@@ -885,7 +918,7 @@ nav button{flex:0 0 150px}
       if(b.dataset.tab===state.tab)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current");
     });
     bind();
-    if(state.tab==="activities"&&state.sel!==null)loadTrips(A[state.sel]);
+    if(state.tab==="activities"&&state.sel!==null){loadTrips(A[state.sel]);loadWeather(A[state.sel])}
     if(state.tab==="profile")bindProfile();
     window.scrollTo(0,0);
   }
