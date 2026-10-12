@@ -610,7 +610,7 @@ body.scene .fcard .fsafe{color:#FFD2C2}
       '<div class="field"><label for="ag">Age</label><input id="ag" type="text" inputmode="numeric" maxlength="3" value="'+esc(p.age)+'"></div>'+
       '<div class="field"><label id="gl">Gender</label><div class="chips" role="group" aria-labelledby="gl">';
     GENDERS.forEach(function(g){h+='<button type="button" class="chip" data-g="'+esc(g)+'" aria-pressed="'+(p.gender===g)+'">'+esc(g)+'</button>'});
-    h+='</div><p class="muted" style="margin-top:8px">Only used if groups for women only or men only are offered. Choose Prefer not to say if you would rather not answer.</p></div>';
+    h+='</div><p class="muted" style="margin-top:8px">Only used to show females only trips to female accounts. Choose Prefer not to say if you would rather not answer.</p></div>';
     if(state.error)h+='<p class="err" role="alert">'+esc(state.error)+'</p>';
     h+='<div style="margin-top:18px"><button class="btn" id="create">Create account</button></div>'+
        '<p style="margin-top:18px">Already have an account? <button class="linkbtn" id="tosignin">Sign in</button></p>'+
@@ -707,7 +707,7 @@ body.scene .fcard .fsafe{color:#FFD2C2}
       '<div class="field"><label for="fn">First name</label><input id="fn" type="text" autocomplete="given-name" maxlength="40" value="'+esc(p.name)+'"></div>'+
       '<div class="field"><label for="em">University email</label><input id="em" type="email" autocomplete="email" placeholder="abcd123'+DOMAIN+'" value="'+esc(state.email)+'"></div>'+
       '<div class="field"><label for="pw">Password</label><input id="pw" type="password" autocomplete="new-password"><p class="muted" style="margin-top:6px">At least 8 characters.</p></div>'+
-      '<div class="field"><label id="gl">Gender</label><div class="chips" role="group" aria-labelledby="gl">'+GOPTS.map(function(g){return '<button type="button" class="chip" data-g="'+g[0]+'" aria-pressed="'+(p.gender===g[0])+'">'+esc(g[1])+'</button>'}).join("")+'</div><p class="muted" style="margin-top:8px">Used only to decide which trips you can see, for example women only trips. It is never shown to other students. You can change it later in your profile.</p></div>';
+      '<div class="field"><label id="gl">Gender</label><div class="chips" role="group" aria-labelledby="gl">'+GOPTS.map(function(g){return '<button type="button" class="chip" data-g="'+g[0]+'" aria-pressed="'+(p.gender===g[0])+'">'+esc(g[1])+'</button>'}).join("")+'</div><p class="muted" style="margin-top:8px">Used only to decide which trips you can see, for example females only trips. It is never shown to other students. You can change it later in your profile.</p></div>';
     if(state.error)h+='<p class="err" role="alert">'+esc(state.error)+'</p>';
     h+='<div style="margin-top:18px"><button class="btn" id="create">Create account</button></div>'+
        '<p style="margin-top:18px">Already have an account? <button class="linkbtn" id="tosignin">Sign in</button></p>'+
@@ -862,7 +862,7 @@ body.scene .fcard .fsafe{color:#FFD2C2}
   }
   function need(x){return Math.ceil((x.max||0)/2)}
   function tripCard(x,mine,a){
-    var n=x.joined||0,full=n>=x.max,need_=need(x),h='<div class="eat trip" data-id="'+esc(x.id)+'"><p><b>'+esc(fmtDate(x.date))+', '+esc(fmtTime(x.time))+'</b>'+(x.women?' <span class="tag">Women only</span>':' <span class="tag">All genders</span>')+(mine?' <span class="tag">You are going</span>':'')+'</p>'+
+    var n=x.joined||0,full=n>=x.max,need_=need(x),h='<div class="eat trip" data-id="'+esc(x.id)+'"><p><b>'+esc(fmtDate(x.date))+', '+esc(fmtTime(x.time))+'</b>'+(x.women?' <span class="tag">Females only</span>':' <span class="tag">All genders</span>')+(mine?' <span class="tag">You are going</span>':'')+'</p>'+
       '<p class="muted">Meet at '+esc(x.meeting)+(x.tbc?" (exact spot to be confirmed)":"")+'.</p>'+
       '<p>'+(n===0?'No one yet, be the first':esc(n)+' of '+esc(x.max)+' places taken')+(full?' (full)':'')+'</p>';
     h+='<div class="pbar" role="progressbar" aria-valuemin="0" aria-valuemax="'+esc(need_)+'" aria-valuenow="'+Math.min(n,need_)+'" aria-label="Students joined toward contact details"><i style="width:'+Math.min(100,Math.round(100*n/Math.max(need_,1)))+'%"></i></div>';
@@ -926,7 +926,7 @@ body.scene .fcard .fsafe{color:#FFD2C2}
   function profileView(){
     var h='<div class="view">'+topbar()+'<div class="pagehead"><h1>Your profile</h1><p>'+esc(state.name||"")+' '+esc(state.user||"")+'</p></div><div class="field"><label id="gl2">Gender</label><div class="chips" role="group" aria-labelledby="gl2">';
     GOPTS.forEach(function(g){h+='<button type="button" class="gchip" data-g="'+g[0]+'" aria-pressed="'+(state.gender===g[0])+'">'+esc(g[1])+'</button>'});
-    h+='</div><p class="muted" style="margin-top:8px">Used only to decide which trips you can see, such as women only trips. It is never shown to other students. It is self declared and not checked.</p></div>';
+    h+='</div><p class="muted" style="margin-top:8px">Used only to decide which trips you can see, such as females only trips. It is never shown to other students. It is self declared and not checked.</p></div>';
     if(state.gmsg)h+='<p role="status" style="margin-top:12px"><b>'+esc(state.gmsg)+'</b></p>';
     h+='<div class="stack" style="margin-top:16px"><button class="btn" id="gsave">Save</button><button class="btn ghost" data-go="home">Back to home</button></div></div>';
     return h;
@@ -1052,7 +1052,7 @@ body.scene .fcard .fsafe{color:#FFD2C2}
       list.forEach(function(x){
         var i=-1;A.forEach(function(a,k){if(a.id===x.activityId)i=k});if(i<0)return;
         var n=x.joined||0,left=x.max-n;
-        h+='<button class="upc glass" data-feat="'+i+'"><span class="upd">'+esc(fmtDate(x.date))+' · '+esc(fmtTime(x.time))+(x.women?' · Women only':'')+'</span><b>'+esc(A[i].name)+'</b><span class="upm">'+(n?esc(n)+' going, ':'')+esc(left)+' place'+(left===1?'':'s')+' left</span></button>';
+        h+='<button class="upc glass" data-feat="'+i+'"><span class="upd">'+esc(fmtDate(x.date))+' · '+esc(fmtTime(x.time))+(x.women?' · Females only':'')+'</span><b>'+esc(A[i].name)+'</b><span class="upm">'+(n?esc(n)+' going, ':'')+esc(left)+' place'+(left===1?'':'s')+' left</span></button>';
       });
       box.innerHTML=h+'</div>';
       Array.prototype.forEach.call(box.querySelectorAll("[data-feat]"),function(b){b.onclick=function(){state.tab="activities";state.sel=+b.dataset.feat;render()}});
