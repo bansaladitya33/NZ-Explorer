@@ -352,6 +352,21 @@ nav button{flex:0 0 150px}
 body.scene .btn.ghost{background:var(--surface);color:var(--accent);border:2px solid var(--surface);box-shadow:0 4px 14px rgba(0,0,0,.25)}
 body.scene .btn.ghost:hover{background:var(--soft);border-color:var(--soft)}
 body.scene .btn.ghost .ico{stroke:currentColor}
+
+/* frosted glass boxes on the landscape */
+body.scene .fcard,body.scene .how.glass,body.scene .upc{background:rgba(10,8,8,.30);-webkit-backdrop-filter:blur(14px) saturate(140%);backdrop-filter:blur(14px) saturate(140%);border:1px solid rgba(255,255,255,.28);color:#fff;box-shadow:0 8px 28px rgba(0,0,0,.25)}
+body.scene .fcard h3,body.scene .fmain h3{color:#fff}
+body.scene .fcard .meta,body.scene .how.glass p,body.scene .how.glass .soon{color:rgba(255,255,255,.88)}
+body.scene .how.glass h2{color:#fff}
+body.scene .fcard .fsafe{color:#FFD2C2}
+.upc{display:block;width:100%;text-align:left;border-radius:14px;padding:14px 16px;cursor:pointer;font:inherit}
+.upc .upd{display:inline-block;font-size:12.5px;font-weight:700;letter-spacing:.02em;padding:3px 10px;border-radius:999px;background:rgba(255,255,255,.2);margin-bottom:8px}
+.upc b{display:block;font-size:18px;line-height:1.25;margin-bottom:4px}
+.upc .upm{font-size:14px;opacity:.88}
+.upc:hover{background:rgba(10,8,8,.42)}
+.agrid .upc{margin-top:10px}
+@media (min-width:900px){.agrid .upc{margin-top:0}}
+:root[data-look="beach"] body.scene .fcard,:root[data-look="beach"] body.scene .how.glass,:root[data-look="beach"] body.scene .upc{background:rgba(11,59,64,.42)}
 </style>
 <script>(function(){try{var l=localStorage.getItem("nzx_look"),z=localStorage.getItem("nzx_size"),r=document.documentElement;if(l==="night"){r.setAttribute("data-theme","dark");r.setAttribute("data-look","night")}else if(l&&l!=="clay"){r.setAttribute("data-look",l);r.setAttribute("data-theme","light")}if(z==="large")r.setAttribute("data-size","large")}catch(e){}})()</script>
 </head>
@@ -769,11 +784,11 @@ body.scene .btn.ghost .ico{stroke:currentColor}
   function homeView(){
     var bar='<div class="hbar"><span><img src="'+LOGO+'" alt="">NZ Explorer</span>'+menuHtml()+'</div>';
     var h='<div class="view">'+heroBlock('tall',bar,'<button class="btn" data-go="activities">Browse activities</button>');
-    h+='<h2 class="sec">Start here</h2><div class="agrid">';
+    h+='<div id="upcoming"><h2 class="sec">Start here</h2><div class="agrid">';
     [0,1,5].forEach(function(i){var a=A[i];if(!a)return;
       h+='<div class="fcard"><button class="fmain" data-feat="'+i+'"><h3>'+esc(a.name)+'</h3><p class="meta">'+esc(a.diff)+' \u00B7 '+esc(a.dur)+'</p></button><button class="linkbtn fsafe" data-go="safety">Safety</button></div>';
     });
-    h+='</div><section class="how"><h2>How it works</h2>'+
+    h+='</div></div><section class="how glass"><h2>How it works</h2>'+
     '<p>NZ Explorer is a place for University of Auckland students to find weekend activities near Auckland. Each activity includes transport options, weather notes, and safety information.</p>'+
     '<p class="soon">Join a trip on any activity page, and see who else is going once enough students have joined.</p></section>'+
     '<div class="stack"><button class="btn ghost" data-go="safety">'+SHIELD+'Safety &amp; Disclaimer</button>'+ext(FORM_URL,"Suggest a trip","btn ghost")+'</div></div>';
@@ -1022,6 +1037,27 @@ body.scene .btn.ghost .ico{stroke:currentColor}
     Array.prototype.forEach.call(app.querySelectorAll(".lk[data-look]"),function(b){b.onclick=function(){applyLook(b.dataset.look,getSize());render()}});
     Array.prototype.forEach.call(app.querySelectorAll(".lk[data-size]"),function(b){b.onclick=function(){applyLook(getLook(),b.dataset.size);render()}});
   }
+  /* ---------- home: upcoming trips across all activities ---------- */
+  function loadUpcoming(){
+    var box=document.getElementById("upcoming");if(!box||!db||!state.uid)return;
+    var today=new Date().toISOString().slice(0,10),col=db.collection("trips");
+    var open=col.where("womenOnly","==",false).get();
+    var women=col.where("womenOnly","==",true).get().then(function(r){return r},function(){return null});
+    Promise.all([open,women]).then(function(res){
+      var list=[];
+      res.forEach(function(r,i){if(r)r.forEach(function(d){var x=d.data();x.id=d.id;x.women=(i===1);list.push(x)})});
+      list=list.filter(function(x){return x.date>=today&&(x.joined||0)<x.max}).sort(function(p,q){return (p.date+p.time)<(q.date+q.time)?-1:1}).slice(0,6);
+      if(!list.length||state.tab!=="home")return;
+      var h='<h2 class="sec">Coming up</h2><div class="agrid">';
+      list.forEach(function(x){
+        var i=-1;A.forEach(function(a,k){if(a.id===x.activityId)i=k});if(i<0)return;
+        var n=x.joined||0,left=x.max-n;
+        h+='<button class="upc glass" data-feat="'+i+'"><span class="upd">'+esc(fmtDate(x.date))+' · '+esc(fmtTime(x.time))+(x.women?' · Women only':'')+'</span><b>'+esc(A[i].name)+'</b><span class="upm">'+(n?esc(n)+' going, ':'')+esc(left)+' place'+(left===1?'':'s')+' left</span></button>';
+      });
+      box.innerHTML=h+'</div>';
+      Array.prototype.forEach.call(box.querySelectorAll("[data-feat]"),function(b){b.onclick=function(){state.tab="activities";state.sel=+b.dataset.feat;render()}});
+    }).catch(function(){});
+  }
   function render(){
     if(!state.user){renderGate();return}
     nav.classList.remove("hidden");waves.classList.add("withnav");
@@ -1034,6 +1070,7 @@ body.scene .btn.ghost .ico{stroke:currentColor}
     if(state.tab==="activities"&&state.sel!==null){loadTrips(A[state.sel]);loadWeather(A[state.sel])}
     if(state.tab==="profile")bindProfile();
     if(state.tab==="look")bindLook();
+    if(state.tab==="home")loadUpcoming();
     window.scrollTo(0,0);
   }
   function rerenderList(){app.innerHTML=listView();bind()}
