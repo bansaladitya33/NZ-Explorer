@@ -265,7 +265,32 @@ nav button{flex:0 0 150px}
 .wxdays{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .wxday{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:14px;line-height:1.4}
 .wxday b{display:block}.wxwarn{margin-top:8px;font-weight:600;color:var(--accent)}
+
+/* user chosen looks */
+:root[data-look="harbour"]{--bg:#FFFFFF;--surface:#FFFFFF;--ink:#0F1F24;--muted:#4A5B61;--line:#C9DCE2;--accent:#155E75;--accent-ink:#FFFFFF;--soft:#EAF3F6;--deep:#0E2F3A;--deepink:#FFFFFF}
+:root[data-look="harbour"] .scenebg,:root[data-look="harbour"] .topbar,:root[data-look="harbour"] .hero2{filter:hue-rotate(180deg) saturate(.85)}
+:root[data-look="harbour"] body.scene{background:#0B1E26}
+:root[data-look="harbour"] .hbar{background:rgba(0,0,0,.32)}
+:root[data-look="forest"]{--bg:#FFFFFF;--surface:#FFFFFF;--ink:#10201A;--muted:#4A5A50;--line:#CFE0D4;--accent:#245B45;--accent-ink:#FFFFFF;--soft:#EAF2EC;--deep:#142B21;--deepink:#FFFFFF}
+:root[data-look="forest"] .scenebg,:root[data-look="forest"] .topbar,:root[data-look="forest"] .hero2{filter:hue-rotate(125deg) saturate(.8)}
+:root[data-look="forest"] body.scene{background:#0E1E16}
+:root[data-look="forest"] .hbar{background:rgba(0,0,0,.32)}
+:root[data-look="dusk"]{--bg:#FFFFFF;--surface:#FFFFFF;--ink:#1B1426;--muted:#5A5068;--line:#DCD3EA;--accent:#5B3F8C;--accent-ink:#FFFFFF;--soft:#F0ECF6;--deep:#24183A;--deepink:#FFFFFF}
+:root[data-look="dusk"] .scenebg,:root[data-look="dusk"] .topbar,:root[data-look="dusk"] .hero2{filter:hue-rotate(250deg) saturate(.85)}
+:root[data-look="dusk"] body.scene{background:#160F24}
+:root[data-look="dusk"] .hbar{background:rgba(0,0,0,.32)}
+:root[data-look="mono"]{--bg:#FFFFFF;--surface:#FFFFFF;--ink:#111111;--muted:#555555;--line:#D9D9D9;--accent:#1F1F1F;--accent-ink:#FFFFFF;--soft:#F2F2F2;--deep:#111111;--deepink:#FFFFFF}
+:root[data-look="mono"] .scenebg,:root[data-look="mono"] .topbar,:root[data-look="mono"] .hero2{filter:grayscale(1)}
+:root[data-look="mono"] body.scene{background:#0D0D0D}
+:root[data-look="mono"] .hbar{background:rgba(0,0,0,.32)}
+:root[data-look="mono"] .mini,:root[data-look="mono"] .mark{filter:none}
+:root[data-size="large"] .shell,:root[data-size="large"] nav{zoom:1.12}
+.lkgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin:10px 0 18px}
+.lk{border:2px solid var(--line);border-radius:12px;padding:0;background:var(--surface);color:var(--ink);text-align:left;overflow:hidden;cursor:pointer}
+.lk[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
+.lk i{display:block;height:58px}.lk span{display:block;padding:8px 10px;font-weight:600;font-size:14px}
 </style>
+<script>(function(){try{var l=localStorage.getItem("nzx_look"),z=localStorage.getItem("nzx_size"),r=document.documentElement;if(l==="night")r.setAttribute("data-theme","dark");else if(l&&l!=="clay"){r.setAttribute("data-look",l);r.setAttribute("data-theme","light")}if(z==="large")r.setAttribute("data-size","large")}catch(e){}})()</script>
 </head>
 <body>
 <div class="scenebg" id="scenebg" aria-hidden="true"><svg class="narrow" viewBox="0 0 560 800" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
@@ -663,7 +688,7 @@ nav button{flex:0 0 150px}
   }
 
   /* ---------- shared pieces ---------- */
-  function topbar(){return '<div class="topbar"><span><img class="mini" src="'+LOGO+'" alt="">NZ Explorer</span><small>'+esc(state.name||state.user)+(db?' <button class="linkbtn" data-go="profile">Profile</button>':'')+' <button class="linkbtn" id="out">Sign out</button></small></div>'}
+  function topbar(){return '<div class="topbar"><span><img class="mini" src="'+LOGO+'" alt="">NZ Explorer</span><small>'+esc(state.name||state.user)+(db?' <button class="linkbtn" data-go="profile">Profile</button>':'')+' <button class="linkbtn" data-go="look">Theme</button> <button class="linkbtn" id="out">Sign out</button></small></div>'}
   function kv(rows){
     var h='<dl class="kv">';
     rows.forEach(function(r){h+='<dt>'+esc(r[0])+'</dt><dd>'+r[1]+'</dd>'});
@@ -673,7 +698,7 @@ nav button{flex:0 0 150px}
 
   /* ---------- home (Ref 8 text from Story 8) ---------- */
   function homeView(){
-    var bar='<div class="hbar"><span><img src="'+LOGO+'" alt="">NZ Explorer</span><small>'+esc(state.name||state.user)+(db?' <button class="linkbtn" data-go="profile">Profile</button>':'')+' <button class="linkbtn" id="out">Sign out</button></small></div>';
+    var bar='<div class="hbar"><span><img src="'+LOGO+'" alt="">NZ Explorer</span><small>'+esc(state.name||state.user)+(db?' <button class="linkbtn" data-go="profile">Profile</button>':'')+' <button class="linkbtn" data-go="look">Theme</button> <button class="linkbtn" id="out">Sign out</button></small></div>';
     var h='<div class="view">'+heroBlock('tall',bar,'<button class="btn" data-go="activities">Browse activities</button>');
     h+='<h2 class="sec">Start here</h2><div class="agrid">';
     [0,1,5].forEach(function(i){var a=A[i];if(!a)return;
@@ -909,10 +934,29 @@ nav button{flex:0 0 150px}
   /* ---------- shell ---------- */
   new MutationObserver(function(){document.body.classList.toggle("scene",!!app.querySelector(".hero2"))}).observe(app,{childList:true});
   document.body.classList.toggle("scene",!!app.querySelector(".hero2"));
+  /* ---------- look and feel (saved on this device) ---------- */
+  var LOOKS=[["clay","Coastal Clay","linear-gradient(180deg,#8A3F2C,#D98B54)"],["harbour","Harbour Blue","linear-gradient(180deg,#0E2F3A,#2E8AA8)"],["forest","Forest Green","linear-gradient(180deg,#142B21,#4E8A63)"],["dusk","Lavender Dusk","linear-gradient(180deg,#24183A,#8C6BBF)"],["mono","Black and White","linear-gradient(180deg,#111,#9a9a9a)"],["night","Night","linear-gradient(180deg,#140C0A,#4A352D)"]];
+  function getLook(){try{return localStorage.getItem("nzx_look")||"clay"}catch(e){return "clay"}}
+  function getSize(){try{return localStorage.getItem("nzx_size")||"normal"}catch(e){return "normal"}}
+  function applyLook(l,z){var r=document.documentElement;r.removeAttribute("data-look");r.removeAttribute("data-theme");
+    if(l==="night")r.setAttribute("data-theme","dark");else if(l!=="clay"){r.setAttribute("data-look",l);r.setAttribute("data-theme","light")}
+    if(z==="large")r.setAttribute("data-size","large");else r.removeAttribute("data-size");
+    try{localStorage.setItem("nzx_look",l);localStorage.setItem("nzx_size",z)}catch(e){}}
+  function lookView(){
+    var cur=getLook(),sz=getSize(),h='<div class="view">'+topbar()+'<div class="pagehead"><h1>Theme</h1><p>Choose how NZ Explorer looks for you. It is saved on this device.</p></div><h2>Colour and background</h2><div class="lkgrid">';
+    LOOKS.forEach(function(l){h+='<button type="button" class="lk" data-look="'+l[0]+'" aria-pressed="'+(cur===l[0])+'"><i style="background:'+l[2]+'"></i><span>'+esc(l[1])+'</span></button>'});
+    h+='</div><h2>Text size</h2><div class="lkgrid">';
+    [["normal","Standard"],["large","Larger text"]].forEach(function(z){h+='<button type="button" class="lk" data-size="'+z[0]+'" aria-pressed="'+(sz===z[0])+'"><span style="font-size:'+(z[0]==="large"?"18px":"15px")+'">'+z[1]+'</span></button>'});
+    return h+'</div><div class="stack"><button class="btn ghost" data-go="home">Back to home</button></div></div>';
+  }
+  function bindLook(){
+    Array.prototype.forEach.call(app.querySelectorAll(".lk[data-look]"),function(b){b.onclick=function(){applyLook(b.dataset.look,getSize());render()}});
+    Array.prototype.forEach.call(app.querySelectorAll(".lk[data-size]"),function(b){b.onclick=function(){applyLook(getLook(),b.dataset.size);render()}});
+  }
   function render(){
     if(!state.user){renderGate();return}
     nav.classList.remove("hidden");waves.classList.add("withnav");
-    var v=state.tab==="home"?homeView():state.tab==="safety"?safetyView():state.tab==="profile"?profileView():(state.sel!==null?detailView():listView());
+    var v=state.tab==="home"?homeView():state.tab==="safety"?safetyView():state.tab==="profile"?profileView():state.tab==="look"?lookView():(state.sel!==null?detailView():listView());
     app.innerHTML=v;
     Array.prototype.forEach.call(nav.querySelectorAll("button"),function(b){
       if(b.dataset.tab===state.tab)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current");
@@ -920,6 +964,7 @@ nav button{flex:0 0 150px}
     bind();
     if(state.tab==="activities"&&state.sel!==null){loadTrips(A[state.sel]);loadWeather(A[state.sel])}
     if(state.tab==="profile")bindProfile();
+    if(state.tab==="look")bindLook();
     window.scrollTo(0,0);
   }
   function rerenderList(){app.innerHTML=listView();bind()}
