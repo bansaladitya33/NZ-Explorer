@@ -412,6 +412,21 @@ body.scene .card .btn.ghost{background:rgba(255,255,255,.94);border-color:transp
 :root[data-look="night"][data-theme="light"]{--bg:#FFFFFF;--surface:#FFFFFF;--ink:#0E1730;--muted:#4A5570;--line:#CDD5E6;--accent:#2A4A8C;--accent-ink:#FFFFFF;--soft:#EDF1F9;--deep:#0B1530;--deepink:#FFFFFF}
 :root[data-theme="dark"]:not([data-look="night"]) .scenebg svg{filter:brightness(.6) saturate(.9)}
 .lk.md span{text-align:center}
+
+/* activity cards with a photo and key facts, and jump buttons on the activity page */
+.rowx{display:flex;gap:14px;align-items:stretch;padding:0;overflow:hidden;border-left-width:1px;border-radius:12px}
+.rowx .rth{width:120px;flex:0 0 120px;object-fit:cover;background:var(--soft);display:block}
+.rowx .rbody{padding:12px 14px 12px 0;min-width:0;flex:1}
+.rowx h3{font-size:18px}
+.rinfo{display:flex;flex-direction:column;gap:3px;margin-top:8px;font-size:13.5px;color:var(--muted)}
+.rinfo .wet{color:var(--accent);font-weight:600}
+.jump{display:flex;gap:8px;overflow-x:auto;padding:4px 0 10px;margin:10px 0 4px;scrollbar-width:none}
+.jump::-webkit-scrollbar{display:none}
+.jb{flex:0 0 auto;white-space:nowrap;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:8px 14px;font:inherit;font-size:14px;font-weight:600;text-decoration:none;cursor:pointer}
+.jb:hover{background:var(--soft)}
+a.jb{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.section{scroll-margin-top:16px}
+@media (min-width:900px){.jump{flex-wrap:wrap;overflow:visible}.rowx .rth{width:130px;flex-basis:130px}}
 </style>
 <script>window.nzxTheme=function(){var r=document.documentElement,g=function(k){try{return localStorage.getItem(k)}catch(e){return null}};var l=g("nzx_look")||"clay",m=g("nzx_mode"),z=g("nzx_size"),d;
 if(l==="clay")r.removeAttribute("data-look");else r.setAttribute("data-look",l);
@@ -864,7 +879,12 @@ try{nzxTheme();matchMedia("(prefers-color-scheme: dark)").addEventListener("chan
     h+='<div class="agrid">';
     shown.forEach(function(a){
       var i=A.indexOf(a);
-      h+='<button class="row" data-i="'+i+'"><h3>'+esc(a.name)+'</h3><div class="meta"><span>'+bars(a.diff)+esc(a.diff)+'</span><span>'+esc(a.dur)+'</span>'+(a.partial?'<span class="tag">Transport coming</span>':'')+'</div></button>';
+      var ph=PH[i]&&PH[i][0]?'<img class="rth" src="photos/'+PH[i][0][0]+'" alt="" loading="lazy">':'';
+      var inf='';
+      if(a.t){var md=a.t.mode||"",ic=/ferry/i.test(md)?"⛴️":/train/i.test(md)?"🚆":/walk/i.test(md)?"🚶":"🚌";inf+='<span>'+ic+' '+esc(md.replace(/\s*\(.*\)/,""))+' · '+esc(String(a.t.fare||"").split(" (")[0].replace(/^\$0$/,"Free"))+'</span>'}
+      if(a.w&&a.w.backup)inf+='<span>☔ Rain plan ready</span>';
+      if(WXLL[a.id])inf+='<span class="rwx" data-wx="'+a.id+'">Checking weekend weather...</span>';
+      h+='<button class="row rowx" data-i="'+i+'">'+ph+'<div class="rbody"><h3>'+esc(a.name)+'</h3><div class="meta"><span>'+bars(a.diff)+esc(a.diff)+'</span><span>'+esc(a.dur)+'</span>'+(a.partial?'<span class="tag">Transport coming</span>':'')+'</div><div class="rinfo">'+inf+'</div></div></button>';
     });
     return h+'</div></div>';
   }
@@ -891,14 +911,14 @@ try{nzxTheme();matchMedia("(prefers-color-scheme: dark)").addEventListener("chan
   function bringSection(a){
     var b=EXTRA.bring[a.id];if(!b)return "";
     var h='<div class="alertbox" role="note"><b>'+esc(b.banner)+'</b></div>';
-    var sec='<div class="section"><h2>What to bring</h2><ul class="check">'+b.items.map(function(x){return '<li>'+esc(x)+'</li>'}).join("")+'</ul>'+
+    var sec='<div class="section" id="s-bring"><h2>What to bring</h2><ul class="check">'+b.items.map(function(x){return '<li>'+esc(x)+'</li>'}).join("")+'</ul>'+
       kv([["Water",esc(b.water)],["Food",esc(b.food)],["Toilets",esc(b.toilets)],["Shelter",esc(b.shelter)]])+
       '<details><summary>Sources</summary>'+srcList(b.src)+'<p class="muted">Checked 8 Oct 2026. Recommendations based on the facilities and routes in these sources.</p></details></div>';
     return {banner:h,section:sec};
   }
   function foodSection(a){
     var f=EXTRA.food[a.id];if(!f||!f.length)return "";
-    var h='<div class="section"><h2>Where to eat nearby</h2>';
+    var h='<div class="section" id="s-food"><h2>Where to eat nearby</h2>';
     f.forEach(function(p){
       var it=p.items.length?p.items.map(function(x){return esc(x[0])+" "+esc(x[1])}).join(", "):"";
       h+='<div class="eat"><p><b>'+esc(p.place)+'</b>'+(p.level&&p.level!=="N/A"?' <span class="tag">'+esc(p.level)+'</span>':'')+'</p>'+
@@ -1006,6 +1026,14 @@ try{nzxTheme();matchMedia("(prefers-color-scheme: dark)").addEventListener("chan
     var u="https://api.open-meteo.com/v1/forecast?latitude="+ll[0]+"&longitude="+ll[1]+"&current=temperature_2m,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,wind_speed_10m_max&timezone=Pacific%2FAuckland&forecast_days=8";
     fetch(u).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(d){WXC[key]={t:Date.now(),d:d};done(d)}).catch(function(){var box=document.getElementById("wx");if(box)box.innerHTML='<p class="muted">The live forecast could not load right now. Check '+ext("https://www.metservice.com/towns-cities/locations/auckland","MetService")+' before you go.</p>'});
   }
+  function loadListWeather(){
+    var ids=Object.keys(WXLL),fill=function(arr){ids.forEach(function(id,k){var d=arr[k],el=app.querySelector('[data-wx="'+id+'"]');if(!el||!d||!d.daily)return;var dl=d.daily,j=-1;
+        dl.time.forEach(function(t,x){if(j<0&&new Date(t+"T12:00:00").getDay()===6)j=x});if(j<0)j=0;
+        var p=dl.precipitation_probability_max[j];el.textContent=wxIcon(dl.weather_code[j])+" Sat "+Math.round(dl.temperature_2m_max[j])+"°C"+(p==null?"":", "+p+"% rain");if(p>=60)el.classList.add("wet")})};
+    if(WXC.list&&Date.now()-WXC.list.t<30*60000){fill(WXC.list.d);return}
+    var u="https://api.open-meteo.com/v1/forecast?latitude="+ids.map(function(i){return WXLL[i][0]}).join(",")+"&longitude="+ids.map(function(i){return WXLL[i][1]}).join(",")+"&daily=weather_code,temperature_2m_max,precipitation_probability_max&timezone=Pacific%2FAuckland&forecast_days=8";
+    fetch(u).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(d){if(!Array.isArray(d))d=[d];WXC.list={t:Date.now(),d:d};fill(d)}).catch(function(){Array.prototype.forEach.call(app.querySelectorAll(".rwx"),function(e){e.remove()})});
+  }
   function wxHtml(a,d){
     var h='<p><b>Live forecast</b></p>';
     if(d.current)h+='<p class="wxnow">Now: <b>'+Math.round(d.current.temperature_2m)+'°C</b> '+wxIcon(d.current.weather_code)+' '+esc(wxText(d.current.weather_code))+', wind '+Math.round(d.current.wind_speed_10m)+' km/h</p>';
@@ -1020,32 +1048,42 @@ try{nzxTheme();matchMedia("(prefers-color-scheme: dark)").addEventListener("chan
     if(wet)h+='<p class="wxwarn">Rain is likely this weekend.'+(a.w?' Consider the backup: '+esc(a.w.backup)+'.':' Check the forecast again before you go.')+'</p>';
     return h+'<p class="muted" style="margin-top:8px">Forecast from Open-Meteo, updated hourly. It can change, so check again on the day.</p>';
   }
+  function jumpBar(a){
+    var L=LOC[a.id],q=L?L[1]:a.name+", Auckland",j=[["s-go","🚌 Getting there"],["s-wx","☀️ Weather"]];
+    if(EXTRA.bring[a.id])j.push(["s-bring","🎒 What to bring"]);
+    if(EXTRA.food[a.id]&&EXTRA.food[a.id].length)j.push(["s-food","🍴 Food"]);
+    if(db)j.push(["trips","👥 Trips"],["reviews","⭐ Reviews"]);
+    j.push(["s-safe","🛟 Safety"]);
+    var h='<div class="jump"><a class="jb" href="'+esc(mapsQ(q))+'" target="_blank" rel="noopener">📍 Location</a>';
+    j.forEach(function(x){h+='<button type="button" class="jb" data-jump="'+x[0]+'">'+x[1]+'</button>'});
+    return h+'</div>';
+  }
   function detailView(){
     var a=A[state.sel],t=a.t,w=a.w,bs=bringSection(a);
     var h='<div class="view detail">'+topbar()+'<button class="linkbtn back" id="bk">Back to activities</button>'+
-    '<h1>'+esc(a.name)+'</h1>'+gallery(state.sel)+'<p class="desc">'+esc(a.desc)+'</p>'+
+    '<h1>'+esc(a.name)+'</h1>'+gallery(state.sel)+jumpBar(a)+'<p class="desc">'+esc(a.desc)+'</p>'+
     '<div class="facts meta"><span>'+bars(a.diff)+esc(a.diff)+'</span><span>'+esc(a.dur)+'</span><span class="tag">'+esc(a.band)+'</span><span class="tag">'+esc(a.area)+'</span>'+(a.dist?'<span class="tag">'+esc(a.dist)+'</span>':'')+'</div>';
     if(a.why)h+='<p class="muted" style="margin-bottom:8px"><b>Why it suits students.</b> '+esc(a.why)+'</p>';
     if(bs)h+=bs.banner;
     h+=locSection(a);
     if(t){
-      h+='<div class="section"><h2>Getting there</h2>'+kv([["Mode",esc(t.mode)],["Route",esc(t.route)],["Time",esc(t.time)],["Fare",esc(t.fare)],["Source",esc(t.source)]])+'</div>';
+      h+='<div class="section" id="s-go"><h2>Getting there</h2>'+kv([["Mode",esc(t.mode)],["Route",esc(t.route)],["Time",esc(t.time)],["Fare",esc(t.fare)],["Source",esc(t.source)]])+'</div>';
     } else {
-      h+='<div class="section"><h2>Getting there</h2><p>Route, time and fare are still being checked by the team for this activity. In the meantime, use the Directions by public transport button above or the '+ext("https://at.govt.nz/bus-train-ferry/journey-planner/","AT journey planner")+'.</p></div>';
+      h+='<div class="section" id="s-go"><h2>Getting there</h2><p>Route, time and fare are still being checked by the team for this activity. In the meantime, use the Directions by public transport button above or the '+ext("https://at.govt.nz/bus-train-ferry/journey-planner/","AT journey planner")+'.</p></div>';
     }
     if(w){
       var src='';w.src.forEach(function(s){src+='<li><a href="'+esc(s[1])+'" target="_blank" rel="noopener">'+esc(s[0])+'</a></li>'});
-      h+='<div class="section"><h2>If the weather turns</h2>'+kv([["Weather dependent","Yes"],["Backup",esc(w.backup)]])+wxSection(a)+
+      h+='<div class="section" id="s-wx"><h2>If the weather turns</h2>'+kv([["Weather dependent","Yes"],["Backup",esc(w.backup)]])+wxSection(a)+
       '<details><summary>Why this backup, and sources</summary><p><b>Why weather matters here.</b> '+esc(w.why)+'</p><p><b>Why this backup.</b> '+esc(w.whyBackup)+'</p><ul class="srcs">'+src+'</ul><p class="muted">'+(w.note?esc(w.note)+' ':'')+'Checked '+esc(w.date||'2 Oct 2026')+'. Check opening hours, admission conditions, weather warnings and transport alerts before you go.</p></details></div>';
     } else {
-      h+='<div class="section"><h2>If the weather turns</h2>'+wxSection(a)+'<p>A weather backup for this activity is still being added. Check the forecast before you go.</p></div>';
+      h+='<div class="section" id="s-wx"><h2>If the weather turns</h2>'+wxSection(a)+'<p>A weather backup for this activity is still being added. Check the forecast before you go.</p></div>';
     }
     if(bs)h+=bs.section;
     h+=foodSection(a)+tripsSection(a)+reviewsSection(a);
     if(a.safety){
-      h+='<div class="section"><h2>Safety</h2>'+(a.risk?'<p style="margin-bottom:8px"><span class="tag">Risk level: '+esc(a.risk)+'</span></p>':'')+'<p>'+esc(a.safety)+'</p>'+(a.tip?'<p style="margin-top:8px"><b>Getting there and back.</b> '+esc(a.tip)+'</p>':'')+'<p style="margin-top:12px"><button class="linkbtn" data-go="safety">Read the full safety guidance</button></p></div>';
+      h+='<div class="section" id="s-safe"><h2>Safety</h2>'+(a.risk?'<p style="margin-bottom:8px"><span class="tag">Risk level: '+esc(a.risk)+'</span></p>':'')+'<p>'+esc(a.safety)+'</p>'+(a.tip?'<p style="margin-top:8px"><b>Getting there and back.</b> '+esc(a.tip)+'</p>':'')+'<p style="margin-top:12px"><button class="linkbtn" data-go="safety">Read the full safety guidance</button></p></div>';
     } else {
-      h+='<div class="section"><h2>Safety</h2><p>Activity specific safety notes are still being added. Read the general safety guidance before you go.</p><p style="margin-top:12px"><button class="linkbtn" data-go="safety">Read the full safety guidance</button></p></div>';
+      h+='<div class="section" id="s-safe"><h2>Safety</h2><p>Activity specific safety notes are still being added. Read the general safety guidance before you go.</p><p style="margin-top:12px"><button class="linkbtn" data-go="safety">Read the full safety guidance</button></p></div>';
     }
     h+='<div class="section"><h2>Spotted something wrong?</h2><p>Tell us if a time, link or detail on this page is out of date. Please type the activity name ('+esc(a.name)+') in the form.</p><p style="margin-top:12px">'+ext(FORM_URL,"Report a problem","btn ghost")+'</p></div>';
     return h+'</div>';
@@ -1287,6 +1325,7 @@ try{nzxTheme();matchMedia("(prefers-color-scheme: dark)").addEventListener("chan
     });
     bind();
     if(state.tab==="activities"&&state.sel!==null){loadTrips(A[state.sel]);loadWeather(A[state.sel])}
+    if(state.tab==="activities"&&state.sel===null)loadListWeather();
     if(state.tab==="profile")bindProfile();
     if(state.tab==="look")bindLook();
     if((state.tab==="trips"||state.tab==="chats")&&MY.list===null&&!MY.loading&&db&&state.uid){MY.loading=true;loadMyTrips(function(){MY.loading=false;if(state.tab==="trips"||state.tab==="chats")render()})}
@@ -1297,7 +1336,7 @@ try{nzxTheme();matchMedia("(prefers-color-scheme: dark)").addEventListener("chan
     if(state.tab==="home")loadUpcoming();
     window.scrollTo(0,0);
   }
-  function rerenderList(){app.innerHTML=listView();bind()}
+  function rerenderList(){app.innerHTML=listView();bind();loadListWeather()}
   function bind(){
     Array.prototype.forEach.call(app.querySelectorAll(".mbtn"),function(b){b.onclick=function(e){e.stopPropagation();var l=b.nextElementSibling,open=l.hidden;l.hidden=!open;b.setAttribute("aria-expanded",String(open))}});
     var o=document.getElementById("out");if(o)o.onclick=function(){if(auth)auth.signOut();state.user=null;state.name="";state.mode="signin";state.step="email";state.email="";state.error="";state.profile={name:"",age:"",gender:""};state.gender="";state.uid=null;state.gmsg="";state.sel=null;state.f={dur:"Any",diff:"Any"};render()};
@@ -1309,6 +1348,7 @@ try{nzxTheme();matchMedia("(prefers-color-scheme: dark)").addEventListener("chan
     Array.prototype.forEach.call(app.querySelectorAll(".chip"),function(b){b.onclick=function(){state.f[b.dataset.f]=b.dataset.v;rerenderList()}});
     Array.prototype.forEach.call(app.querySelectorAll("[data-clear]"),function(b){b.onclick=function(){state.f={dur:"Any",diff:"Any"};rerenderList()}});
     bindGallery();
+    Array.prototype.forEach.call(app.querySelectorAll("[data-jump]"),function(b){b.onclick=function(){var t=document.getElementById(b.dataset.jump);if(t)t.scrollIntoView({behavior:"smooth",block:"start"})}});
     var bk=document.getElementById("bk");if(bk)bk.onclick=function(){state.sel=null;render()};
   }
   document.addEventListener("click",function(e){if(!e.target.closest(".umenu"))Array.prototype.forEach.call(document.querySelectorAll(".mlist"),function(l){l.hidden=true})});
