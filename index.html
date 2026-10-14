@@ -427,6 +427,16 @@ body.scene .card .btn.ghost{background:rgba(255,255,255,.94);border-color:transp
 a.jb{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 .section{scroll-margin-top:16px}
 @media (min-width:900px){.jump{flex-wrap:wrap;overflow:visible}.rowx .rth{width:130px;flex-basis:130px}}
+
+/* 7 day forecast (Ref 56) and last minute trips (Ref 60) */
+.wx7{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.wxr{display:flex;flex-wrap:wrap;gap:2px 14px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:14px;line-height:1.35}
+.wxr b{flex:0 0 100%}
+.wxr.bad{border-color:var(--accent);box-shadow:inset 3px 0 0 var(--accent)}
+@media (min-width:600px){.wxr{display:grid;grid-template-columns:110px 1.3fr .9fr .7fr 1fr;align-items:center}.wxr b{flex:none}}
+.twx{font-size:14px;margin:6px 0;line-height:1.45}
+.upc.lm{cursor:default}.upc.lm .upm{display:block}.upc.lm .btn{margin-top:10px;width:auto}.lmleft{font-weight:700}
+.lmmsg{display:block;margin-top:6px;font-weight:600}
 </style>
 <script>window.nzxTheme=function(){var r=document.documentElement,g=function(k){try{return localStorage.getItem(k)}catch(e){return null}};var l=g("nzx_look")||"clay",m=g("nzx_mode"),z=g("nzx_size"),d;
 if(l==="clay")r.removeAttribute("data-look");else r.setAttribute("data-look",l);
@@ -567,6 +577,7 @@ try{nzxTheme();matchMedia("(prefers-color-scheme: dark)").addEventListener("chan
 
   var DUR = ["Any","Under 2 hours","Half day (2 to 4 hours)","Full day (4+ hours)"];
   var DIFF = ["Any","Easy","Moderate","Hard"];
+  var WXF = ["Any","Weather dependent","Not weather dependent"];
   function band(h){return h<2?DUR[1]:(h<=4?DUR[2]:DUR[3])}
 
   /* ---- Added 9 Oct 2026 from the team's Sprint 2 files ---- */
@@ -592,7 +603,7 @@ try{nzxTheme();matchMedia("(prefers-color-scheme: dark)").addEventListener("chan
     ["UoA emergency and support","University of Auckland","https://www.auckland.ac.nz/en/students/student-support/personal-support/student-health-counselling/emergency-information.html"]
   ];
 
-  var state = {user:null, name:"", mode:"signin", step:"email", demoCode:null, issued:null, email:"", error:"", notice:"", pending:null, profile:{name:"",age:"",gender:""}, uid:null, gender:"", gmsg:"", tab:"home", sel:null, f:{dur:"Any",diff:"Any"}};
+  var state = {user:null, name:"", mode:"signin", step:"email", demoCode:null, issued:null, email:"", error:"", notice:"", pending:null, profile:{name:"",age:"",gender:""}, uid:null, gender:"", gmsg:"", tab:"home", sel:null, f:{dur:"Any",diff:"Any",wx:"Any"}};
   var app = document.getElementById("app");
   var nav = document.getElementById("nav");
   var waves = document.getElementById("waves");
@@ -850,7 +861,7 @@ try{nzxTheme();matchMedia("(prefers-color-scheme: dark)").addEventListener("chan
   function homeView(){
     var bar='<div class="hbar"><span><img src="'+LOGO+'" alt="">NZ Explorer</span>'+menuHtml()+'</div>';
     var h='<div class="view">'+heroBlock('tall',bar,'<button class="btn" data-go="activities">Browse activities</button>');
-    h+='<div id="upcoming"><h2 class="sec">Start here</h2><div class="agrid">';
+    h+='<div id="lastmin"></div><div id="upcoming"><h2 class="sec">Start here</h2><div class="agrid">';
     [0,1,5].forEach(function(i){var a=A[i];if(!a)return;
       h+='<div class="fcard"><button class="fmain" data-feat="'+i+'"><h3>'+esc(a.name)+'</h3><p class="meta">'+esc(a.diff)+' \u00B7 '+esc(a.dur)+'</p></button><button class="linkbtn fsafe" data-go="safety">Safety</button></div>';
     });
@@ -862,7 +873,9 @@ try{nzxTheme();matchMedia("(prefers-color-scheme: dark)").addEventListener("chan
   }
 
   /* ---------- activities with filters (Ref 7) ---------- */
-  function matches(a){return (state.f.dur==="Any"||a.band===state.f.dur)&&(state.f.diff==="Any"||(a.diffs||[a.diff]).indexOf(state.f.diff)>-1)}
+  /* Ref 21: weather label from Refs 6 and 11. Yes when a weather plan exists, No only when set explicitly, otherwise unknown. */
+  function wdep(a){return a.wdep||(a.w?"Yes":null)}
+  function matches(a){var w=state.f.wx||"Any";return (state.f.dur==="Any"||a.band===state.f.dur)&&(state.f.diff==="Any"||(a.diffs||[a.diff]).indexOf(state.f.diff)>-1)&&(w==="Any"||(w==="Weather dependent"&&wdep(a)==="Yes")||(w==="Not weather dependent"&&wdep(a)==="No"))}
   function chips(key,opts){
     var h='<div class="chips">';
     opts.forEach(function(o){h+='<button class="chip" data-f="'+key+'" data-v="'+esc(o)+'" aria-pressed="'+(state.f[key]===o)+'">'+esc(o)+'</button>'});
@@ -870,11 +883,11 @@ try{nzxTheme();matchMedia("(prefers-color-scheme: dark)").addEventListener("chan
   }
   function listView(){
     var h='<div class="view">'+topbar()+'<div class="pagehead"><h1>Activities</h1><p>Tap one to see how to get there.</p></div>';
-    h+='<div class="filters"><fieldset><legend>Duration</legend>'+chips("dur",DUR)+'</fieldset><fieldset><legend>Difficulty</legend>'+chips("diff",DIFF)+'</fieldset>';
+    h+='<div class="filters"><fieldset><legend>Duration</legend>'+chips("dur",DUR)+'</fieldset><fieldset><legend>Difficulty</legend>'+chips("diff",DIFF)+'</fieldset><fieldset><legend>Weather</legend>'+chips("wx",WXF)+'</fieldset>';
     var shown=A.filter(matches);
     h+='<div class="fbar"><span class="count" aria-live="polite">Showing '+shown.length+' of '+A.length+'</span><button class="linkbtn" data-clear="1">Clear filters</button></div></div>';
     if(!shown.length){
-      h+='<div class="empty"><b>No activities match</b><br>Try clearing a filter.<div style="margin-top:12px"><button class="btn ghost" data-clear="1">Clear filters</button></div></div>';
+      h+='<div class="empty"><b>No activities match these filters.</b><br>Try another option or clear filters.<div style="margin-top:12px"><button class="btn ghost" data-clear="1">Clear filters</button></div></div>';
     }
     h+='<div class="agrid">';
     shown.forEach(function(a){
@@ -934,7 +947,7 @@ try{nzxTheme();matchMedia("(prefers-color-scheme: dark)").addEventListener("chan
   function need(x){return Math.ceil((x.max||0)/2)}
   function tripCard(x,mine,a){
     var n=x.joined||0,full=n>=x.max,need_=need(x),h='<div class="eat trip" data-id="'+esc(x.id)+'"><p><b>'+esc(fmtDate(x.date))+', '+esc(fmtTime(x.time))+'</b>'+(x.women?' <span class="tag">Females only</span>':' <span class="tag">All genders</span>')+(mine?' <span class="tag">You are going</span>':'')+'</p>'+
-      '<p class="muted">Meet at '+esc(x.meeting)+(x.tbc?" (exact spot to be confirmed)":"")+'.</p>'+
+      '<p class="muted">Meet at '+esc(x.meeting)+(x.tbc?" (exact spot to be confirmed)":"")+'.</p>'+(WXLL[x.activityId]?'<p class="twx" data-twx="'+esc(x.date)+'"><span class="muted">Loading the forecast for this day...</span></p>':'')+
       '<p>'+(n===0?'No one yet, be the first':esc(n)+' of '+esc(x.max)+' places taken')+(full?' (full)':'')+'</p>';
     h+='<div class="pbar" role="progressbar" aria-valuemin="0" aria-valuemax="'+esc(need_)+'" aria-valuenow="'+Math.min(n,need_)+'" aria-label="Students joined toward contact details"><i style="width:'+Math.min(100,Math.round(100*n/Math.max(need_,1)))+'%"></i></div>';
     h+='<p class="muted">'+(n>=need_?'Enough students have joined ('+need_+' needed). Members can now see first names and any shared emails.':'Names and contact details unlock for members once '+need_+' of '+esc(x.max)+' places are taken'+(n>0?' ('+(need_-n)+' more needed)':'')+'.')+'</p>';
@@ -966,6 +979,7 @@ try{nzxTheme();matchMedia("(prefers-color-scheme: dark)").addEventListener("chan
       Array.prototype.forEach.call(box.querySelectorAll(".join"),function(b){b.onclick=function(){joinTrip(b,a)}});
       Array.prototype.forEach.call(box.querySelectorAll(".leave"),function(b){b.onclick=function(){leaveTrip(b,a)}});
       list.forEach(function(x){if(x.mine&&(x.joined||0)>=need(x))loadWho(x)});
+      fillTripWx(box,a);
     }).catch(function(){box.innerHTML='<h2>Upcoming trips</h2><p class="muted">Trips could not be loaded right now. Please try again later.</p>'});
   }
   function loadWho(x){
@@ -1019,34 +1033,54 @@ try{nzxTheme();matchMedia("(prefers-color-scheme: dark)").addEventListener("chan
   function wxText(c){if(c===0)return "Clear";if(c<=2)return "Partly cloudy";if(c===3)return "Cloudy";if(c<=48)return "Fog";if(c<=57)return "Drizzle";if(c<=67)return "Rain";if(c<=77)return "Snow";if(c<=82)return "Showers";return "Thunderstorms"}
   function wxIcon(c){if(c===0)return "☀️";if(c<=2)return "⛅";if(c===3)return "☁️";if(c<=48)return "🌫️";if(c<=67||(c>=80&&c<=82))return "🌧️";if(c<=77)return "❄️";return "⛈️"}
   function wxSection(a){return WXLL[a.id]?'<div class="wxbox" id="wx" aria-live="polite"><p class="muted">Loading the live forecast...</p></div>':''}
+  /* Ref 56: one shared forecast per activity, 16 days so trip dates can use it, reused for 30 minutes and refreshed when the Auckland date changes */
+  function getWx(a,cb){
+    var ll=WXLL[a.id];if(!ll){cb(null);return}
+    var c=WXC[a.id];if(c&&c.day===todayISO()&&Date.now()-c.t<30*60000){cb(c.d);return}
+    var u="https://api.open-meteo.com/v1/forecast?latitude="+ll[0]+"&longitude="+ll[1]+"&current=temperature_2m,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,wind_speed_10m_max&timezone=Pacific%2FAuckland&forecast_days=16";
+    fetch(u).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(d){WXC[a.id]={t:Date.now(),day:todayISO(),d:d};cb(d)}).catch(function(){cb(null)});
+  }
+  function nv(v,suf){return (v===null||v===undefined||isNaN(v))?"n/a":Math.round(v)+suf}
+  function wxReasons(dl,i){var r=[],p=dl.precipitation_probability_max[i],w=dl.wind_speed_10m_max[i],c=dl.weather_code[i];
+    if(p!=null&&p>=60)r.push("rain chance "+p+"%");if(w!=null&&w>=40)r.push("wind up to "+Math.round(w)+" km/h");if(c!=null&&c>=95)r.push("thunderstorms");return r}
+  function wxDayLine(dl,i){var c=dl.weather_code[i];return (c==null?"":wxIcon(c)+" "+esc(wxText(c))+", ")+nv(dl.temperature_2m_min[i],"")+" to "+nv(dl.temperature_2m_max[i],"°C")+", rain "+nv(dl.precipitation_probability_max[i],"%")+", wind up to "+nv(dl.wind_speed_10m_max[i]," km/h")}
+  function wxFetched(a){var c=WXC[a.id];return c?new Date(c.t).toLocaleTimeString("en-NZ",{hour:"numeric",minute:"2-digit",timeZone:"Pacific/Auckland"}):""}
+  function tripWxHtml(a,d,date){
+    if(!d||!d.daily)return '<span class="muted">Forecast unavailable right now. Check MetService before you go.</span>';
+    var dl=d.daily,i=(dl.time||[]).indexOf(date);
+    if(i<0)return '<span class="muted">Forecast for this date: check again nearer the trip date.</span>';
+    var r=wxReasons(dl,i),h='<b>Forecast for this day:</b> '+wxDayLine(dl,i);
+    if(r.length&&wdep(a)==="Yes")h+='<br><span class="wxwarn">Heads up: '+esc(r.join(", "))+'.'+(a.w&&a.w.backup?' Backup: '+esc(a.w.backup)+'.':'')+'</span>';
+    return h;
+  }
+  function fillTripWx(root,a){var els=root.querySelectorAll("[data-twx]");if(!els.length)return;getWx(a,function(d){Array.prototype.forEach.call(els,function(e){e.innerHTML=tripWxHtml(a,d,e.dataset.twx)})})}
+  function fillMyTripsWx(){Array.prototype.forEach.call(app.querySelectorAll("[data-twx][data-act]"),function(e){var a=A[actIndex(e.dataset.act)];if(!a)return;getWx(a,function(d){e.innerHTML=tripWxHtml(a,d,e.dataset.twx)})})}
   function loadWeather(a){
-    var el=document.getElementById("wx"),ll=WXLL[a.id];if(!el||!ll)return;
-    var key=a.id,done=function(d){if(state.sel===null||A[state.sel]!==a)return;var box=document.getElementById("wx");if(box)box.innerHTML=wxHtml(a,d)};
-    if(WXC[key]&&Date.now()-WXC[key].t<30*60000){done(WXC[key].d);return}
-    var u="https://api.open-meteo.com/v1/forecast?latitude="+ll[0]+"&longitude="+ll[1]+"&current=temperature_2m,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,wind_speed_10m_max&timezone=Pacific%2FAuckland&forecast_days=8";
-    fetch(u).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(d){WXC[key]={t:Date.now(),d:d};done(d)}).catch(function(){var box=document.getElementById("wx");if(box)box.innerHTML='<p class="muted">The live forecast could not load right now. Check '+ext("https://www.metservice.com/towns-cities/locations/auckland","MetService")+' before you go.</p>'});
+    var el=document.getElementById("wx");if(!el||!WXLL[a.id])return;
+    getWx(a,function(d){if(state.sel===null||A[state.sel]!==a)return;var box=document.getElementById("wx");if(!box)return;
+      box.innerHTML=d?wxHtml(a,d):'<p class="muted">The live forecast could not load right now. Check '+ext("https://www.metservice.com/towns-cities/locations/auckland","MetService")+' before you go.</p>';
+      var tb=document.getElementById("trips");if(tb)fillTripWx(tb,a)});
   }
   function loadListWeather(){
     var ids=Object.keys(WXLL),fill=function(arr){ids.forEach(function(id,k){var d=arr[k],el=app.querySelector('[data-wx="'+id+'"]');if(!el||!d||!d.daily)return;var dl=d.daily,j=-1;
         dl.time.forEach(function(t,x){if(j<0&&new Date(t+"T12:00:00").getDay()===6)j=x});if(j<0)j=0;
         var p=dl.precipitation_probability_max[j];el.textContent=wxIcon(dl.weather_code[j])+" Sat "+Math.round(dl.temperature_2m_max[j])+"°C"+(p==null?"":", "+p+"% rain");if(p>=60)el.classList.add("wet")})};
-    if(WXC.list&&Date.now()-WXC.list.t<30*60000){fill(WXC.list.d);return}
+    if(WXC.list&&WXC.list.day===todayISO()&&Date.now()-WXC.list.t<30*60000){fill(WXC.list.d);return}
     var u="https://api.open-meteo.com/v1/forecast?latitude="+ids.map(function(i){return WXLL[i][0]}).join(",")+"&longitude="+ids.map(function(i){return WXLL[i][1]}).join(",")+"&daily=weather_code,temperature_2m_max,precipitation_probability_max&timezone=Pacific%2FAuckland&forecast_days=8";
-    fetch(u).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(d){if(!Array.isArray(d))d=[d];WXC.list={t:Date.now(),d:d};fill(d)}).catch(function(){Array.prototype.forEach.call(app.querySelectorAll(".rwx"),function(e){e.remove()})});
+    fetch(u).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(d){if(!Array.isArray(d))d=[d];WXC.list={t:Date.now(),day:todayISO(),d:d};fill(d)}).catch(function(){Array.prototype.forEach.call(app.querySelectorAll(".rwx"),function(e){e.remove()})});
   }
   function wxHtml(a,d){
     var h='<p><b>Live forecast</b></p>';
-    if(d.current)h+='<p class="wxnow">Now: <b>'+Math.round(d.current.temperature_2m)+'°C</b> '+wxIcon(d.current.weather_code)+' '+esc(wxText(d.current.weather_code))+', wind '+Math.round(d.current.wind_speed_10m)+' km/h</p>';
-    var dl=d.daily||{},days=[],wet=false;
-    (dl.time||[]).forEach(function(t,i){var wd=new Date(t+"T12:00:00").getDay();if((wd===6||wd===0)&&days.length<2)days.push(i)});
-    if(days.length){
-      h+='<div class="wxdays">';
-      days.forEach(function(i){var p=dl.precipitation_probability_max[i],c=dl.weather_code[i];if(p>=60)wet=true;
-        h+='<div class="wxday"><b>'+esc(fmtDate(dl.time[i]))+'</b>'+wxIcon(c)+' '+esc(wxText(c))+'<br>'+Math.round(dl.temperature_2m_min[i])+' to '+Math.round(dl.temperature_2m_max[i])+'°C<br>Rain chance '+(p==null?'n/a':p+'%')+'<br>Wind up to '+Math.round(dl.wind_speed_10m_max[i])+' km/h</div>'});
+    if(d.current)h+='<p class="wxnow">Now: <b>'+nv(d.current.temperature_2m,"°C")+'</b> '+(d.current.weather_code!=null?wxIcon(d.current.weather_code)+' '+esc(wxText(d.current.weather_code)):'')+', wind '+nv(d.current.wind_speed_10m," km/h")+'</p>';
+    var dl=d.daily||{},n=Math.min(7,(dl.time||[]).length),warn=[];
+    if(n){
+      h+='<div class="wx7">';
+      for(var i=0;i<n;i++){var c=dl.weather_code[i],r=wxReasons(dl,i);if(r.length)warn.push((i===0?"Today":fmtDate(dl.time[i]))+": "+r.join(", "));
+        h+='<div class="wxr'+(r.length?' bad':'')+'"><b>'+(i===0?'Today':esc(fmtDate(dl.time[i])))+'</b><span>'+(c==null?'':wxIcon(c)+' '+esc(wxText(c)))+'</span><span>'+nv(dl.temperature_2m_min[i],"")+' to '+nv(dl.temperature_2m_max[i],"°C")+'</span><span>Rain '+nv(dl.precipitation_probability_max[i],"%")+'</span><span>Wind '+nv(dl.wind_speed_10m_max[i]," km/h")+'</span></div>'}
       h+='</div>';
     }
-    if(wet)h+='<p class="wxwarn">Rain is likely this weekend.'+(a.w?' Consider the backup: '+esc(a.w.backup)+'.':' Check the forecast again before you go.')+'</p>';
-    return h+'<p class="muted" style="margin-top:8px">Forecast from Open-Meteo, updated hourly. It can change, so check again on the day.</p>';
+    if(warn.length&&wdep(a)==="Yes")h+='<p class="wxwarn">Heads up for '+esc(warn.join("; "))+'.'+(a.w&&a.w.backup?' Consider the backup: '+esc(a.w.backup)+'.':' Check the forecast again before you go.')+'</p>';
+    return h+'<p class="muted" style="margin-top:8px">Forecast from Open-Meteo, fetched at '+esc(wxFetched(a))+' Auckland time. It can change, so check again on the day. A clear forecast does not mean a trip is safe.</p><p style="margin-top:6px">'+ext("https://www.metservice.com/towns-cities/locations/auckland","Full Auckland forecast")+' · '+ext("https://www.metservice.com/warnings/home","MetService warnings")+'</p>';
   }
   function jumpBar(a){
     var L=LOC[a.id],q=L?L[1]:a.name+", Auckland",j=[["s-go","🚌 Getting there"],["s-wx","☀️ Weather"]];
@@ -1130,6 +1164,27 @@ try{nzxTheme();matchMedia("(prefers-color-scheme: dark)").addEventListener("chan
     Array.prototype.forEach.call(app.querySelectorAll(".lk[data-mode]"),function(b){b.onclick=function(){applyLook(getLook(),getSize(),b.dataset.mode);render()}});
   }
   /* ---------- home: upcoming trips across all activities ---------- */
+  /* Ref 60: trips in the next 3 days with only 1 or 2 places left */
+  function loadLastMin(all){
+    var box=document.getElementById("lastmin");if(!box)return;
+    var t=todayISO(),e=new Date(t+"T12:00:00");e.setDate(e.getDate()+3);var end=e.toISOString().slice(0,10);
+    var c=all.filter(function(x){var l=x.max-(x.joined||0);return x.date>=t&&x.date<=end&&l>=1&&l<=2&&actIndex(x.activityId)>-1}).sort(function(p,q){return (p.date+p.time)<(q.date+q.time)?-1:1});
+    Promise.all(c.map(function(x){return db.collection("trips").doc(x.id).collection("members").doc(state.uid).get().then(function(m){x.mine=m.exists;return x},function(){x.mine=false;return x})})).then(function(c){
+      c=c.filter(function(x){return !x.mine}).slice(0,3);
+      if(!c.length||state.tab!=="home"){box.innerHTML="";return}
+      var h='<h2 class="sec">Last Minute: Almost Full!</h2><div class="agrid">';
+      c.forEach(function(x){var a=A[actIndex(x.activityId)],l=x.max-(x.joined||0);
+        h+='<div class="upc glass lm"><span class="upd">'+esc(fmtDate(x.date))+' · '+esc(fmtTime(x.time))+(x.women?' · Females only':'')+'</span><b>'+esc(a.name)+'</b><span class="upm">Meet at '+esc(x.meeting)+'</span><span class="upm lmleft">Only '+l+' place'+(l===1?'':'s')+' left</span><button class="btn lmjoin" data-id="'+esc(x.id)+'">Join trip</button><span class="upm lmmsg" id="lm-'+esc(x.id)+'" role="status"></span></div>'});
+      box.innerHTML=h+'</div>';
+      Array.prototype.forEach.call(box.querySelectorAll(".lmjoin"),function(b){b.onclick=function(){
+        var id=b.dataset.id,msg=document.getElementById("lm-"+id);b.disabled=true;msg.textContent="Joining...";
+        var first=(state.name||"").split(" ")[0]||"Student",batch=db.batch(),tr=db.collection("trips").doc(id);
+        batch.set(tr.collection("members").doc(state.uid),{name:first.slice(0,40),at:Date.now()});
+        batch.update(tr,{joined:firebase.firestore.FieldValue.increment(1)});
+        batch.commit().then(function(){MY.list=null;b.remove();msg.innerHTML="You're in! It is now in My trips.";var lf=msg.parentNode.querySelector(".lmleft");if(lf)lf.textContent="You have joined this trip"}).catch(function(){b.disabled=false;msg.textContent="Could not join. Someone may have taken the last place."});
+      }});
+    }).catch(function(){});
+  }
   function loadUpcoming(){
     var box=document.getElementById("upcoming");if(!box||!db||!state.uid)return;
     var today=new Date().toISOString().slice(0,10),col=db.collection("trips");
@@ -1138,6 +1193,7 @@ try{nzxTheme();matchMedia("(prefers-color-scheme: dark)").addEventListener("chan
     Promise.all([open,women]).then(function(res){
       var list=[];
       res.forEach(function(r,i){if(r)r.forEach(function(d){var x=d.data();x.id=d.id;x.women=(i===1);list.push(x)})});
+      loadLastMin(list.slice());
       list=list.filter(function(x){return x.date>=today&&(x.joined||0)<x.max}).sort(function(p,q){return (p.date+p.time)<(q.date+q.time)?-1:1}).slice(0,3);
       if(!list.length||state.tab!=="home")return;
       var h='<h2 class="sec">Coming up</h2><div class="agrid">';
@@ -1172,7 +1228,7 @@ try{nzxTheme();matchMedia("(prefers-color-scheme: dark)").addEventListener("chan
   }
   function stars(n){var s="";for(var i=1;i<=5;i++)s+=i<=Math.round(n)?"★":"☆";return s}
   function tripRow(x,extra){var i=actIndex(x.activityId),a=A[i]||{name:"Activity"};
-    return '<div class="mt glass2"><span class="upd">'+esc(fmtDate(x.date))+' · '+esc(fmtTime(x.time))+(x.women?' · Females only':'')+'</span><b>'+esc(a.name)+'</b><p class="muted">Meet at '+esc(x.meeting)+'. '+esc(x.joined||0)+' of '+esc(x.max)+' places taken.</p>'+(extra||'')+'</div>'}
+    return '<div class="mt glass2"><span class="upd">'+esc(fmtDate(x.date))+' · '+esc(fmtTime(x.time))+(x.women?' · Females only':'')+'</span><b>'+esc(a.name)+'</b><p class="muted">Meet at '+esc(x.meeting)+'. '+esc(x.joined||0)+' of '+esc(x.max)+' places taken.</p>'+(x.date>=todayISO()&&WXLL[x.activityId]?'<p class="twx" data-act="'+esc(x.activityId)+'" data-twx="'+esc(x.date)+'"><span class="muted">Loading the forecast...</span></p>':'')+(extra||'')+'</div>'}
   function tripsView(){
     var h='<div class="view">'+topbar()+'<div class="pagehead"><h1>My trips</h1><p>Trips you have joined, and trips you can now review.</p></div>'+(state.flash?'<p class="callout" role="status">'+esc(state.flash)+'</p>':'');state.flash="";
     if(!db)return h+'<p class="muted">Sign in to see your trips.</p></div>';
@@ -1331,22 +1387,26 @@ try{nzxTheme();matchMedia("(prefers-color-scheme: dark)").addEventListener("chan
     if((state.tab==="trips"||state.tab==="chats")&&MY.list===null&&!MY.loading&&db&&state.uid){MY.loading=true;loadMyTrips(function(){MY.loading=false;if(state.tab==="trips"||state.tab==="chats")render()})}
     if(state.tab==="chats"&&state.chat)bindChat();
     if(state.tab==="trips"&&state.review)bindReview();
+    if(state.tab==="trips"&&!state.review&&MY.list)fillMyTripsWx();
     if(state.tab==="approvals")bindApprovals();
     if(state.tab==="activities"&&state.sel!==null){loadReviews(A[state.sel]);loadApprovedPhotos(A[state.sel])}
     if(state.tab==="home")loadUpcoming();
     window.scrollTo(0,0);
   }
+  function refreshWx(){if(state.tab==="activities"){if(state.sel!==null)loadWeather(A[state.sel]);else loadListWeather()}else if(state.tab==="trips"&&MY.list)fillMyTripsWx()}
+  setInterval(refreshWx,30*60000);
+  document.addEventListener("visibilitychange",function(){if(!document.hidden)refreshWx()});
   function rerenderList(){app.innerHTML=listView();bind();loadListWeather()}
   function bind(){
     Array.prototype.forEach.call(app.querySelectorAll(".mbtn"),function(b){b.onclick=function(e){e.stopPropagation();var l=b.nextElementSibling,open=l.hidden;l.hidden=!open;b.setAttribute("aria-expanded",String(open))}});
-    var o=document.getElementById("out");if(o)o.onclick=function(){if(auth)auth.signOut();state.user=null;state.name="";state.mode="signin";state.step="email";state.email="";state.error="";state.profile={name:"",age:"",gender:""};state.gender="";state.uid=null;state.gmsg="";state.sel=null;state.f={dur:"Any",diff:"Any"};render()};
+    var o=document.getElementById("out");if(o)o.onclick=function(){if(auth)auth.signOut();state.user=null;state.name="";state.mode="signin";state.step="email";state.email="";state.error="";state.profile={name:"",age:"",gender:""};state.gender="";state.uid=null;state.gmsg="";state.sel=null;state.f={dur:"Any",diff:"Any",wx:"Any"};render()};
     Array.prototype.forEach.call(app.querySelectorAll("[data-go]"),function(b){b.onclick=function(){state.tab=b.dataset.go;state.sel=null;state.chat=null;state.review=null;if(state.tab==="trips"||state.tab==="chats")MY.list=null;render()}});
     Array.prototype.forEach.call(app.querySelectorAll("[data-chat]"),function(b){b.onclick=function(){state.tab="chats";state.chat=b.dataset.chat;state.sel=null;render()}});
     Array.prototype.forEach.call(app.querySelectorAll("[data-review]"),function(b){b.onclick=function(){state.tab="trips";state.review=b.dataset.review;state.rv=null;state.sel=null;render()}});
     Array.prototype.forEach.call(app.querySelectorAll(".row"),function(b){b.onclick=function(){state.sel=+b.dataset.i;render()}});
     Array.prototype.forEach.call(app.querySelectorAll("[data-feat]"),function(b){b.onclick=function(){state.tab="activities";state.sel=+b.dataset.feat;render()}});
     Array.prototype.forEach.call(app.querySelectorAll(".chip"),function(b){b.onclick=function(){state.f[b.dataset.f]=b.dataset.v;rerenderList()}});
-    Array.prototype.forEach.call(app.querySelectorAll("[data-clear]"),function(b){b.onclick=function(){state.f={dur:"Any",diff:"Any"};rerenderList()}});
+    Array.prototype.forEach.call(app.querySelectorAll("[data-clear]"),function(b){b.onclick=function(){state.f={dur:"Any",diff:"Any",wx:"Any"};rerenderList()}});
     bindGallery();
     Array.prototype.forEach.call(app.querySelectorAll("[data-jump]"),function(b){b.onclick=function(){var t=document.getElementById(b.dataset.jump);if(t)t.scrollIntoView({behavior:"smooth",block:"start"})}});
     var bk=document.getElementById("bk");if(bk)bk.onclick=function(){state.sel=null;render()};
