@@ -452,6 +452,15 @@ a.jb{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)
 .cm.me .rep{display:none}
 .lmimg{width:calc(100% + 32px);margin:-14px -16px 10px;height:110px;object-fit:cover;display:block;border-radius:14px 14px 0 0}
 @media (min-width:900px){.rowx .rpics{flex-basis:140px}}
+
+/* collapsible filters panel */
+.fhead{display:flex;margin:4px 0 8px}
+.fbtn{display:inline-flex;align-items:center;gap:8px;border:2px solid var(--ink);background:var(--surface);color:var(--ink);border-radius:999px;padding:9px 16px;font:inherit;font-weight:700;font-size:15px;cursor:pointer}
+.fbtn svg{width:18px;height:18px;stroke:currentColor;stroke-width:2.4;fill:none;stroke-linecap:round}
+.fcount{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;padding:0 6px;border-radius:999px;background:var(--accent);color:var(--accent-ink);font-size:13px}
+.fchev{font-size:11px;opacity:.7}
+#fpanel{border:1px solid var(--line);border-radius:14px;padding:4px 14px 10px;margin-bottom:8px;background:var(--surface)}
+#fpanel[hidden]{display:none}
 </style>
 <script>window.nzxTheme=function(){var r=document.documentElement,g=function(k){try{return localStorage.getItem(k)}catch(e){return null}};var l=g("nzx_look")||"clay",m=g("nzx_mode"),z=g("nzx_size"),d;
 if(l==="clay")r.removeAttribute("data-look");else r.setAttribute("data-look",l);
@@ -931,10 +940,11 @@ try{nzxTheme();matchMedia("(prefers-color-scheme: dark)").addEventListener("chan
   }
   function listView(){
     var h='<div class="view">'+topbar()+'<div class="pagehead"><h1>Activities</h1><p>Tap one to see how to get there.</p></div>';
-    h+='<div class="filters"><fieldset><legend>Duration</legend>'+chips("dur",DUR)+'</fieldset><fieldset><legend>Difficulty</legend>'+chips("diff",DIFF)+'</fieldset><fieldset><legend>Weather</legend>'+chips("wx",WXF)+'</fieldset><fieldset><legend>Area</legend>'+chips("zone",ZONES)+'</fieldset>'+
+    var f=state.f,nAct=(f.dur!=="Any")+(f.diff!=="Any")+((f.wx||"Any")!=="Any")+((f.zone||"Any")!=="Any")+!!f.free+!!f.ready+((f.sort||"Suggested")!=="Suggested"),shown=A.filter(matches),open=!!state.fopen||!shown.length;
+    h+='<div class="filters"><div class="fhead"><button type="button" class="fbtn" id="ftog" aria-expanded="'+open+'" aria-controls="fpanel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M6 12h12M10 18h4"/></svg>Filters and sort'+(nAct?' <span class="fcount">'+nAct+'</span>':'')+'<span class="fchev">'+(open?'▲':'▼')+'</span></button></div>';
+    h+='<div id="fpanel"'+(open?'':' hidden')+'><fieldset><legend>Duration</legend>'+chips("dur",DUR)+'</fieldset><fieldset><legend>Difficulty</legend>'+chips("diff",DIFF)+'</fieldset><fieldset><legend>Weather</legend>'+chips("wx",WXF)+'</fieldset><fieldset><legend>Area</legend>'+chips("zone",ZONES)+'</fieldset>'+
       '<fieldset><legend>Quick picks</legend><div class="chips"><button class="chip tog" data-tog="free" aria-pressed="'+!!state.f.free+'">Free entry</button><button class="chip tog" data-tog="ready" aria-pressed="'+!!state.f.ready+'">Weather ready (rain plan)</button></div></fieldset>'+
-      '<fieldset><legend>Sort</legend>'+chips("sort",SORTS)+'</fieldset>';
-    var shown=A.filter(matches);
+      '<fieldset><legend>Sort</legend>'+chips("sort",SORTS)+'</fieldset></div>';
     h+='<div class="fbar"><span class="count" aria-live="polite">Showing '+shown.length+' of '+A.length+'</span><button class="linkbtn" data-clear="1">Clear filters</button></div></div>';
     if(!shown.length){
       h+='<div class="empty"><b>No activities match these filters.</b><br>Try another option or clear filters.<div style="margin-top:12px"><button class="btn ghost" data-clear="1">Clear filters</button></div></div>';
@@ -1498,6 +1508,7 @@ try{nzxTheme();matchMedia("(prefers-color-scheme: dark)").addEventListener("chan
     Array.prototype.forEach.call(app.querySelectorAll(".row"),function(b){b.onclick=function(){state.sel=+b.dataset.i;render()}});
     Array.prototype.forEach.call(app.querySelectorAll("[data-feat]"),function(b){b.onclick=function(){state.tab="activities";state.sel=+b.dataset.feat;render()}});
     Array.prototype.forEach.call(app.querySelectorAll(".chip[data-f]"),function(b){b.onclick=function(){state.f[b.dataset.f]=b.dataset.v;rerenderList()}});
+    var ft=document.getElementById("ftog");if(ft)ft.onclick=function(){state.fopen=!state.fopen;rerenderList()};
     Array.prototype.forEach.call(app.querySelectorAll(".chip[data-tog]"),function(b){b.onclick=function(){state.f[b.dataset.tog]=!state.f[b.dataset.tog];rerenderList()}});
     Array.prototype.forEach.call(app.querySelectorAll("[data-clear]"),function(b){b.onclick=function(){state.f={dur:"Any",diff:"Any",wx:"Any",zone:"Any",free:false,ready:false,sort:"Suggested"};rerenderList()}});
     bindGallery();
