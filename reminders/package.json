@@ -1,0 +1,10 @@
+{
+  "name": "nz-explorer-reminders",
+  "private": true,
+  "description": "Ref 59: emails each trip member a reminder about 24 hours before the trip",
+  "main": "send.js",
+  "dependencies": {
+    "firebase-admin": "12.7.0",
+    "nodemailer": "6.9.16"
+  }
+}

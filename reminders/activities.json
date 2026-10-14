@@ -1,0 +1,307 @@
+{
+ "A01": {
+  "name": "Rangitoto Island Summit Walk",
+  "start": null,
+  "mapQuery": "Rangitoto Island Summit Walk, Auckland",
+  "bring": [
+   "1–2 litres of drinking water per person",
+   "Packed lunch and snacks",
+   "Sturdy shoes for rough lava surfaces",
+   "Hat, sunscreen and sunglasses",
+   "Warm and waterproof layers",
+   "Return ferry ticket and timetable",
+   "Charged phone and rubbish bag",
+   "Torch if visiting the lava caves"
+  ],
+  "tip": "NO SHOPS OR DRINKING WATER ON THE ISLAND. Bring all food and water and check the last return ferry.",
+  "backup": "New Zealand Maritime Museum, Viaduct Harbour",
+  "weatherDependent": true,
+  "lat": -36.787,
+  "lon": 174.86
+ },
+ "A02": {
+  "name": "Maungakiekie / One Tree Hill and Cornwall Park",
+  "start": null,
+  "mapQuery": "Maungakiekie / One Tree Hill and Cornwall Park, Auckland",
+  "bring": [
+   "Filled water bottle",
+   "Comfortable walking shoes",
+   "Sun protection",
+   "Light rain jacket or warm layer",
+   "Charged phone",
+   "Payment card and transport ticket/card",
+   "Snack or picnic lunch",
+   "Small rubbish bag"
+  ],
+  "tip": "Carry water for the summit section. Cafés and facilities are in the park, not at the summit.",
+  "backup": "Te Whatu Stardome, One Tree Hill Domain",
+  "weatherDependent": true,
+  "lat": -36.9,
+  "lon": 174.783
+ },
+ "A03": {
+  "name": "Devonport Waterfront and Maungauika / North Head",
+  "start": null,
+  "mapQuery": "Devonport Waterfront and Maungauika / North Head, Auckland",
+  "bring": [
+   "Filled water bottle",
+   "Comfortable walking shoes",
+   "Sun protection",
+   "Light rain jacket or warm layer",
+   "Charged phone",
+   "Payment card and transport ticket/card",
+   "Snack or picnic lunch",
+   "Torch if entering the tunnels"
+  ],
+  "tip": "The headland is exposed. Carry a windproof layer and water even when cafés are available in Devonport village.",
+  "backup": "Torpedo Bay Navy Museum, Devonport",
+  "weatherDependent": true,
+  "lat": -36.828,
+  "lon": 174.811
+ },
+ "A04": {
+  "name": "Beachlands to Maraetai Coastal Walkway",
+  "start": "Shelley Bay Toilet Reserve, end of Second View Avenue, Beachlands",
+  "mapQuery": "142 Second View Avenue, Beachlands, Auckland",
+  "bring": [
+   "Filled water bottle",
+   "Comfortable walking shoes",
+   "Sun protection",
+   "Light rain jacket or warm layer",
+   "Charged phone",
+   "Payment card and transport ticket/card",
+   "Snacks or picnic lunch",
+   "Shoes with grip",
+   "Small rubbish bag"
+  ],
+  "tip": "Bring a full water bottle. Refill points along the route were not confirmed. Unsealed sections can be muddy after rain.",
+  "backup": "UXBRIDGE Arts & Culture, Howick",
+  "weatherDependent": true,
+  "lat": -36.884,
+  "lon": 174.998
+ },
+ "A05": {
+  "name": "Auckland Coast-to-Coast Walkway",
+  "start": "Te Wero Bridge, Viaduct Basin (99 Customs Street West)",
+  "mapQuery": "Te Wero Bridge, Viaduct Harbour, Auckland",
+  "bring": [
+   "Full water bottle with a refill plan",
+   "Packed lunch and substantial snacks",
+   "Comfortable supportive shoes",
+   "Sunscreen, hat and sunglasses",
+   "Rain jacket and warm layer",
+   "Charged phone, power bank and route map",
+   "Payment card and return-transport plan",
+   "Small first-aid kit and rubbish bag"
+  ],
+  "tip": "Allow for a full walking day. Bring food and water rather than depending on every café being open.",
+  "backup": "Auckland Museum, Auckland Domain",
+  "weatherDependent": true,
+  "lat": -36.848,
+  "lon": 174.765
+ },
+ "A06": {
+  "name": "Auckland Domain & Wintergardens",
+  "start": "Domain Wintergardens, end of Wintergarden Road, Auckland Domain",
+  "mapQuery": "Domain Wintergardens, 20 Park Road, Grafton, Auckland",
+  "bring": [
+   "Filled water bottle",
+   "Comfortable walking shoes",
+   "Sun protection",
+   "Light rain jacket or warm layer",
+   "Charged phone",
+   "Payment card and transport ticket/card",
+   "Snack",
+   "Small rubbish bag"
+  ],
+  "tip": "The glasshouses provide indoor space only while open. Carry a rain jacket for the outdoor park sections.",
+  "backup": "Auckland Museum, Auckland Domain",
+  "weatherDependent": true,
+  "lat": -36.86,
+  "lon": 174.776
+ },
+ "A07": {
+  "name": "Maungawhau / Mt Eden Summit Walk",
+  "start": "Main entrance, 250 Mount Eden Road",
+  "mapQuery": "250 Mount Eden Road, Mount Eden, Auckland",
+  "bring": [
+   "Filled water bottle",
+   "Comfortable walking shoes",
+   "Sun protection",
+   "Light rain jacket or warm layer",
+   "Charged phone",
+   "Payment card and transport ticket/card",
+   "Shoes with grip",
+   "Light snack"
+  ],
+  "tip": "Carry water for the summit. Remain on formed paths and do not enter the sacred crater.",
+  "backup": "Westfield Newmarket, indoor browsing and food court",
+  "weatherDependent": true,
+  "lat": -36.876,
+  "lon": 174.764
+ },
+ "A08": {
+  "name": "Tāmaki Drive Waterfront Walk (Mission Bay & St Heliers)",
+  "start": "Ferry Building, corner of Queen Street and Quay Street, downtown",
+  "mapQuery": "Ferry Building, 99 Quay Street, Auckland CBD",
+  "bring": [
+   "Filled water bottle",
+   "Comfortable walking shoes",
+   "Sun protection",
+   "Light rain jacket or warm layer",
+   "Charged phone",
+   "Payment card and transport ticket/card",
+   "Snacks",
+   "Return-bus plan",
+   "Small rubbish bag"
+  ],
+  "tip": "This is an exposed waterfront route. Bring water and sun/wind protection. Swim only if conditions are suitable.",
+  "backup": "SEA LIFE Kelly Tarlton’s Aquarium, Ōkahu Bay",
+  "weatherDependent": true,
+  "lat": -36.848,
+  "lon": 174.832
+ },
+ "A09": {
+  "name": "Parnell Farmers’ Market",
+  "start": "Behind Parnell library, Parnell Road",
+  "mapQuery": "545 Parnell Road, Parnell, Auckland",
+  "bring": [
+   "Filled water bottle",
+   "Comfortable shoes",
+   "Rain jacket or sun protection",
+   "Reusable shopping bag",
+   "Payment card and some cash",
+   "Charged phone",
+   "Light snack if needed"
+  ],
+  "tip": "Saturday market, 08:00–12:00. Check current pedestrian access because construction affects Jubilee Building access.",
+  "backup": "Auckland Museum, Auckland Domain",
+  "weatherDependent": true,
+  "lat": -36.858,
+  "lon": 174.78
+ },
+ "A10": {
+  "name": "Takapuna Beach & Sunday Market",
+  "start": "Waiwharariki Anzac Square, 38 Hurstmere Road, Takapuna",
+  "mapQuery": "Waiwharariki Anzac Square, 38 Hurstmere Road, Takapuna, Auckland",
+  "bring": [
+   "Filled water bottle",
+   "Comfortable walking shoes",
+   "Sun protection",
+   "Light rain jacket or warm layer",
+   "Charged phone",
+   "Payment card and transport ticket/card",
+   "Reusable shopping bag",
+   "Some cash",
+   "Snack",
+   "Towel and swimwear only if swimming"
+  ],
+  "tip": "Check the current Sunday market hours. Beach swimming is optional and requires a separate conditions check.",
+  "backup": "Shore City Shopping Centre, Takapuna",
+  "weatherDependent": true,
+  "lat": -36.788,
+  "lon": 174.772
+ },
+ "A11": {
+  "name": "Hobsonville Point Coastal Walkway",
+  "start": "The Landing ferry stop",
+  "mapQuery": "The Landing, Hobsonville Point, Auckland",
+  "bring": [
+   "Filled water bottle",
+   "Comfortable walking shoes",
+   "Sun protection",
+   "Light rain jacket or warm layer",
+   "Charged phone",
+   "Payment card and transport ticket/card",
+   "Snack or packed lunch",
+   "Return ferry timetable",
+   "Small rubbish bag"
+  ],
+  "tip": "Carry water and check return ferry times. The waterfront loop has no continuous covered shelter.",
+  "backup": "Catalina Bay Farmers Market, covered weekend market",
+  "weatherDependent": true,
+  "lat": -36.794,
+  "lon": 174.659
+ },
+ "A12": {
+  "name": "Ambury Regional Park Farm Walk",
+  "start": "Ambury Regional Park, Māngere Bridge",
+  "mapQuery": "Ambury Regional Park, Māngere Bridge, Auckland",
+  "bring": [
+   "Filled water bottle",
+   "Comfortable walking shoes",
+   "Sun protection",
+   "Light rain jacket or warm layer",
+   "Charged phone",
+   "Payment card and transport ticket/card",
+   "Packed picnic lunch",
+   "Closed-toe shoes suitable for a farm",
+   "Hand sanitiser",
+   "Small rubbish bag"
+  ],
+  "tip": "BRING FOOD AND FILLED DRINKING WATER. Do not drink untreated campground tap water. Wash hands after animal contact and before eating.",
+  "backup": "Māngere Bridge Library, indoor reading and browsing",
+  "weatherDependent": true,
+  "lat": -36.937,
+  "lon": 174.77
+ },
+ "A13": {
+  "name": "Auckland Botanic Gardens (Manurewa)",
+  "start": "Visitor centre, 102 Hill Road, Manurewa",
+  "mapQuery": "102 Hill Road, Manurewa, Auckland",
+  "bring": [
+   "Filled water bottle",
+   "Comfortable walking shoes",
+   "Sun protection",
+   "Light rain jacket or warm layer",
+   "Charged phone",
+   "Payment card and transport ticket/card",
+   "Snack or picnic lunch",
+   "Small rubbish bag"
+  ],
+  "tip": "Bring water for the garden paths. Café service and the visitor centre have shorter hours than the outdoor gardens.",
+  "backup": "Huakaiwaka Visitor Centre, Auckland Botanic Gardens",
+  "weatherDependent": true,
+  "lat": -37.012,
+  "lon": 174.906
+ },
+ "A14": {
+  "name": "Western Springs Lakeside Park",
+  "start": "731 Great North Road, Western Springs (enter from Great North Rd or Motions Rd)",
+  "mapQuery": "731 Great North Road, Western Springs, Auckland",
+  "bring": [
+   "Filled water bottle",
+   "Comfortable walking shoes",
+   "Sun protection",
+   "Light rain jacket or warm layer",
+   "Charged phone",
+   "Payment card and transport ticket/card",
+   "Snack or picnic",
+   "Small rubbish bag"
+  ],
+  "tip": "Do not feed the birds. Carry a rain jacket. Tree shade is not covered shelter.",
+  "backup": "Westfield St Lukes, indoor browsing and food court",
+  "weatherDependent": true,
+  "lat": -36.866,
+  "lon": 174.722
+ },
+ "A15": {
+  "name": "Ōtara Flea Market",
+  "start": "Car park behind Ōtara Town Centre, Ōtara",
+  "mapQuery": "Ōtara Town Centre, Newbury Street, Ōtara, Auckland",
+  "bring": [
+   "Filled water bottle",
+   "Comfortable shoes",
+   "Rain jacket or sun protection",
+   "Reusable shopping bag",
+   "Payment card and some cash",
+   "Charged phone",
+   "Light snack if needed"
+  ],
+  "tip": "Saturday market, 06:00–12:00, except public holidays. Arrive before noon. Some nearby restaurants open only at 10:00 or 11:00.",
+  "backup": "Ōtara Library, indoor reading and browsing",
+  "weatherDependent": true,
+  "lat": -36.96,
+  "lon": 174.876
+ }
+}

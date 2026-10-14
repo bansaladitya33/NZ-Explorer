@@ -437,6 +437,21 @@ a.jb{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)
 .twx{font-size:14px;margin:6px 0;line-height:1.45}
 .upc.lm{cursor:default}.upc.lm .upm{display:block}.upc.lm .btn{margin-top:10px;width:auto}.lmleft{font-weight:700}
 .lmmsg{display:block;margin-top:6px;font-weight:600}
+
+/* Ref 58 cards, Ref 52 chat rules and reports, Ref 60 photo */
+.rowx .rpics{flex:0 0 128px;display:flex;flex-direction:column;gap:3px;background:var(--soft)}
+.rowx .rmain{width:100%;flex:1 1 auto;min-height:96px;object-fit:cover;display:block}
+.rowx .rsm{display:flex;gap:3px;height:46px}.rowx .rsm img{flex:1;width:50%;object-fit:cover;display:block;min-width:0}
+.rinfo .rhl{color:var(--ink)}.rinfo b{color:var(--ink)}
+.rrate{color:var(--ink);font-weight:600}
+.fav{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.02em;padding:2px 9px;border-radius:999px;background:var(--accent);color:var(--accent-ink);margin-bottom:6px}
+.chip.tog[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.crules{padding:10px 14px;margin:6px 0 4px;font-size:14px}.crules ul{margin:6px 0 0;padding-left:18px}.crules li{margin:2px 0}
+.cm.sys{text-align:left}.cm.sys .tx{background:transparent;border:1px dashed var(--line);max-width:100%}
+.rep{background:none;border:0;padding:2px 0;margin-left:6px;font:inherit;font-size:12px;color:var(--muted);text-decoration:underline;cursor:pointer}
+.cm.me .rep{display:none}
+.lmimg{width:calc(100% + 32px);margin:-14px -16px 10px;height:110px;object-fit:cover;display:block;border-radius:14px 14px 0 0}
+@media (min-width:900px){.rowx .rpics{flex-basis:140px}}
 </style>
 <script>window.nzxTheme=function(){var r=document.documentElement,g=function(k){try{return localStorage.getItem(k)}catch(e){return null}};var l=g("nzx_look")||"clay",m=g("nzx_mode"),z=g("nzx_size"),d;
 if(l==="clay")r.removeAttribute("data-look");else r.setAttribute("data-look",l);
@@ -578,6 +593,8 @@ try{nzxTheme();matchMedia("(prefers-color-scheme: dark)").addEventListener("chan
   var DUR = ["Any","Under 2 hours","Half day (2 to 4 hours)","Full day (4+ hours)"];
   var DIFF = ["Any","Easy","Moderate","Hard"];
   var WXF = ["Any","Weather dependent","Not weather dependent"];
+  var ZONES = ["Any","Central","North","East","South","West"];
+  var SORTS = ["Suggested","Best rated","Best for this weekend"];
   function band(h){return h<2?DUR[1]:(h<=4?DUR[2]:DUR[3])}
 
   /* ---- Added 9 Oct 2026 from the team's Sprint 2 files ---- */
@@ -591,6 +608,9 @@ try{nzxTheme();matchMedia("(prefers-color-scheme: dark)").addEventListener("chan
   Object.keys(NEWW).forEach(function(id){var i=parseInt(id.slice(1),10)-1;if(A[i]){A[i].w=NEWW[id]}});
   Object.keys(NEWS).forEach(function(id){var i=parseInt(id.slice(1),10)-1;if(A[i]){A[i].safety=NEWS[id][1];A[i].risk=NEWS[id][0];A[i].tip=NEWS[id][2]}});
   var NEWT = {"A06": {"mode": "Walk (no transport needed)", "route": "City Campus to Auckland Domain, then on to the Wintergardens", "time": "About 15 to 25 min walk", "fare": "$0", "source": "Team transport log (Ref 10)"}, "A07": {"mode": "Bus (route 27W/H)", "route": "Auckland Universities stop to Tahaki Reserve, then walk up to the summit", "time": "About 15 min by bus, then a 15 to 20 min walk", "fare": "$3.00 one way", "source": "Team transport log (Ref 10)"}, "A08": {"mode": "Bus (Tāmaki Link)", "route": "Britomart to Tāmaki Drive, then Mission Bay or St Heliers", "time": "About 20 to 30 min to Mission Bay", "fare": "$4.90 one way", "source": "Team transport log (Ref 10)"}, "A09": {"mode": "Bus (route 70)", "route": "Auckland Universities stop to Broadway, Parnell, then a short walk. The market runs on Saturdays only", "time": "About 10 min by bus, then a short walk", "fare": "$3.00 one way", "source": "Team transport log (Ref 10)"}, "A10": {"mode": "Bus (route 82)", "route": "Auckland Universities or AUT stop to Takapuna (Stop B). The market runs on Sundays", "time": "About 30 min", "fare": "$4.90 one way", "source": "Team transport log (Ref 10)"}, "A11": {"mode": "Ferry", "route": "Downtown Ferry Terminal to Hobsonville Point (The Landing)", "time": "About 30 min", "fare": "$10.40 one way", "source": "Team transport log (Ref 10)"}, "A12": {"mode": "Bus (route 309)", "route": "City (Civic area) to Ashcroft Avenue, Māngere Bridge, then walk into the park", "time": "About 1 h 10 min", "fare": "$6.50 one way", "source": "Team transport log (Ref 10)"}, "A13": {"mode": "Train and bus (route 366)", "route": "Train to Manurewa Station, then bus 366 to the Botanic Gardens stop", "time": "About 1 h 5 min to 1 h 25 min", "fare": "$7.90 one way", "source": "Team transport log (Ref 10)"}, "A14": {"mode": "Bus (route 18)", "route": "City centre to MOTAT, Great North Road (stop 8122), then a short walk to the lake", "time": "About 20 to 25 min", "fare": "$4.90 one way", "source": "Team transport log (Ref 10)"}, "A15": {"mode": "Train and bus", "route": "Train to Middlemore Station, then a bus to Ōtara (route number still being confirmed), then walk to the market. The market runs on Saturdays only", "time": "About 57 min", "fare": "$6.50 one way", "source": "Team transport log (Ref 10)"}};
+  /* Ref 22: entry cost from Nithin's research (Sprint 3). Ref 20: area of Auckland for the location filter. */
+  var ENTRY={A01:"Free",A02:"Free",A03:"Free",A04:"Free",A05:"Free",A06:"Free",A07:"Free",A08:"Free",A09:"Free",A10:"Free",A11:"Free",A12:"Free",A13:"Free",A14:"Free",A15:"Free"};
+  var ZONE={A01:"North",A02:"Central",A03:"North",A04:"East",A05:"Central",A06:"Central",A07:"Central",A08:"East",A09:"Central",A10:"North",A11:"West",A12:"South",A13:"South",A14:"West",A15:"South"};
   Object.keys(NEWT).forEach(function(id){var i=parseInt(id.slice(1),10)-1;if(A[i]){A[i].t=NEWT[id];A[i].partial=false}});
 
   var FORM_URL = "https://forms.cloud.microsoft/r/cTKsJRdUk4";
@@ -603,7 +623,7 @@ try{nzxTheme();matchMedia("(prefers-color-scheme: dark)").addEventListener("chan
     ["UoA emergency and support","University of Auckland","https://www.auckland.ac.nz/en/students/student-support/personal-support/student-health-counselling/emergency-information.html"]
   ];
 
-  var state = {user:null, name:"", mode:"signin", step:"email", demoCode:null, issued:null, email:"", error:"", notice:"", pending:null, profile:{name:"",age:"",gender:""}, uid:null, gender:"", gmsg:"", tab:"home", sel:null, f:{dur:"Any",diff:"Any",wx:"Any"}};
+  var state = {user:null, name:"", mode:"signin", step:"email", demoCode:null, issued:null, email:"", error:"", notice:"", pending:null, profile:{name:"",age:"",gender:""}, uid:null, gender:"", gmsg:"", tab:"home", sel:null, f:{dur:"Any",diff:"Any",wx:"Any",zone:"Any",free:false,ready:false,sort:"Suggested"}};
   var app = document.getElementById("app");
   var nav = document.getElementById("nav");
   var waves = document.getElementById("waves");
@@ -875,29 +895,54 @@ try{nzxTheme();matchMedia("(prefers-color-scheme: dark)").addEventListener("chan
   /* ---------- activities with filters (Ref 7) ---------- */
   /* Ref 21: weather label from Refs 6 and 11. Yes when a weather plan exists, No only when set explicitly, otherwise unknown. */
   function wdep(a){return a.wdep||(a.w?"Yes":null)}
-  function matches(a){var w=state.f.wx||"Any";return (state.f.dur==="Any"||a.band===state.f.dur)&&(state.f.diff==="Any"||(a.diffs||[a.diff]).indexOf(state.f.diff)>-1)&&(w==="Any"||(w==="Weather dependent"&&wdep(a)==="Yes")||(w==="Not weather dependent"&&wdep(a)==="No"))}
+  function matches(a){var w=state.f.wx||"Any";return (state.f.dur==="Any"||a.band===state.f.dur)&&(state.f.diff==="Any"||(a.diffs||[a.diff]).indexOf(state.f.diff)>-1)&&(w==="Any"||(w==="Weather dependent"&&wdep(a)==="Yes")||(w==="Not weather dependent"&&wdep(a)==="No"))&&(!state.f.zone||state.f.zone==="Any"||ZONE[a.id]===state.f.zone)&&(!state.f.free||ENTRY[a.id]==="Free")&&(!state.f.ready||!!(a.w&&a.w.backup))}
   function chips(key,opts){
     var h='<div class="chips">';
     opts.forEach(function(o){h+='<button class="chip" data-f="'+key+'" data-v="'+esc(o)+'" aria-pressed="'+(state.f[key]===o)+'">'+esc(o)+'</button>'});
     return h+'</div>';
   }
+  /* Ref 58: activity card with photos and key facts at a glance */
+  var RV={agg:null,loading:false,t:0};
+  function shortTime(t){t=String(t||"").replace(/^About /i,"").replace(/\s*\(.*?\)/g,"").replace(/ one way/i,"");return t.split(",")[0]}
+  function highlight(a){var b=EXTRA.bring[a.id];if(!b||!b.banner)return "";var x=b.banner.split(". ")[0].replace(/\.$/,"");if(x===x.toUpperCase())x=x.charAt(0)+x.slice(1).toLowerCase();return x.length>78?x.slice(0,75).replace(/\s+\S*$/,"")+"...":x}
+  function favIds(){var g=RV.agg||{},best=[];Object.keys(g).forEach(function(id){if(g[id].avg>=4.5)best.push(id)});return best}
+  function cardHtml(a,i){
+    var ph=PH[i]||[],pics='';
+    if(ph[0])pics='<div class="rpics"><img class="rmain" src="photos/'+ph[0][0]+'" alt="" loading="lazy">'+(ph.length>2?'<div class="rsm"><img src="photos/'+ph[1][0]+'" alt="" loading="lazy"><img src="photos/'+ph[2][0]+'" alt="" loading="lazy"></div>':'')+'</div>';
+    var g=(RV.agg||{})[a.id],fav=favIds().indexOf(a.id)>-1,inf='';
+    inf+='<span>📍 '+esc(a.area||ZONE[a.id]||"Auckland")+(a.t?' · '+esc(shortTime(a.t.time))+' from uni':'')+'</span>';
+    if(a.t){var md=a.t.mode||"",ic=/ferry/i.test(md)?"⛴️":/train/i.test(md)?"🚆":/walk/i.test(md)?"🚶":"🚌",fr=String(a.t.fare||"").split(" (")[0];
+      inf+='<span>'+ic+' '+esc(md.replace(/\s*\(.*\)/,""))+' · <b>'+esc(ENTRY[a.id]==="Free"?"Free entry":"Entry "+ENTRY[a.id])+'</b>'+(fr&&fr!=="$0"?' + '+esc(fr)+' fare':'')+'</span>'}
+    var hl=highlight(a);if(hl)inf+='<span class="rhl">⚠️ '+esc(hl)+'</span>';
+    inf+=g?'<span class="rrate"><span class="rv-stars">★</span> '+g.avg.toFixed(1)+' ('+g.n+' review'+(g.n>1?'s':'')+')</span>':'<span class="muted">No reviews yet</span>';
+    if(WXLL[a.id])inf+='<span class="rwx" data-wx="'+a.id+'">Checking weekend weather...</span>';
+    return '<button class="row rowx" data-i="'+i+'">'+pics+'<div class="rbody">'+(fav?'<span class="fav">Student favourite</span>':'')+'<h3>'+esc(a.name)+'</h3><div class="meta"><span>'+bars(a.diff)+esc(a.diff)+'</span><span>'+esc(a.dur)+'</span>'+(a.partial?'<span class="tag">Transport coming</span>':'')+'</div><div class="rinfo">'+inf+'</div></div></button>';
+  }
+  function satScore(id){var L=WXC.list,ids=Object.keys(WXLL),k=ids.indexOf(id);if(!L||k<0||!L.d[k]||!L.d[k].daily)return 50;var dl=L.d[k].daily,j=-1;dl.time.forEach(function(t,x){if(j<0&&new Date(t+"T12:00:00").getDay()===6)j=x});if(j<0)j=0;var p=dl.precipitation_probability_max[j],w=dl.wind_speed_10m_max[j];return (p==null?50:p)+(w>=40?40:0)}
+  function sortList(l){var so=state.f.sort||"Suggested",g=RV.agg||{};
+    if(so==="Best rated")return l.slice().sort(function(p,q){var x=g[p.id],y=g[q.id];return (y?y.avg:0)-(x?x.avg:0)||(y?y.n:0)-(x?x.n:0)});
+    if(so==="Best for this weekend")return l.slice().sort(function(p,q){return satScore(p.id)-satScore(q.id)||((g[q.id]||{avg:0}).avg-(g[p.id]||{avg:0}).avg)});
+    return l}
+  function loadRatings(){
+    if(!db||!state.uid||RV.loading||(RV.agg&&Date.now()-RV.t<5*60000))return;RV.loading=true;
+    db.collection("reviews").get().then(function(r){var g={};r.forEach(function(d){var x=d.data();if(!x.activityId||!x.stars)return;var o=g[x.activityId]=g[x.activityId]||{s:0,n:0};o.s+=x.stars;o.n++});
+      Object.keys(g).forEach(function(id){g[id].avg=g[id].s/g[id].n});RV.agg=g;RV.t=Date.now();RV.loading=false;
+      if(state.tab==="activities"&&state.sel===null)rerenderList()}).catch(function(){RV.loading=false});
+  }
   function listView(){
     var h='<div class="view">'+topbar()+'<div class="pagehead"><h1>Activities</h1><p>Tap one to see how to get there.</p></div>';
-    h+='<div class="filters"><fieldset><legend>Duration</legend>'+chips("dur",DUR)+'</fieldset><fieldset><legend>Difficulty</legend>'+chips("diff",DIFF)+'</fieldset><fieldset><legend>Weather</legend>'+chips("wx",WXF)+'</fieldset>';
+    h+='<div class="filters"><fieldset><legend>Duration</legend>'+chips("dur",DUR)+'</fieldset><fieldset><legend>Difficulty</legend>'+chips("diff",DIFF)+'</fieldset><fieldset><legend>Weather</legend>'+chips("wx",WXF)+'</fieldset><fieldset><legend>Area</legend>'+chips("zone",ZONES)+'</fieldset>'+
+      '<fieldset><legend>Quick picks</legend><div class="chips"><button class="chip tog" data-tog="free" aria-pressed="'+!!state.f.free+'">Free entry</button><button class="chip tog" data-tog="ready" aria-pressed="'+!!state.f.ready+'">Weather ready (rain plan)</button></div></fieldset>'+
+      '<fieldset><legend>Sort</legend>'+chips("sort",SORTS)+'</fieldset>';
     var shown=A.filter(matches);
     h+='<div class="fbar"><span class="count" aria-live="polite">Showing '+shown.length+' of '+A.length+'</span><button class="linkbtn" data-clear="1">Clear filters</button></div></div>';
     if(!shown.length){
       h+='<div class="empty"><b>No activities match these filters.</b><br>Try another option or clear filters.<div style="margin-top:12px"><button class="btn ghost" data-clear="1">Clear filters</button></div></div>';
     }
     h+='<div class="agrid">';
+    shown=sortList(shown);
     shown.forEach(function(a){
-      var i=A.indexOf(a);
-      var ph=PH[i]&&PH[i][0]?'<img class="rth" src="photos/'+PH[i][0][0]+'" alt="" loading="lazy">':'';
-      var inf='';
-      if(a.t){var md=a.t.mode||"",ic=/ferry/i.test(md)?"⛴️":/train/i.test(md)?"🚆":/walk/i.test(md)?"🚶":"🚌";inf+='<span>'+ic+' '+esc(md.replace(/\s*\(.*\)/,""))+' · '+esc(String(a.t.fare||"").split(" (")[0].replace(/^\$0$/,"Free"))+'</span>'}
-      if(a.w&&a.w.backup)inf+='<span>☔ Rain plan ready</span>';
-      if(WXLL[a.id])inf+='<span class="rwx" data-wx="'+a.id+'">Checking weekend weather...</span>';
-      h+='<button class="row rowx" data-i="'+i+'">'+ph+'<div class="rbody"><h3>'+esc(a.name)+'</h3><div class="meta"><span>'+bars(a.diff)+esc(a.diff)+'</span><span>'+esc(a.dur)+'</span>'+(a.partial?'<span class="tag">Transport coming</span>':'')+'</div><div class="rinfo">'+inf+'</div></div></button>';
+      var i=A.indexOf(a);h+=cardHtml(a,i);
     });
     return h+'</div></div>';
   }
@@ -1067,7 +1112,7 @@ try{nzxTheme();matchMedia("(prefers-color-scheme: dark)").addEventListener("chan
         var p=dl.precipitation_probability_max[j];el.textContent=wxIcon(dl.weather_code[j])+" Sat "+Math.round(dl.temperature_2m_max[j])+"°C"+(p==null?"":", "+p+"% rain");if(p>=60)el.classList.add("wet")})};
     if(WXC.list&&WXC.list.day===todayISO()&&Date.now()-WXC.list.t<30*60000){fill(WXC.list.d);return}
     var u="https://api.open-meteo.com/v1/forecast?latitude="+ids.map(function(i){return WXLL[i][0]}).join(",")+"&longitude="+ids.map(function(i){return WXLL[i][1]}).join(",")+"&daily=weather_code,temperature_2m_max,precipitation_probability_max&timezone=Pacific%2FAuckland&forecast_days=8";
-    fetch(u).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(d){if(!Array.isArray(d))d=[d];WXC.list={t:Date.now(),day:todayISO(),d:d};fill(d)}).catch(function(){Array.prototype.forEach.call(app.querySelectorAll(".rwx"),function(e){e.remove()})});
+    fetch(u).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(d){if(!Array.isArray(d))d=[d];WXC.list={t:Date.now(),day:todayISO(),d:d};if(state.f.sort==="Best for this weekend"&&state.tab==="activities"&&state.sel===null){rerenderList();return}fill(d)}).catch(function(){Array.prototype.forEach.call(app.querySelectorAll(".rwx"),function(e){e.remove()})});
   }
   function wxHtml(a,d){
     var h='<p><b>Live forecast</b></p>';
@@ -1096,7 +1141,7 @@ try{nzxTheme();matchMedia("(prefers-color-scheme: dark)").addEventListener("chan
     var a=A[state.sel],t=a.t,w=a.w,bs=bringSection(a);
     var h='<div class="view detail">'+topbar()+'<button class="linkbtn back" id="bk">Back to activities</button>'+
     '<h1>'+esc(a.name)+'</h1>'+gallery(state.sel)+jumpBar(a)+'<p class="desc">'+esc(a.desc)+'</p>'+
-    '<div class="facts meta"><span>'+bars(a.diff)+esc(a.diff)+'</span><span>'+esc(a.dur)+'</span><span class="tag">'+esc(a.band)+'</span><span class="tag">'+esc(a.area)+'</span>'+(a.dist?'<span class="tag">'+esc(a.dist)+'</span>':'')+'</div>';
+    '<div class="facts meta"><span>'+bars(a.diff)+esc(a.diff)+'</span><span>'+esc(a.dur)+'</span><span class="tag">'+esc(a.band)+'</span><span class="tag">'+esc(a.area)+'</span>'+(ZONE[a.id]?'<span class="tag">'+esc(ZONE[a.id])+' Auckland</span>':'')+(ENTRY[a.id]?'<span class="tag">'+(ENTRY[a.id]==="Free"?"Free entry":"Entry "+esc(ENTRY[a.id]))+'</span>':'')+(a.dist?'<span class="tag">'+esc(a.dist)+'</span>':'')+'</div>';
     if(a.why)h+='<p class="muted" style="margin-bottom:8px"><b>Why it suits students.</b> '+esc(a.why)+'</p>';
     if(bs)h+=bs.banner;
     h+=locSection(a);
@@ -1174,7 +1219,8 @@ try{nzxTheme();matchMedia("(prefers-color-scheme: dark)").addEventListener("chan
       if(!c.length||state.tab!=="home"){box.innerHTML="";return}
       var h='<h2 class="sec">Last Minute: Almost Full!</h2><div class="agrid">';
       c.forEach(function(x){var a=A[actIndex(x.activityId)],l=x.max-(x.joined||0);
-        h+='<div class="upc glass lm"><span class="upd">'+esc(fmtDate(x.date))+' · '+esc(fmtTime(x.time))+(x.women?' · Females only':'')+'</span><b>'+esc(a.name)+'</b><span class="upm">Meet at '+esc(x.meeting)+'</span><span class="upm lmleft">Only '+l+' place'+(l===1?'':'s')+' left</span><button class="btn lmjoin" data-id="'+esc(x.id)+'">Join trip</button><span class="upm lmmsg" id="lm-'+esc(x.id)+'" role="status"></span></div>'});
+        var pi=actIndex(x.activityId),pp=PH[pi]&&PH[pi][0]?'<img class="lmimg" src="photos/'+PH[pi][0][0]+'" alt="">':'';
+        h+='<div class="upc glass lm">'+pp+'<span class="upd">'+esc(fmtDate(x.date))+' · '+esc(fmtTime(x.time))+' · '+(x.women?'Females only':'All genders')+'</span><b>'+esc(a.name)+'</b><span class="upm">Meet at '+esc(x.meeting)+'</span><span class="upm lmleft">Only '+l+' place'+(l===1?'':'s')+' left</span><button class="btn lmjoin" data-id="'+esc(x.id)+'">Join trip</button><span class="upm lmmsg" id="lm-'+esc(x.id)+'" role="status"></span></div>'});
       box.innerHTML=h+'</div>';
       Array.prototype.forEach.call(box.querySelectorAll(".lmjoin"),function(b){b.onclick=function(){
         var id=b.dataset.id,msg=document.getElementById("lm-"+id);b.disabled=true;msg.textContent="Joining...";
@@ -1230,13 +1276,13 @@ try{nzxTheme();matchMedia("(prefers-color-scheme: dark)").addEventListener("chan
   function tripRow(x,extra){var i=actIndex(x.activityId),a=A[i]||{name:"Activity"};
     return '<div class="mt glass2"><span class="upd">'+esc(fmtDate(x.date))+' · '+esc(fmtTime(x.time))+(x.women?' · Females only':'')+'</span><b>'+esc(a.name)+'</b><p class="muted">Meet at '+esc(x.meeting)+'. '+esc(x.joined||0)+' of '+esc(x.max)+' places taken.</p>'+(x.date>=todayISO()&&WXLL[x.activityId]?'<p class="twx" data-act="'+esc(x.activityId)+'" data-twx="'+esc(x.date)+'"><span class="muted">Loading the forecast...</span></p>':'')+(extra||'')+'</div>'}
   function tripsView(){
-    var h='<div class="view">'+topbar()+'<div class="pagehead"><h1>My trips</h1><p>Trips you have joined, and trips you can now review.</p></div>'+(state.flash?'<p class="callout" role="status">'+esc(state.flash)+'</p>':'');state.flash="";
+    var h='<div class="view">'+topbar()+'<div class="pagehead"><h1>My trips</h1><p>Trips you have joined, and trips you can now review.</p></div>'+(state.flash&&MY.list!==null?'<p class="callout" role="status">'+esc(state.flash)+'</p>':'');if(MY.list!==null)state.flash="";
     if(!db)return h+'<p class="muted">Sign in to see your trips.</p></div>';
     if(MY.list===null)return h+'<p class="muted">Loading your trips...</p></div>';
     var t=todayISO(),up=MY.list.filter(function(x){return x.date>=t}),past=MY.list.filter(function(x){return x.date<t});
     h+='<h2>Upcoming</h2>';
     if(!up.length)h+='<p class="muted">You have not joined any upcoming trips yet. Open an activity and tap Join this trip.</p><p style="margin-top:10px"><button class="btn" data-go="activities">Browse activities</button></p>';
-    up.forEach(function(x){var i=actIndex(x.activityId);h+=tripRow(x,'<div class="btnrow"><button class="btn ghost" data-feat="'+i+'">Open activity</button>'+((x.joined||0)>=need(x)?'<button class="btn" data-chat="'+esc(x.id)+'">Open chat</button>':'')+'</div>')});
+    up.forEach(function(x){var i=actIndex(x.activityId);h+=tripRow(x,'<div class="btnrow"><button class="btn ghost" data-feat="'+i+'">Open activity</button>'+((x.joined||0)>=need(x)?'<button class="btn" data-chat="'+esc(x.id)+'">Open chat</button>':'')+'<button class="btn ghost mleave" data-id="'+esc(x.id)+'">Leave trip</button></div><p class="muted" id="ml-'+esc(x.id)+'" role="status"></p>')});
     h+='<h2 style="margin-top:22px">Past trips</h2>';
     if(!past.length)h+='<p class="muted">Trips you went on will appear here so you can rate them and add photos.</p>';
     past.slice().reverse().forEach(function(x){
@@ -1252,7 +1298,7 @@ try{nzxTheme();matchMedia("(prefers-color-scheme: dark)").addEventListener("chan
       if(!x)return h+'<p class="muted">Chat not found.</p></div>';
       var a=A[actIndex(x.activityId)]||{name:"Trip"};
       h+='<button class="linkbtn back" id="chatback">Back to chats</button><div class="pagehead"><h1>'+esc(a.name)+'</h1><p>'+esc(fmtDate(x.date))+' · '+esc(fmtTime(x.time))+' · '+esc(x.joined||0)+' going</p></div>';
-      h+='<p class="muted">Only students on this trip can see this chat. First names only. Do not share your phone number or home address, and meet at the public place listed on the activity page.</p>';
+      h+='<div class="crules glass2"><b>Group rules</b><ul><li>Only students on this trip can see this chat.</li><li>Be kind. No harassment, hate or pressure.</li><li>First names only. Do not share your phone number or home address.</li><li>Meet at the public meeting point, never at a private address.</li><li>Report anything that makes you uncomfortable. The team can hide messages.</li></ul></div>';
       h+='<div class="cmsgs" id="cmsgs" aria-live="polite"><p class="muted">Loading messages...</p></div>';
       h+='<form class="cform" id="cform"><input type="text" maxlength="300" placeholder="Write a message" aria-label="Message" autocomplete="off"><button class="btn" type="submit">Send</button></form><p class="muted" id="cerr" role="status"></p>';
       return h+'<p class="muted" style="margin-top:6px">Something not right? '+ext(FORM_URL,"Report a problem")+'.</p></div>';
@@ -1274,11 +1320,15 @@ try{nzxTheme();matchMedia("(prefers-color-scheme: dark)").addEventListener("chan
     stopChat();
     chatUnsub=col.orderBy("at").limitToLast(200).onSnapshot(function(snap){
       box.innerHTML="";
-      if(snap.empty)box.innerHTML='<p class="muted">No messages yet. Say hi to the group.</p>';
+      var wl=document.createElement("div");wl.className="cm sys";wl.innerHTML='<span class="tx"><b>Welcome from NZ Explorer!</b> You are meeting at <b>'+esc(x.meeting||"the meeting point")+'</b> on '+esc(fmtDate(x.date))+' at '+esc(fmtTime(x.time))+'. Please read the <button type="button" class="linkbtn" data-go="safety">safety guidance</button> before you go, and say hi below.</span>';box.appendChild(wl);
+      Array.prototype.forEach.call(wl.querySelectorAll("[data-go]"),function(b){b.onclick=function(){state.tab="safety";state.chat=null;render()}});
+      if(snap.empty){var e0=document.createElement("p");e0.className="muted";e0.textContent="No messages yet. Say hi to the group.";box.appendChild(e0)}
       snap.forEach(function(d){var m=d.data(),row=document.createElement("div"),tx=document.createElement("span"),nm=document.createElement("small");
         row.className="cm"+(m.uid===state.uid?" me":"");tx.className="tx";tx.textContent=m.text||"";
         var dt=new Date(m.at||0);nm.textContent=(m.uid===state.uid?"You":(m.name||"Student"))+" · "+dt.toLocaleDateString("en-NZ",{day:"numeric",month:"short"})+" "+dt.toLocaleTimeString("en-NZ",{hour:"numeric",minute:"2-digit"});
-        row.appendChild(tx);row.appendChild(document.createElement("br"));row.appendChild(nm);box.appendChild(row)});
+        row.appendChild(tx);row.appendChild(document.createElement("br"));row.appendChild(nm);
+        if(m.uid!==state.uid){var rp=document.createElement("button");rp.type="button";rp.className="rep";rp.textContent="Report";rp.onclick=function(){report({type:"message",tripId:x.id,itemId:d.id,text:String(m.text||"").slice(0,300),author:m.name||"Student"},rp)};row.appendChild(rp)}
+        box.appendChild(row)});
       box.scrollTop=box.scrollHeight;
     },function(){box.innerHTML='<p class="muted">This chat is not available right now.</p>';form.style.display="none"});
     form.onsubmit=function(e){e.preventDefault();var inp=form.querySelector("input"),t=inp.value.trim();if(!t)return;var b=form.querySelector("button");b.disabled=true;err.textContent="";
@@ -1326,16 +1376,20 @@ try{nzxTheme();matchMedia("(prefers-color-scheme: dark)").addEventListener("chan
     var box=document.getElementById("reviews");if(!box||!db)return;
     db.collection("reviews").where("activityId","==",a.id).get().then(function(r){
       if(state.sel===null||A[state.sel]!==a)return;
-      var list=[];r.forEach(function(d){list.push(d.data())});list.sort(function(p,q){return (q.at||0)-(p.at||0)});
+      var list=[];r.forEach(function(d){var x=d.data();x.id=d.id;list.push(x)});list.sort(function(p,q){return (q.at||0)-(p.at||0)});
       var h='<h2>Reviews</h2>';
       if(!list.length){box.innerHTML=h+'<p class="muted">No reviews yet. After a trip, rate it from My trips.</p>';return}
       var avg=list.reduce(function(s,x){return s+(x.stars||0)},0)/list.length;
       h+='<p class="rv-avg"><span class="rv-stars">'+stars(avg)+'</span> '+avg.toFixed(1)+' from '+list.length+' review'+(list.length>1?'s':'')+'</p>';
-      list.slice(0,10).forEach(function(x){h+='<div class="rv"><p><span class="rv-stars">'+stars(x.stars)+'</span> <b>'+esc(x.name||"Student")+'</b> <span class="muted">'+esc(new Date(x.at||0).toLocaleDateString("en-NZ",{day:"numeric",month:"short"}))+'</span></p>'+(x.text?'<p>'+esc(x.text)+'</p>':'');
+      list.slice(0,10).forEach(function(x,k){h+='<div class="rv"><p><span class="rv-stars">'+stars(x.stars)+'</span> <b>'+esc(x.name||"Student")+'</b> <span class="muted">'+esc(new Date(x.at||0).toLocaleDateString("en-NZ",{day:"numeric",month:"short"}))+'</span>'+(x.demo?' <span class="tag">Example review</span>':'')+'</p>'+(x.text?'<p>'+esc(x.text)+'</p>':'');
+        if(x.uid!==state.uid)h+='<button type="button" class="rep" data-rr="'+k+'">Report</button>';
         h+='</div>'});
       box.innerHTML=h;
+      Array.prototype.forEach.call(box.querySelectorAll("[data-rr]"),function(b){var x=list[+b.dataset.rr];b.onclick=function(){report({type:"review",tripId:x.tripId||"",itemId:x.id,text:String(x.text||"").slice(0,300),author:x.name||"Student"},b)}});
     }).catch(function(){box.innerHTML='<h2>Reviews</h2><p class="muted">Reviews could not load right now.</p>'});
   }
+  function report(o,btn){if(!db||!state.uid)return;btn.disabled=true;o.by=state.uid;o.at=Date.now();
+    db.collection("reports").add(o).then(function(){btn.textContent="Reported. Thanks, the team will check it."}).catch(function(){btn.disabled=false;btn.textContent="Could not report. Try again"})}
   var OWNER="aban600@aucklanduni.ac.nz";
   function isOwnerUser(){return (state.user||"").toLowerCase()===OWNER}
   var APPROVED={};
@@ -1350,11 +1404,43 @@ try{nzxTheme();matchMedia("(prefers-color-scheme: dark)").addEventListener("chan
     }).catch(function(){});
   }
   function approvalsView(){
-    var h='<div class="view">'+topbar()+'<div class="pagehead"><h1>Photo approvals</h1><p>Photos students sent with their reviews. Approved photos join that activity\'s gallery.</p></div>';
+    var h='<div class="view">'+topbar()+'<div class="pagehead"><h1>Team page</h1><p>Only the NZ Explorer team can see this page.</p></div>';
     if(!isOwnerUser())return h+'<p class="muted">Only the NZ Explorer team can see this page.</p></div>';
-    return h+'<div id="apq"><p class="muted">Loading photos...</p></div></div>';
+    h+='<h2>Reported messages and reviews</h2><div id="repq"><p class="muted">Loading reports...</p></div>';
+    h+='<h2 style="margin-top:22px">Photo approvals</h2><p class="muted">Photos students sent with their reviews. Approved photos join that activity\'s gallery.</p><div id="apq"><p class="muted">Loading photos...</p></div>';
+    h+='<h2 style="margin-top:22px">Demo data</h2><p class="muted">Creates trips in the next 3 days that are almost full, one past trip and 3 example reviews (marked "Example review"), so every feature has something to show in a demo. Remove it all afterwards with one tap.</p><div class="btnrow"><button class="btn" id="demoadd">Create demo data</button><button class="btn ghost" id="demodel">Remove demo data</button></div><p class="muted" id="demomsg" role="status"></p>';
+    return h+'</div>';
+  }
+  function bindReports(){
+    var box=document.getElementById("repq");if(!box||!db)return;
+    db.collection("reports").get().then(function(r){
+      var list=[];r.forEach(function(d){var x=d.data();x.id=d.id;list.push(x)});list.sort(function(p,q){return (p.at||0)-(q.at||0)});
+      if(!list.length){box.innerHTML='<p class="muted">No reports. Anything students report will appear here.</p>';return}
+      var h='';list.forEach(function(x,k){h+='<div class="apr"><div><b>'+(x.type==="review"?"Review":"Chat message")+' by '+esc(x.author||"Student")+'</b><p>'+esc(x.text||"")+'</p><p class="muted">Reported '+esc(new Date(x.at||0).toLocaleDateString("en-NZ",{day:"numeric",month:"short"}))+'</p><div class="btnrow"><button class="btn" data-hide="'+k+'">Hide it</button><button class="btn ghost" data-keep="'+k+'">Keep it</button></div></div></div>'});
+      box.innerHTML=h;
+      function done(b,t){var c=b.closest(".apr");c.innerHTML='<p class="muted">'+t+'</p>'}
+      Array.prototype.forEach.call(box.querySelectorAll("[data-hide]"),function(b){b.onclick=function(){var x=list[+b.dataset.hide];b.disabled=true;
+        var ref=x.type==="review"?db.collection("reviews").doc(x.itemId):db.collection("trips").doc(x.tripId).collection("messages").doc(x.itemId);
+        ref.delete().then(function(){return db.collection("reports").doc(x.id).delete()}).then(function(){RV.agg=null;done(b,"Hidden. Students can no longer see it.")}).catch(function(){b.disabled=false})}});
+      Array.prototype.forEach.call(box.querySelectorAll("[data-keep]"),function(b){b.onclick=function(){var x=list[+b.dataset.keep];b.disabled=true;db.collection("reports").doc(x.id).delete().then(function(){done(b,"Kept. The report was cleared.")}).catch(function(){b.disabled=false})}});
+    }).catch(function(){box.innerHTML='<p class="muted">Could not load reports. Check the new Firestore rules are published.</p>'});
+  }
+  function bindDemo(){
+    var add=document.getElementById("demoadd"),del=document.getElementById("demodel"),msg=document.getElementById("demomsg");if(!add||!db)return;
+    function day(n){var d=new Date(todayISO()+"T12:00:00");d.setDate(d.getDate()+n);return d.toISOString().slice(0,10)}
+    add.onclick=function(){add.disabled=true;msg.textContent="Creating...";var b=db.batch(),T=db.collection("trips");
+      [["A02",1,"10:00","Cornwall Park, Greenlane Road entrance",6,5],["A07",2,"16:00","Mt Eden Road summit track entrance",8,6],["A05",3,"09:30","Te Wero Bridge, Wynyard Quarter",8,7]].forEach(function(t,k){
+        b.set(T.doc("demo_up"+k),{activityId:t[0],date:day(t[1]),time:t[2],meeting:t[3],max:t[4],joined:t[5],womenOnly:false,demo:true})});
+      b.set(T.doc("demo_past"),{activityId:"A01",date:day(-4),time:"09:00",meeting:"Downtown Ferry Terminal, Pier 4",max:8,joined:3,womenOnly:false,demo:true});
+      [["A01","Example student A",5,"Amazing views from the summit. Bring more water than you think, there is none on the island."],["A01","Example student B",4,"Lava rock is rough on the feet, wear proper shoes. The ferry back fills up, get there early."],["A07","Example student C",5,"Short walk with the best city view. Great for a first trip with new people."]].forEach(function(r,k){
+        b.set(db.collection("reviews").doc("demo_rv"+k),{uid:"demo",name:r[1],activityId:r[0],tripId:"demo_past",stars:r[2],text:r[3],sent:0,at:Date.now()-k*3600000,demo:true})});
+      b.commit().then(function(){RV.agg=null;msg.textContent="Demo data created. Check the home page and the activity list.";add.disabled=false}).catch(function(){add.disabled=false;msg.textContent="Could not create it. Check the new Firestore rules are published."})};
+    del.onclick=function(){del.disabled=true;msg.textContent="Removing...";
+      Promise.all([db.collection("trips").where("womenOnly","==",false).where("demo","==",true).get(),db.collection("reviews").where("demo","==",true).get()]).then(function(res){var b=db.batch(),cols=["trips","reviews"];res.forEach(function(r,i){r.forEach(function(d){b.delete(db.collection(cols[i]).doc(d.id))})});return b.commit()})
+      .then(function(){RV.agg=null;msg.textContent="Demo data removed.";del.disabled=false}).catch(function(){del.disabled=false;msg.textContent="Could not remove it right now."})};
   }
   function bindApprovals(){
+    bindReports();bindDemo();
     var box=document.getElementById("apq");if(!box||!db)return;
     db.collection("photoSubs").where("status","==","pending").get().then(function(r){
       var list=[];r.forEach(function(d){var p=d.data();p.id=d.id;list.push(p)});list.sort(function(p,q){return (p.at||0)-(q.at||0)});
@@ -1381,13 +1467,19 @@ try{nzxTheme();matchMedia("(prefers-color-scheme: dark)").addEventListener("chan
     });
     bind();
     if(state.tab==="activities"&&state.sel!==null){loadTrips(A[state.sel]);loadWeather(A[state.sel])}
-    if(state.tab==="activities"&&state.sel===null)loadListWeather();
+    if(state.tab==="activities"&&state.sel===null){loadListWeather();loadRatings()}
     if(state.tab==="profile")bindProfile();
     if(state.tab==="look")bindLook();
     if((state.tab==="trips"||state.tab==="chats")&&MY.list===null&&!MY.loading&&db&&state.uid){MY.loading=true;loadMyTrips(function(){MY.loading=false;if(state.tab==="trips"||state.tab==="chats")render()})}
     if(state.tab==="chats"&&state.chat)bindChat();
     if(state.tab==="trips"&&state.review)bindReview();
-    if(state.tab==="trips"&&!state.review&&MY.list)fillMyTripsWx();
+    if(state.tab==="trips"&&!state.review&&MY.list){fillMyTripsWx();
+      Array.prototype.forEach.call(app.querySelectorAll(".mleave"),function(b){b.onclick=function(){
+        var id=b.dataset.id,m=document.getElementById("ml-"+id);
+        if(b.dataset.sure!=="1"){b.dataset.sure="1";b.textContent="Tap again to leave";m.textContent="Your place will go to someone else and you will lose access to the group chat.";return}
+        b.disabled=true;var batch=db.batch(),tr=db.collection("trips").doc(id);
+        batch.delete(tr.collection("members").doc(state.uid));batch.update(tr,{joined:firebase.firestore.FieldValue.increment(-1)});
+        batch.commit().then(function(){MY.list=null;state.flash="You have left that trip. Your place is free for someone else.";render()}).catch(function(){b.disabled=false;m.textContent="Could not leave right now. Please try again."})}})}
     if(state.tab==="approvals")bindApprovals();
     if(state.tab==="activities"&&state.sel!==null){loadReviews(A[state.sel]);loadApprovedPhotos(A[state.sel])}
     if(state.tab==="home")loadUpcoming();
@@ -1399,14 +1491,15 @@ try{nzxTheme();matchMedia("(prefers-color-scheme: dark)").addEventListener("chan
   function rerenderList(){app.innerHTML=listView();bind();loadListWeather()}
   function bind(){
     Array.prototype.forEach.call(app.querySelectorAll(".mbtn"),function(b){b.onclick=function(e){e.stopPropagation();var l=b.nextElementSibling,open=l.hidden;l.hidden=!open;b.setAttribute("aria-expanded",String(open))}});
-    var o=document.getElementById("out");if(o)o.onclick=function(){if(auth)auth.signOut();state.user=null;state.name="";state.mode="signin";state.step="email";state.email="";state.error="";state.profile={name:"",age:"",gender:""};state.gender="";state.uid=null;state.gmsg="";state.sel=null;state.f={dur:"Any",diff:"Any",wx:"Any"};render()};
+    var o=document.getElementById("out");if(o)o.onclick=function(){if(auth)auth.signOut();state.user=null;state.name="";state.mode="signin";state.step="email";state.email="";state.error="";state.profile={name:"",age:"",gender:""};state.gender="";state.uid=null;state.gmsg="";state.sel=null;state.f={dur:"Any",diff:"Any",wx:"Any",zone:"Any",free:false,ready:false,sort:"Suggested"};render()};
     Array.prototype.forEach.call(app.querySelectorAll("[data-go]"),function(b){b.onclick=function(){state.tab=b.dataset.go;state.sel=null;state.chat=null;state.review=null;if(state.tab==="trips"||state.tab==="chats")MY.list=null;render()}});
     Array.prototype.forEach.call(app.querySelectorAll("[data-chat]"),function(b){b.onclick=function(){state.tab="chats";state.chat=b.dataset.chat;state.sel=null;render()}});
     Array.prototype.forEach.call(app.querySelectorAll("[data-review]"),function(b){b.onclick=function(){state.tab="trips";state.review=b.dataset.review;state.rv=null;state.sel=null;render()}});
     Array.prototype.forEach.call(app.querySelectorAll(".row"),function(b){b.onclick=function(){state.sel=+b.dataset.i;render()}});
     Array.prototype.forEach.call(app.querySelectorAll("[data-feat]"),function(b){b.onclick=function(){state.tab="activities";state.sel=+b.dataset.feat;render()}});
-    Array.prototype.forEach.call(app.querySelectorAll(".chip"),function(b){b.onclick=function(){state.f[b.dataset.f]=b.dataset.v;rerenderList()}});
-    Array.prototype.forEach.call(app.querySelectorAll("[data-clear]"),function(b){b.onclick=function(){state.f={dur:"Any",diff:"Any",wx:"Any"};rerenderList()}});
+    Array.prototype.forEach.call(app.querySelectorAll(".chip[data-f]"),function(b){b.onclick=function(){state.f[b.dataset.f]=b.dataset.v;rerenderList()}});
+    Array.prototype.forEach.call(app.querySelectorAll(".chip[data-tog]"),function(b){b.onclick=function(){state.f[b.dataset.tog]=!state.f[b.dataset.tog];rerenderList()}});
+    Array.prototype.forEach.call(app.querySelectorAll("[data-clear]"),function(b){b.onclick=function(){state.f={dur:"Any",diff:"Any",wx:"Any",zone:"Any",free:false,ready:false,sort:"Suggested"};rerenderList()}});
     bindGallery();
     Array.prototype.forEach.call(app.querySelectorAll("[data-jump]"),function(b){b.onclick=function(){var t=document.getElementById(b.dataset.jump);if(t)t.scrollIntoView({behavior:"smooth",block:"start"})}});
     var bk=document.getElementById("bk");if(bk)bk.onclick=function(){state.sel=null;render()};

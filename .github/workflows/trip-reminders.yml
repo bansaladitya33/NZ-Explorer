@@ -1,0 +1,39 @@
+name: Trip reminder emails (Ref 59)
+
+on:
+  schedule:
+    - cron: "5 * * * *"   # every hour
+  workflow_dispatch:
+    inputs:
+      test_email:
+        description: "Send one sample email to this address (changes nothing)"
+        required: false
+      dry_run:
+        description: "Only list who would get an email (1 = yes)"
+        required: false
+        default: "0"
+
+concurrency:
+  group: trip-reminders
+  cancel-in-progress: false
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: reminders
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: npm install --no-audit --no-fund
+      - run: node send.js
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          TEST_TO: ${{ github.event.inputs.test_email }}
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
