@@ -603,7 +603,7 @@ try{nzxTheme();matchMedia("(prefers-color-scheme: dark)").addEventListener("chan
   var DIFF = ["Any","Easy","Moderate","Hard"];
   var WXF = ["Any","Weather dependent","Not weather dependent"];
   var ZONES = ["Any","Central","North","East","South","West"];
-  var SORTS = ["Suggested","Best rated","Best for this weekend"];
+  var SORTS = ["Suggested","Highest rated","Shortest"];
   function band(h){return h<2?DUR[1]:(h<=4?DUR[2]:DUR[3])}
 
   /* ---- Added 9 Oct 2026 from the team's Sprint 2 files ---- */
@@ -928,9 +928,11 @@ try{nzxTheme();matchMedia("(prefers-color-scheme: dark)").addEventListener("chan
     return '<button class="row rowx" data-i="'+i+'">'+pics+'<div class="rbody">'+(fav?'<span class="fav">Student favourite</span>':'')+'<h3>'+esc(a.name)+'</h3><div class="meta"><span>'+bars(a.diff)+esc(a.diff)+'</span><span>'+esc(a.dur)+'</span>'+(a.partial?'<span class="tag">Transport coming</span>':'')+'</div><div class="rinfo">'+inf+'</div></div></button>';
   }
   function satScore(id){var L=WXC.list,ids=Object.keys(WXLL),k=ids.indexOf(id);if(!L||k<0||!L.d[k]||!L.d[k].daily)return 50;var dl=L.d[k].daily,j=-1;dl.time.forEach(function(t,x){if(j<0&&new Date(t+"T12:00:00").getDay()===6)j=x});if(j<0)j=0;var p=dl.precipitation_probability_max[j],w=dl.wind_speed_10m_max[j];return (p==null?50:p)+(w>=40?40:0)}
+  /* shortest first: reads the first time in the duration, e.g. "40 min to 1 hour" is 40, "1 to 2 hours" is 60 */
+  function durMin(a){var t=String(a.dur||"").toLowerCase(),m=t.match(/(\d+(?:\.\d+)?)/);if(!m)return 9999;var n=parseFloat(m[1]),rest=t.slice(m.index),u=rest.match(/\b(min|minute|minutes|h|hr|hrs|hour|hours)\b/);return u&&/^min/.test(u[1])?n:n*60}
   function sortList(l){var so=state.f.sort||"Suggested",g=RV.agg||{};
-    if(so==="Best rated")return l.slice().sort(function(p,q){var x=g[p.id],y=g[q.id];return (y?y.avg:0)-(x?x.avg:0)||(y?y.n:0)-(x?x.n:0)});
-    if(so==="Best for this weekend")return l.slice().sort(function(p,q){return satScore(p.id)-satScore(q.id)||((g[q.id]||{avg:0}).avg-(g[p.id]||{avg:0}).avg)});
+    if(so==="Highest rated")return l.slice().sort(function(p,q){var x=g[p.id],y=g[q.id];return (y?y.avg:0)-(x?x.avg:0)||(y?y.n:0)-(x?x.n:0)});
+    if(so==="Shortest")return l.slice().sort(function(p,q){return durMin(p)-durMin(q)});
     return l}
   function loadRatings(){
     if(!db||!state.uid||RV.loading||(RV.agg&&Date.now()-RV.t<5*60000))return;RV.loading=true;
@@ -940,11 +942,11 @@ try{nzxTheme();matchMedia("(prefers-color-scheme: dark)").addEventListener("chan
   }
   function listView(){
     var h='<div class="view">'+topbar()+'<div class="pagehead"><h1>Activities</h1><p>Tap one to see how to get there.</p></div>';
-    var f=state.f,nAct=(f.dur!=="Any")+(f.diff!=="Any")+((f.wx||"Any")!=="Any")+((f.zone||"Any")!=="Any")+!!f.free+!!f.ready+((f.sort||"Suggested")!=="Suggested"),shown=A.filter(matches),open=!!state.fopen||!shown.length;
+    var f=state.f,nAct=(f.dur!=="Any")+(f.diff!=="Any")+((f.zone||"Any")!=="Any")+!!f.free+!!f.ready+((f.sort||"Suggested")!=="Suggested"),shown=A.filter(matches),open=!!state.fopen||!shown.length;
     h+='<div class="filters"><div class="fhead"><button type="button" class="fbtn" id="ftog" aria-expanded="'+open+'" aria-controls="fpanel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M6 12h12M10 18h4"/></svg>Filters and sort'+(nAct?' <span class="fcount">'+nAct+'</span>':'')+'<span class="fchev">'+(open?'▲':'▼')+'</span></button></div>';
-    h+='<div id="fpanel"'+(open?'':' hidden')+'><fieldset><legend>Duration</legend>'+chips("dur",DUR)+'</fieldset><fieldset><legend>Difficulty</legend>'+chips("diff",DIFF)+'</fieldset><fieldset><legend>Weather</legend>'+chips("wx",WXF)+'</fieldset><fieldset><legend>Area</legend>'+chips("zone",ZONES)+'</fieldset>'+
+    h+='<div id="fpanel"'+(open?'':' hidden')+'><fieldset><legend>Duration</legend>'+chips("dur",DUR)+'</fieldset><fieldset><legend>Difficulty</legend>'+chips("diff",DIFF)+'</fieldset><fieldset><legend>Area</legend>'+chips("zone",ZONES)+'</fieldset>'+
       '<fieldset><legend>Quick picks</legend><div class="chips"><button class="chip tog" data-tog="free" aria-pressed="'+!!state.f.free+'">Free entry</button><button class="chip tog" data-tog="ready" aria-pressed="'+!!state.f.ready+'">Weather ready (rain plan)</button></div></fieldset>'+
-      '<fieldset><legend>Sort</legend>'+chips("sort",SORTS)+'</fieldset></div>';
+      '<fieldset><legend>Sorted by</legend>'+chips("sort",SORTS)+'</fieldset></div>';
     h+='<div class="fbar"><span class="count" aria-live="polite">Showing '+shown.length+' of '+A.length+'</span><button class="linkbtn" data-clear="1">Clear filters</button></div></div>';
     if(!shown.length){
       h+='<div class="empty"><b>No activities match these filters.</b><br>Try another option or clear filters.<div style="margin-top:12px"><button class="btn ghost" data-clear="1">Clear filters</button></div></div>';
@@ -1122,7 +1124,7 @@ try{nzxTheme();matchMedia("(prefers-color-scheme: dark)").addEventListener("chan
         var p=dl.precipitation_probability_max[j];el.textContent=wxIcon(dl.weather_code[j])+" Sat "+Math.round(dl.temperature_2m_max[j])+"°C"+(p==null?"":", "+p+"% rain");if(p>=60)el.classList.add("wet")})};
     if(WXC.list&&WXC.list.day===todayISO()&&Date.now()-WXC.list.t<30*60000){fill(WXC.list.d);return}
     var u="https://api.open-meteo.com/v1/forecast?latitude="+ids.map(function(i){return WXLL[i][0]}).join(",")+"&longitude="+ids.map(function(i){return WXLL[i][1]}).join(",")+"&daily=weather_code,temperature_2m_max,precipitation_probability_max&timezone=Pacific%2FAuckland&forecast_days=8";
-    fetch(u).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(d){if(!Array.isArray(d))d=[d];WXC.list={t:Date.now(),day:todayISO(),d:d};if(state.f.sort==="Best for this weekend"&&state.tab==="activities"&&state.sel===null){rerenderList();return}fill(d)}).catch(function(){Array.prototype.forEach.call(app.querySelectorAll(".rwx"),function(e){e.remove()})});
+    fetch(u).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(d){if(!Array.isArray(d))d=[d];WXC.list={t:Date.now(),day:todayISO(),d:d};fill(d)}).catch(function(){Array.prototype.forEach.call(app.querySelectorAll(".rwx"),function(e){e.remove()})});
   }
   function wxHtml(a,d){
     var h='<p><b>Live forecast</b></p>';
