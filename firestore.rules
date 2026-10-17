@@ -1,0 +1,149 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function verifiedUoA() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email.matches('.*@aucklanduni[.]ac[.]nz');
+    }
+    function isOwner() {
+      return verifiedUoA() && request.auth.token.email == 'aban600@aucklanduni.ac.nz';
+    }
+
+    // A student can read and write only their own profile (name and gender).
+    match /users/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow create, update: if request.auth != null && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['name', 'gender'])
+        && request.resource.data.gender in ['female', 'male', 'other']
+        && request.resource.data.name is string
+        && request.resource.data.name.size() < 41;
+      allow delete: if false;
+    }
+
+    function tripDoc(id) {
+      return get(/databases/$(database)/documents/trips/$(id)).data;
+    }
+    function canSeeTrip(t) {
+      return t.womenOnly == false
+        || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.gender == 'female';
+    }
+    function isMember(id) {
+      return exists(/databases/$(database)/documents/trips/$(id)/members/$(request.auth.uid));
+    }
+
+    // Everyone verified sees open trips. Women only trips are readable only by accounts whose gender is female.
+    match /trips/{tripId} {
+      allow read: if verifiedUoA()
+        && (resource.data.womenOnly == false
+            || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.gender == 'female');
+      allow create, delete: if isOwner();
+      // Owner can edit anything. A student can only move the joined counter by exactly one, and only together with their own membership change.
+      allow update: if isOwner()
+        || (verifiedUoA()
+            && canSeeTrip(resource.data)
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['joined'])
+            && ((request.resource.data.joined == resource.data.get('joined', 0) + 1
+                  && request.resource.data.joined <= resource.data.max
+                  && !exists(/databases/$(database)/documents/trips/$(tripId)/members/$(request.auth.uid))
+                  && existsAfter(/databases/$(database)/documents/trips/$(tripId)/members/$(request.auth.uid)))
+                ||
+                (request.resource.data.joined == resource.data.get('joined', 0) - 1
+                  && request.resource.data.joined >= 0
+                  && exists(/databases/$(database)/documents/trips/$(tripId)/members/$(request.auth.uid))
+                  && !existsAfter(/databases/$(database)/documents/trips/$(tripId)/members/$(request.auth.uid)))));
+
+      // Who has joined. You always see your own entry. Others only see the list once you are a member and at least half the places are taken.
+      match /members/{uid} {
+        allow read: if verifiedUoA()
+          && (request.auth.uid == uid
+              || (isMember(tripId) && tripDoc(tripId).get('joined', 0) * 2 >= tripDoc(tripId).max));
+        allow create: if verifiedUoA()
+          && request.auth.uid == uid
+          && canSeeTrip(tripDoc(tripId))
+          && tripDoc(tripId).get('joined', 0) < tripDoc(tripId).max
+          && request.resource.data.keys().hasOnly(['name', 'email', 'at'])
+          && request.resource.data.name is string
+          && request.resource.data.name.size() < 41
+          && (!('email' in request.resource.data) || request.resource.data.email == request.auth.token.email);
+        allow delete: if verifiedUoA() && request.auth.uid == uid;
+        allow update: if false;
+      }
+
+      // Group chat for one trip. Only members can read or write, and only once at least half the places are taken.
+      match /messages/{msgId} {
+        allow read: if verifiedUoA()
+          && isMember(tripId)
+          && tripDoc(tripId).get('joined', 0) * 2 >= tripDoc(tripId).max;
+        allow create: if verifiedUoA()
+          && isMember(tripId)
+          && tripDoc(tripId).get('joined', 0) * 2 >= tripDoc(tripId).max
+          && request.resource.data.keys().hasOnly(['uid', 'name', 'text', 'at'])
+          && request.resource.data.uid == request.auth.uid
+          && request.resource.data.name == get(/databases/$(database)/documents/trips/$(tripId)/members/$(request.auth.uid)).data.name
+          && request.resource.data.text is string
+          && request.resource.data.text.size() > 0
+          && request.resource.data.text.size() <= 300
+          && request.resource.data.at is number;
+        allow delete: if isOwner() || (verifiedUoA() && resource.data.uid == request.auth.uid);
+        allow update: if false;
+      }
+
+    }
+
+    // Reviews: one per student per trip, written only by someone who was on the trip. Everyone signed in can read them.
+    match /reviews/{reviewId} {
+      allow read: if verifiedUoA();
+      // The team can add example reviews for the demo. They are marked demo and shown as "Example review".
+      allow create, update: if isOwner() && request.resource.data.get('demo', false) == true;
+      allow create, update: if verifiedUoA()
+        && request.resource.data.uid == request.auth.uid
+        && reviewId == request.resource.data.tripId + '_' + request.auth.uid
+        && exists(/databases/$(database)/documents/trips/$(request.resource.data.tripId)/members/$(request.auth.uid))
+        && request.resource.data.keys().hasOnly(['uid', 'name', 'activityId', 'tripId', 'stars', 'text', 'sent', 'at'])
+        && request.resource.data.stars is int
+        && request.resource.data.stars >= 1 && request.resource.data.stars <= 5
+        && request.resource.data.text is string && request.resource.data.text.size() <= 500
+        && request.resource.data.name is string && request.resource.data.name.size() < 41;
+      allow delete: if isOwner() || (verifiedUoA() && resource.data.uid == request.auth.uid);
+    }
+
+    // Reports: any verified student can report a chat message or a review. Only the team can read and clear them.
+    match /reports/{reportId} {
+      allow create: if verifiedUoA()
+        && request.resource.data.by == request.auth.uid
+        && request.resource.data.keys().hasOnly(['type', 'tripId', 'itemId', 'text', 'author', 'by', 'at'])
+        && request.resource.data.type in ['message', 'review']
+        && request.resource.data.text is string && request.resource.data.text.size() <= 300;
+      allow read, delete: if isOwner();
+      allow update: if false;
+    }
+
+    // Plans & pricing (Ref 46): a student saves only their own plan choice. No payment details. The team can count them.
+    match /planInterest/{uid} {
+      allow read: if isOwner() || (verifiedUoA() && request.auth.uid == uid);
+      allow create, update: if verifiedUoA() && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['plan', 'optIn', 'at'])
+        && request.resource.data.plan in ['trip', 'month', 'sem']
+        && request.resource.data.optIn is bool;
+      allow delete: if false;
+    }
+
+    // Trip photos: students send them, the owner approves. Only approved photos are readable by students.
+    match /photoSubs/{photoId} {
+      allow read: if isOwner() || (verifiedUoA() && resource.data.status == 'approved');
+      allow create: if verifiedUoA()
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.status == 'pending'
+        && exists(/databases/$(database)/documents/trips/$(request.resource.data.tripId)/members/$(request.auth.uid))
+        && request.resource.data.keys().hasOnly(['uid', 'name', 'activityId', 'tripId', 'data', 'status', 'at'])
+        && request.resource.data.data is string
+        && request.resource.data.data.size() < 300000;
+      allow update: if isOwner()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
+        && request.resource.data.status in ['approved', 'rejected'];
+      allow delete: if isOwner();
+    }
+  }
+}
