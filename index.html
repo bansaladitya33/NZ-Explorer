@@ -483,6 +483,9 @@ a.jb{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)
 .sum{width:100%;border-collapse:collapse;margin:10px 0;font-size:14px;border:1px solid var(--line);border-radius:10px}.sum td{padding:9px 12px;border-bottom:1px solid var(--line)}.sum td:last-child{text-align:right}
 @media (min-width:760px){.plgrid{grid-template-columns:repeat(3,1fr)}.plfree ul{columns:4}.plcq{grid-template-columns:1.2fr 1fr}.sheetbg{align-items:center}.sheet{border-radius:18px}}
 @media (min-width:900px){.view.plans{max-width:1000px;margin:0 auto}.plhead{display:grid;grid-template-columns:1.4fr 1fr;gap:24px;align-items:end}}
+
+.passbox{border:2px solid var(--accent);border-radius:12px;padding:12px 14px;margin-top:10px;background:var(--surface)}
+.passbox .btnrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.passbox .btn{width:auto;flex:1 1 140px}
 </style>
 <script>window.nzxTheme=function(){var r=document.documentElement,g=function(k){try{return localStorage.getItem(k)}catch(e){return null}};var l=g("nzx_look")||"clay",m=g("nzx_mode"),z=g("nzx_size"),d;
 if(l==="clay")r.removeAttribute("data-look");else r.setAttribute("data-look",l);
@@ -1035,7 +1038,8 @@ try{nzxTheme();matchMedia("(prefers-color-scheme: dark)").addEventListener("chan
     }else if(full){
       h+='<p class="muted">This trip is full. Check the other dates.</p>';
     }else{
-      h+='<label class="share"><input type="checkbox" class="shr"> Share my university email with the group once enough students have joined</label><button class="btn join" data-id="'+esc(x.id)+'">Join this trip</button>';
+      if(PASS_GATE&&!hasPass())h+=passBox(x.id);
+      else h+='<label class="share"><input type="checkbox" class="shr"> Share my university email with the group once enough students have joined</label><button class="btn join" data-id="'+esc(x.id)+'">Join this trip</button>';
     }
     return h+'<p class="muted tmsg" id="tm-'+esc(x.id)+'" role="status"></p></div>';
   }
@@ -1056,6 +1060,7 @@ try{nzxTheme();matchMedia("(prefers-color-scheme: dark)").addEventListener("chan
       list.forEach(function(x){h+=tripCard(x,x.mine,a)});
       box.innerHTML=h;
       Array.prototype.forEach.call(box.querySelectorAll(".join"),function(b){b.onclick=function(){joinTrip(b,a)}});
+      bindPassBox(box,a);
       Array.prototype.forEach.call(box.querySelectorAll(".leave"),function(b){b.onclick=function(){leaveTrip(b,a)}});
       list.forEach(function(x){if(x.mine&&(x.joined||0)>=need(x))loadWho(x)});
       fillTripWx(box,a);
@@ -1242,6 +1247,30 @@ try{nzxTheme();matchMedia("(prefers-color-scheme: dark)").addEventListener("chan
     Array.prototype.forEach.call(app.querySelectorAll(".lk[data-size]"),function(b){b.onclick=function(){applyLook(getLook(),b.dataset.size);render()}});
     Array.prototype.forEach.call(app.querySelectorAll(".lk[data-mode]"),function(b){b.onclick=function(){applyLook(getLook(),getSize(),b.dataset.mode);render()}});
   }
+  /* ---------- Ref 46 Entry 2: "Join this trip" needs a pass. OFF on the live site until the team decides; the demo copy turns it on. ---------- */
+  var PASS_GATE=false;
+  function hasPass(){return state.pass==="month"||state.pass==="sem"}
+  function loadPass(cb){if(!PASS_GATE||!db||!state.uid||state.passLoaded){cb&&cb();return}
+    db.collection("planInterest").doc(state.uid).get().then(function(d){state.passLoaded=true;state.pass=d.exists?d.data().plan:null;cb&&cb()}).catch(function(){state.passLoaded=true;cb&&cb()})}
+  function passBox(id){return '<div class="passbox"><b>Join with a pass</b><p class="muted">Joining a trip and its group chat needs a pass. You can still read everything about this activity for free.</p><div class="btnrow"><button type="button" class="btn ghost pass1" data-id="'+esc(id)+'">$0.99 this trip</button><button type="button" class="btn passall">See all plans</button></div></div>'}
+  function bindPassBox(root,a){
+    Array.prototype.forEach.call(root.querySelectorAll(".pass1"),function(b){b.onclick=function(){state.passFor={id:b.dataset.id,from:"activity"};showPassSheet()}});
+    Array.prototype.forEach.call(root.querySelectorAll(".passall"),function(b){b.onclick=function(){state.tab="plans";state.sel=null;render()}});
+  }
+  function showPassSheet(){
+    var old=document.getElementById("passbg");if(old)old.remove();
+    var d=document.createElement("div");d.className="sheetbg";d.id="passbg";
+    d.innerHTML='<div class="sheet" role="dialog" aria-modal="true" aria-label="Single trip pass"><span class="grab"></span><h2>Single trip pass</h2><table class="sum"><tr><td>Plan</td><td>Per trip</td></tr><tr><td>Covers</td><td>This trip date and its group chat</td></tr><tr><td>Price</td><td><b>$0.99</b></td></tr></table><p class="muted">Pilot phase: nothing is charged and no card details are asked for. Tapping below joins you to the trip straight away.</p><p class="muted" id="passmsg" role="status"></p><div class="stack"><button class="btn" id="passok">Unlock and join this trip</button><button class="btn ghost" id="passall2">See all plans</button><button class="btn ghost" id="passno">Not now</button></div></div>';
+    document.body.appendChild(d);
+    var close=function(){d.remove();state.passFor=null};
+    d.onclick=function(e){if(e.target===d)close()};
+    document.getElementById("passno").onclick=close;
+    document.getElementById("passall2").onclick=function(){close();state.tab="plans";state.sel=null;render()};
+    document.getElementById("passok").onclick=function(){var ok=this,msg=document.getElementById("passmsg"),id=state.passFor&&state.passFor.id;if(!id)return;ok.disabled=true;msg.textContent="Joining...";
+      var first=(state.name||"").split(" ")[0]||"Student",b=db.batch(),tr=db.collection("trips").doc(id);
+      b.set(tr.collection("members").doc(state.uid),{name:first.slice(0,40),at:Date.now()});b.update(tr,{joined:firebase.firestore.FieldValue.increment(1)});
+      b.commit().then(function(){close();MY.list=null;if(state.tab==="activities"&&state.sel!==null)loadTrips(A[state.sel]);else{state.flash="";render()}}).catch(function(){ok.disabled=false;msg.textContent="Could not join. Someone may have taken the last place."})};
+  }
   /* ---------- Ref 46: Plans & pricing (prices from the 14 to 16 Oct willingness to pay survey, 22 UoA students) ---------- */
   var PLANS=[
     {id:"trip",name:"Per trip",sub:"Pay only when you go",price:"$0.99",per:"/ trip",note:"One trip, no commitment",items:["Join one trip date","That trip's group chat","Review it afterwards"],btn:"Choose per trip",covers:"One trip date you join"},
@@ -1272,7 +1301,7 @@ try{nzxTheme();matchMedia("(prefers-color-scheme: dark)").addEventListener("chan
     if(no)no.onclick=function(){state.plPick=null;render()};
     if(bg)bg.onclick=function(e){if(e.target===bg){state.plPick=null;render()}};
     if(ok)ok.onclick=function(){var pick=state.plPick,opt=document.getElementById("plopt").checked,msg=document.getElementById("plmsg");ok.disabled=true;msg.textContent="Saving...";
-      var done=function(){state.plMine=pick;state.plPick=null;render();window.scrollTo(0,0)};
+      var done=function(){state.plMine=pick;state.pass=pick;state.passLoaded=true;state.plPick=null;render();window.scrollTo(0,0)};
       if(!db||!state.uid){done();return}
       db.collection("planInterest").doc(state.uid).set({plan:pick,optIn:!!opt,at:Date.now()}).then(done).catch(function(){ok.disabled=false;msg.textContent="Could not save right now. Please try again."})};
     if(db&&state.uid&&state.plMine===undefined){state.plMine=null;db.collection("planInterest").doc(state.uid).get().then(function(d){if(d.exists&&state.tab==="plans"&&!state.plPick){state.plMine=d.data().plan;render()}}).catch(function(){})}
@@ -1289,9 +1318,10 @@ try{nzxTheme();matchMedia("(prefers-color-scheme: dark)").addEventListener("chan
       var h='<h2 class="sec">Last Minute: Almost Full!</h2><div class="agrid">';
       c.forEach(function(x){var a=A[actIndex(x.activityId)],l=x.max-(x.joined||0);
         var pi=actIndex(x.activityId),pp=PH[pi]&&PH[pi][0]?'<img class="lmimg" src="photos/'+PH[pi][0][0]+'" alt="">':'';
-        h+='<div class="upc glass lm">'+pp+'<span class="upd">'+esc(fmtDate(x.date))+' · '+esc(fmtTime(x.time))+' · '+(x.women?'Females only':'All genders')+'</span><b>'+esc(a.name)+'</b><span class="upm">Meet at '+esc(x.meeting)+'</span><span class="upm lmleft">Only '+l+' place'+(l===1?'':'s')+' left</span><button class="btn lmjoin" data-id="'+esc(x.id)+'">Join trip</button><span class="upm lmmsg" id="lm-'+esc(x.id)+'" role="status"></span></div>'});
+        h+='<div class="upc glass lm">'+pp+'<span class="upd">'+esc(fmtDate(x.date))+' · '+esc(fmtTime(x.time))+' · '+(x.women?'Females only':'All genders')+'</span><b>'+esc(a.name)+'</b><span class="upm">Meet at '+esc(x.meeting)+'</span><span class="upm lmleft">Only '+l+' place'+(l===1?'':'s')+' left</span><button class="btn lmjoin" data-id="'+esc(x.id)+'">'+(PASS_GATE&&!hasPass()?'Join with a pass':'Join trip')+'</button><span class="upm lmmsg" id="lm-'+esc(x.id)+'" role="status"></span></div>'});
       box.innerHTML=h+'</div>';
       Array.prototype.forEach.call(box.querySelectorAll(".lmjoin"),function(b){b.onclick=function(){
+        if(PASS_GATE&&!hasPass()){state.passFor={id:b.dataset.id,from:"home"};showPassSheet();return}
         var id=b.dataset.id,msg=document.getElementById("lm-"+id);b.disabled=true;msg.textContent="Joining...";
         var first=(state.name||"").split(" ")[0]||"Student",batch=db.batch(),tr=db.collection("trips").doc(id);
         batch.set(tr.collection("members").doc(state.uid),{name:first.slice(0,40),at:Date.now()});
@@ -1540,7 +1570,7 @@ try{nzxTheme();matchMedia("(prefers-color-scheme: dark)").addEventListener("chan
       if(b.dataset.tab===state.tab)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current");
     });
     bind();
-    if(state.tab==="activities"&&state.sel!==null){loadTrips(A[state.sel]);loadWeather(A[state.sel])}
+    if(state.tab==="activities"&&state.sel!==null){var aa=A[state.sel];loadPass(function(){loadTrips(aa)});loadWeather(aa)}
     if(state.tab==="activities"&&state.sel===null){loadListWeather();loadRatings()}
     if(state.tab==="profile")bindProfile();
     if(state.tab==="look")bindLook();
@@ -1557,7 +1587,7 @@ try{nzxTheme();matchMedia("(prefers-color-scheme: dark)").addEventListener("chan
         batch.commit().then(function(){MY.list=null;state.flash="You have left that trip. Your place is free for someone else.";render()}).catch(function(){b.disabled=false;m.textContent="Could not leave right now. Please try again."})}})}
     if(state.tab==="approvals")bindApprovals();
     if(state.tab==="activities"&&state.sel!==null){loadReviews(A[state.sel]);loadApprovedPhotos(A[state.sel])}
-    if(state.tab==="home")loadUpcoming();
+    if(state.tab==="home")loadPass(loadUpcoming);
     window.scrollTo(0,0);
   }
   function refreshWx(){if(state.tab==="activities"){if(state.sel!==null)loadWeather(A[state.sel]);else loadListWeather()}else if(state.tab==="trips"&&MY.list)fillMyTripsWx()}
