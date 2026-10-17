@@ -3,7 +3,7 @@ name: Publish Firestore rules
 on:
   push:
     branches: [main]
-    paths: ["firestore.rules"]
+    paths: ["firestore.rules", "reminders/deploy-rules.js", ".github/workflows/deploy-rules.yml"]
   workflow_dispatch:
 
 jobs:
@@ -15,14 +15,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
-      - name: Write the Firebase key to a temporary file
-        run: printf '%s' "$SA" > "$RUNNER_TEMP/sa.json"
-        env:
-          SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+      - run: npm install --no-audit --no-fund
+        working-directory: reminders
       - name: Publish rules
-        run: npx --yes firebase-tools@13.29.1 deploy --only firestore:rules --project nz-explorer-8001c --non-interactive
+        run: node deploy-rules.js
+        working-directory: reminders
         env:
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/sa.json
-      - name: Remove the key file
-        if: always()
-        run: rm -f "$RUNNER_TEMP/sa.json"
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
