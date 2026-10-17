@@ -461,6 +461,28 @@ a.jb{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)
 .fchev{font-size:11px;opacity:.7}
 #fpanel{border:1px solid var(--line);border-radius:14px;padding:4px 14px 10px;margin-bottom:8px;background:var(--surface)}
 #fpanel[hidden]{display:none}
+
+/* Ref 46 plans and pricing */
+.newb{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.04em;padding:2px 7px;border-radius:999px;background:var(--accent);color:var(--accent-ink);margin-left:6px;vertical-align:middle}
+.pilot{border:1px solid var(--line);border-left:4px solid var(--accent);background:var(--soft);border-radius:10px;padding:10px 14px;font-size:14px;margin:6px 0 14px}
+.plgrid{display:grid;grid-template-columns:1fr;gap:12px}
+.plan{position:relative;border:1px solid var(--line);border-radius:14px;padding:16px;background:var(--surface);display:flex;flex-direction:column}
+.plan h3{font-size:20px}.plan .plp{margin:10px 0 0}.plan .plp b{font-family:var(--head);font-size:36px}.plan .plp span{color:var(--muted)}
+.plan .pln{font-size:13px;margin-bottom:6px}.plan .save{color:var(--accent)}
+.plan ul{flex:1;margin:6px 0 12px}.plan.pop{border:2px solid var(--accent)}
+.popb{position:absolute;top:-11px;left:14px;font-size:11px;font-weight:800;letter-spacing:.05em;padding:3px 10px;border-radius:999px;background:var(--accent);color:var(--accent-ink)}
+.plfree{border:1px solid var(--ink);border-radius:14px;padding:12px 16px;margin-top:16px}
+.plfree ul{columns:1;margin:8px 0 0}
+.plan ul,.plfree ul{list-style:none;padding-left:0}.plan li,.plfree li{padding-left:22px;position:relative;margin:4px 0;break-inside:avoid;font-size:14px}.plan li::before,.plfree li::before{content:"✓";position:absolute;left:2px;color:var(--accent);font-weight:800}
+.plcq{display:grid;grid-template-columns:1fr;gap:18px;margin-top:18px}
+.tblw{overflow-x:auto}.cmp{width:100%;border-collapse:collapse;font-size:14px}.cmp th,.cmp td{padding:9px 8px;border-bottom:1px solid var(--line);text-align:center}.cmp th:first-child,.cmp td:first-child{text-align:left}.cmp td b{color:var(--accent)}.cmp .yes{color:var(--accent);font-weight:800}
+.faq{border-bottom:1px solid var(--line);padding:10px 0}.faq summary{font-weight:600;cursor:pointer}.faq p{margin-top:6px;color:var(--muted);font-size:14px}
+.sheetbg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:50;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--surface);color:var(--ink);width:100%;max-width:520px;border-radius:18px 18px 0 0;padding:14px 18px 22px;max-height:90vh;overflow:auto}
+.sheet .grab{display:block;width:44px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 12px}
+.sum{width:100%;border-collapse:collapse;margin:10px 0;font-size:14px;border:1px solid var(--line);border-radius:10px}.sum td{padding:9px 12px;border-bottom:1px solid var(--line)}.sum td:last-child{text-align:right}
+@media (min-width:760px){.plgrid{grid-template-columns:repeat(3,1fr)}.plfree ul{columns:4}.plcq{grid-template-columns:1.2fr 1fr}.sheetbg{align-items:center}.sheet{border-radius:18px}}
+@media (min-width:900px){.view.plans{max-width:1000px;margin:0 auto}.plhead{display:grid;grid-template-columns:1.4fr 1fr;gap:24px;align-items:end}}
 </style>
 <script>window.nzxTheme=function(){var r=document.documentElement,g=function(k){try{return localStorage.getItem(k)}catch(e){return null}};var l=g("nzx_look")||"clay",m=g("nzx_mode"),z=g("nzx_size"),d;
 if(l==="clay")r.removeAttribute("data-look");else r.setAttribute("data-look",l);
@@ -876,7 +898,7 @@ try{nzxTheme();matchMedia("(prefers-color-scheme: dark)").addEventListener("chan
     return '<div class="umenu"><button type="button" class="mbtn" aria-label="Menu" aria-haspopup="true" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>'+
       '<div class="mlist" role="menu" hidden><p class="mwho">'+esc(state.name||"")+'<small>'+esc(state.user||"")+'</small></p>'+
       (db?'<button type="button" role="menuitem" data-go="profile">Profile</button>':'')+
-      '<button type="button" role="menuitem" data-go="look">Theme</button><button type="button" role="menuitem" id="out">Sign out</button></div></div>';
+      '<button type="button" role="menuitem" data-go="plans">Plans &amp; pricing <span class="newb">NEW</span></button><button type="button" role="menuitem" data-go="look">Theme</button><button type="button" role="menuitem" id="out">Sign out</button></div></div>';
   }
   function topbar(){return '<div class="topbar"><span><img class="mini" src="'+LOGO+'" alt="">NZ Explorer</span>'+menuHtml()+'</div>'}
   function kv(rows){
@@ -1220,6 +1242,41 @@ try{nzxTheme();matchMedia("(prefers-color-scheme: dark)").addEventListener("chan
     Array.prototype.forEach.call(app.querySelectorAll(".lk[data-size]"),function(b){b.onclick=function(){applyLook(getLook(),b.dataset.size);render()}});
     Array.prototype.forEach.call(app.querySelectorAll(".lk[data-mode]"),function(b){b.onclick=function(){applyLook(getLook(),getSize(),b.dataset.mode);render()}});
   }
+  /* ---------- Ref 46: Plans & pricing (prices from the 14 to 16 Oct willingness to pay survey, 22 UoA students) ---------- */
+  var PLANS=[
+    {id:"trip",name:"Per trip",sub:"Pay only when you go",price:"$0.99",per:"/ trip",note:"One trip, no commitment",items:["Join one trip date","That trip's group chat","Review it afterwards"],btn:"Choose per trip",covers:"One trip date you join"},
+    {id:"month",name:"Monthly",sub:"Flexible, cancel anytime",price:"$2.99",per:"/ month",note:"Unlimited trips",items:["Unlimited trips","Group chat for every trip","Propose new dates"],btn:"Choose monthly",covers:"Unlimited trips for one month"},
+    {id:"sem",name:"Per semester",sub:"One UoA semester",price:"$9.99",per:"/ semester",note:"≈ $2.50 a month",save:"Save 16%",items:["Everything in Monthly","Covers the whole semester","Pay once, no renewals"],btn:"Choose semester",covers:"The current semester, to the end of exams",popular:true}
+  ];
+  function plansView(){
+    var h='<div class="view plans">'+topbar()+'<div class="plhead"><div class="pagehead"><h1>Plans &amp; pricing</h1><p>Browsing NZ Explorer is always free. Get a pass when you want to join trips with other students.</p></div>'+
+      '<div class="pilot" role="note"><b>Pilot phase:</b> no payment is taken yet. Choosing a plan registers your interest, and we will email you before anything changes.</div></div>';
+    if(state.plMine)h+='<p class="callout" role="status">You registered interest in the <b>'+esc((PLANS.filter(function(x){return x.id===state.plMine})[0]||{}).name||"")+'</b> plan. Thank you! Nothing has been charged.</p>';
+    h+='<div class="plgrid">';
+    PLANS.forEach(function(p){h+='<div class="plan'+(p.popular?' pop':'')+'">'+(p.popular?'<span class="popb">MOST POPULAR</span>':'')+'<h3>'+esc(p.name)+'</h3><p class="muted">'+esc(p.sub)+'</p><p class="plp"><b>'+esc(p.price)+'</b> <span>'+esc(p.per)+'</span></p><p class="muted pln">'+esc(p.note)+(p.save?' <b class="save">'+esc(p.save)+'</b>':'')+'</p><ul class="check">'+p.items.map(function(x){return '<li>'+esc(x)+'</li>'}).join('')+'</ul><button class="btn'+(p.popular?'':' ghost')+'" data-plan="'+p.id+'">'+esc(p.btn)+'</button></div>'});
+    h+='</div><div class="plfree"><b>Always free, with or without a pass</b><ul class="check">'+["Browse all 15 activities","Transport, travel time and fares","Weather backups and the 7 day forecast","Food nearby and what to bring","Read reviews and see photos","Safety page and emergency numbers","Suggest a trip or report a problem","Theme and text size"].map(function(x){return '<li>'+esc(x)+'</li>'}).join('')+'</ul></div>';
+    var Y='<span class="yes">✓</span>',N='<span class="muted">–</span>';
+    h+='<div class="plcq"><div><h2>Compare plans</h2><div class="tblw"><table class="cmp"><thead><tr><th></th><th>Free</th><th>Per trip</th><th>Monthly or semester</th></tr></thead><tbody>'+
+      [["Browse activities, transport, weather",Y,Y,Y],["Safety page and checklist",Y,Y,Y],["Join a trip date",N,"<b>1 trip</b>","<b>Unlimited</b>"],["Trip group chat",N,"<b>That trip</b>","<b>All your trips</b>"],["Propose a new date for an activity",N,N,Y],["Leave a review after a trip",N,Y,Y]].map(function(r){return '<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td>'+r[2]+'</td><td>'+r[3]+'</td></tr>'}).join('')+
+      '</tbody></table></div><p class="muted" style="margin-top:6px">Prices in NZD, GST included. Passes are for University of Auckland students with an @aucklanduni.ac.nz email.</p></div>';
+    h+='<div><h2>Questions</h2>'+[["Can I cancel?","Yes. Monthly and semester passes can be cancelled at any time and stay active until the end of the period you paid for."],["Which semester does a semester pass cover?","The current University of Auckland semester, up to the end of exams."],["What if a trip is cancelled for bad weather?","Per trip passes carry over to another date of your choice. Monthly and semester passes are not affected."],["Is my payment information stored?","No payment details are collected during the pilot. When payments start, they will be handled by a secure payment provider, never stored by NZ Explorer."]].map(function(q,k){return '<details class="faq"'+(k?'':' open')+'><summary>'+esc(q[0])+'</summary><p>'+esc(q[1])+'</p></details>'}).join('')+'</div></div>';
+    h+='<p class="muted" style="margin-top:14px">Prices come from our survey of 22 University of Auckland students (14 to 16 October 2026).</p>';
+    if(state.plPick){var p=PLANS.filter(function(x){return x.id===state.plPick})[0];
+      h+='<div class="sheetbg" id="plbg"><div class="sheet" role="dialog" aria-modal="true" aria-label="Confirm plan"><span class="grab"></span><h2>'+esc(p.name)+(p.id==="trip"?'':' pass')+'</h2><table class="sum"><tr><td>Plan</td><td>'+esc(p.name)+'</td></tr><tr><td>Covers</td><td>'+esc(p.covers)+'</td></tr><tr><td>Price</td><td><b>'+esc(p.price)+' '+esc(p.per)+'</b></td></tr></table>'+
+        '<p class="muted">Payments are not switched on during the pilot, so nothing is charged and no card details are asked for. We will note your choice and email you before payments start.</p><label class="share"><input type="checkbox" id="plopt" checked> Email me when passes go live</label><p class="muted" id="plmsg" role="status"></p><div class="stack"><button class="btn" id="plok">Register my interest</button><button class="btn ghost" id="plno">Back to plans</button></div></div></div>'}
+    return h+'</div>';
+  }
+  function bindPlans(){
+    Array.prototype.forEach.call(app.querySelectorAll("[data-plan]"),function(b){b.onclick=function(){state.plPick=b.dataset.plan;render()}});
+    var no=document.getElementById("plno"),bg=document.getElementById("plbg"),ok=document.getElementById("plok");
+    if(no)no.onclick=function(){state.plPick=null;render()};
+    if(bg)bg.onclick=function(e){if(e.target===bg){state.plPick=null;render()}};
+    if(ok)ok.onclick=function(){var pick=state.plPick,opt=document.getElementById("plopt").checked,msg=document.getElementById("plmsg");ok.disabled=true;msg.textContent="Saving...";
+      var done=function(){state.plMine=pick;state.plPick=null;render();window.scrollTo(0,0)};
+      if(!db||!state.uid){done();return}
+      db.collection("planInterest").doc(state.uid).set({plan:pick,optIn:!!opt,at:Date.now()}).then(done).catch(function(){ok.disabled=false;msg.textContent="Could not save right now. Please try again."})};
+    if(db&&state.uid&&state.plMine===undefined){state.plMine=null;db.collection("planInterest").doc(state.uid).get().then(function(d){if(d.exists&&state.tab==="plans"&&!state.plPick){state.plMine=d.data().plan;render()}}).catch(function(){})}
+  }
   /* ---------- home: upcoming trips across all activities ---------- */
   /* Ref 60: trips in the next 3 days with only 1 or 2 places left */
   function loadLastMin(all){
@@ -1420,6 +1477,7 @@ try{nzxTheme();matchMedia("(prefers-color-scheme: dark)").addEventListener("chan
     if(!isOwnerUser())return h+'<p class="muted">Only the NZ Explorer team can see this page.</p></div>';
     h+='<h2>Reported messages and reviews</h2><div id="repq"><p class="muted">Loading reports...</p></div>';
     h+='<h2 style="margin-top:22px">Photo approvals</h2><p class="muted">Photos students sent with their reviews. Approved photos join that activity\'s gallery.</p><div id="apq"><p class="muted">Loading photos...</p></div>';
+    h+='<h2 style="margin-top:22px">Plan interest (Ref 46)</h2><div id="plcount"><p class="muted">Loading...</p></div>';
     h+='<h2 style="margin-top:22px">Demo data</h2><p class="muted">Creates trips in the next 3 days that are almost full, one past trip and 3 example reviews (marked "Example review"), so every feature has something to show in a demo. Remove it all afterwards with one tap.</p><div class="btnrow"><button class="btn" id="demoadd">Create demo data</button><button class="btn ghost" id="demodel">Remove demo data</button></div><p class="muted" id="demomsg" role="status"></p>';
     return h+'</div>';
   }
@@ -1451,8 +1509,11 @@ try{nzxTheme();matchMedia("(prefers-color-scheme: dark)").addEventListener("chan
       Promise.all([db.collection("trips").where("womenOnly","==",false).where("demo","==",true).get(),db.collection("reviews").where("demo","==",true).get()]).then(function(res){var b=db.batch(),cols=["trips","reviews"];res.forEach(function(r,i){r.forEach(function(d){b.delete(db.collection(cols[i]).doc(d.id))})});return b.commit()})
       .then(function(){RV.agg=null;msg.textContent="Demo data removed.";del.disabled=false}).catch(function(){del.disabled=false;msg.textContent="Could not remove it right now."})};
   }
+  function bindPlanCount(){var box=document.getElementById("plcount");if(!box||!db)return;
+    db.collection("planInterest").get().then(function(r){var c={trip:0,month:0,sem:0},o=0,n=0;r.forEach(function(d){var x=d.data();if(c[x.plan]!==undefined)c[x.plan]++;if(x.optIn)o++;n++});
+      box.innerHTML=n?'<p>'+PLANS.map(function(p){return esc(p.name)+': <b>'+c[p.id]+'</b>'}).join(' · ')+'</p><p class="muted">'+n+' student'+(n>1?'s':'')+' registered interest, '+o+' want an email when passes go live.</p>':'<p class="muted">No one has registered interest yet.</p>'}).catch(function(){box.innerHTML='<p class="muted">Could not load. Check the new Firestore rules are published.</p>'})}
   function bindApprovals(){
-    bindReports();bindDemo();
+    bindReports();bindDemo();bindPlanCount();
     var box=document.getElementById("apq");if(!box||!db)return;
     db.collection("photoSubs").where("status","==","pending").get().then(function(r){
       var list=[];r.forEach(function(d){var p=d.data();p.id=d.id;list.push(p)});list.sort(function(p,q){return (p.at||0)-(q.at||0)});
@@ -1470,9 +1531,10 @@ try{nzxTheme();matchMedia("(prefers-color-scheme: dark)").addEventListener("chan
   function render(){
     stopChat();
     if(state.user&&location.hash==="#approvals"&&isOwnerUser()&&!state.apSeen){state.apSeen=true;state.tab="approvals";state.sel=null}
+    if(state.user&&location.hash==="#plans"&&!state.plSeen){state.plSeen=true;state.tab="plans";state.sel=null}
     if(!state.user){renderGate();return}
     nav.classList.remove("hidden");waves.classList.add("withnav");
-    var v=state.tab==="home"?homeView():state.tab==="safety"?safetyView():state.tab==="profile"?profileView():state.tab==="look"?lookView():state.tab==="trips"?(state.review?reviewView():tripsView()):state.tab==="chats"?chatsView():state.tab==="approvals"?approvalsView():(state.sel!==null?detailView():listView());
+    var v=state.tab==="home"?homeView():state.tab==="safety"?safetyView():state.tab==="profile"?profileView():state.tab==="look"?lookView():state.tab==="plans"?plansView():state.tab==="trips"?(state.review?reviewView():tripsView()):state.tab==="chats"?chatsView():state.tab==="approvals"?approvalsView():(state.sel!==null?detailView():listView());
     app.innerHTML=v;
     Array.prototype.forEach.call(nav.querySelectorAll("button"),function(b){
       if(b.dataset.tab===state.tab)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current");
@@ -1482,6 +1544,7 @@ try{nzxTheme();matchMedia("(prefers-color-scheme: dark)").addEventListener("chan
     if(state.tab==="activities"&&state.sel===null){loadListWeather();loadRatings()}
     if(state.tab==="profile")bindProfile();
     if(state.tab==="look")bindLook();
+    if(state.tab==="plans")bindPlans();
     if((state.tab==="trips"||state.tab==="chats")&&MY.list===null&&!MY.loading&&db&&state.uid){MY.loading=true;loadMyTrips(function(){MY.loading=false;if(state.tab==="trips"||state.tab==="chats")render()})}
     if(state.tab==="chats"&&state.chat)bindChat();
     if(state.tab==="trips"&&state.review)bindReview();
@@ -1519,7 +1582,7 @@ try{nzxTheme();matchMedia("(prefers-color-scheme: dark)").addEventListener("chan
   }
   document.addEventListener("click",function(e){if(!e.target.closest(".umenu"))Array.prototype.forEach.call(document.querySelectorAll(".mlist"),function(l){l.hidden=true})});
   document.addEventListener("keydown",function(e){if(e.key==="Escape")Array.prototype.forEach.call(document.querySelectorAll(".mlist"),function(l){l.hidden=true})});
-  window.addEventListener("hashchange",function(){if(location.hash==="#approvals"&&state.user&&isOwnerUser()){state.tab="approvals";state.sel=null;render()}});
+  window.addEventListener("hashchange",function(){if(location.hash==="#plans"&&state.user){state.tab="plans";state.sel=null;render();return}if(location.hash==="#approvals"&&state.user&&isOwnerUser()){state.tab="approvals";state.sel=null;render()}});
   nav.addEventListener("click",function(e){
     var b=e.target.closest("button");if(!b)return;state.tab=b.dataset.tab;state.sel=null;state.chat=null;state.review=null;if(state.tab==="trips"||state.tab==="chats")MY.list=null;render();
   });
