@@ -1285,7 +1285,7 @@ try{nzxTheme();matchMedia("(prefers-color-scheme: dark)").addEventListener("chan
   function plansView(){
     var h='<div class="view plans">'+topbar()+'<div class="plhead"><div class="pagehead"><h1>Plans &amp; pricing</h1><p>Browsing NZ Explorer is always free. Get a pass when you want to join trips with other students.</p></div>'+
       '<div class="pilot" role="note"><b>Pilot phase:</b> no payment is taken yet. Choosing a plan registers your interest, and we will email you before anything changes.</div></div>';
-    if(state.plMine)h+='<p class="callout" role="status">You registered interest in the <b>'+esc((PLANS.filter(function(x){return x.id===state.plMine})[0]||{}).name||"")+'</b> plan. Thank you! Nothing has been charged.</p>';
+    if(state.plMine)h+='<p class="callout" role="status">You registered interest in the <b>'+esc((PLANS.filter(function(x){return x.id===state.plMine})[0]||{}).name||"")+'</b> plan. Thank you! Nothing has been charged. <button type="button" class="linkbtn" id="plclear">Remove my choice</button></p>';
     h+='<div class="plgrid">';
     PLANS.forEach(function(p){h+='<div class="plan'+(p.popular?' pop':'')+'">'+(p.popular?'<span class="popb">MOST POPULAR</span>':'')+'<h3>'+esc(p.name)+'</h3><p class="muted">'+esc(p.sub)+'</p><p class="plp"><b>'+esc(p.price)+'</b> <span>'+esc(p.per)+'</span></p><p class="muted pln">'+esc(p.note)+(p.save?' <b class="save">'+esc(p.save)+'</b>':'')+'</p><ul class="check">'+p.items.map(function(x){return '<li>'+esc(x)+'</li>'}).join('')+'</ul><button class="btn'+(p.popular?'':' ghost')+'" data-plan="'+p.id+'">'+esc(p.btn)+'</button></div>'});
     h+='</div><div class="plfree"><b>Always free, with or without a pass</b><ul class="check">'+["Browse all 15 activities","Transport, travel time and fares","Weather backups and the 7 day forecast","Food nearby and what to bring","Read reviews and see photos","Safety page and emergency numbers","Suggest a trip or report a problem","Theme and text size"].map(function(x){return '<li>'+esc(x)+'</li>'}).join('')+'</ul></div>';
@@ -1304,6 +1304,7 @@ try{nzxTheme();matchMedia("(prefers-color-scheme: dark)").addEventListener("chan
     Array.prototype.forEach.call(app.querySelectorAll("[data-plan]"),function(b){b.onclick=function(){state.plPick=b.dataset.plan;render()}});
     var no=document.getElementById("plno"),bg=document.getElementById("plbg"),ok=document.getElementById("plok");
     if(no)no.onclick=function(){state.plPick=null;render()};
+    var clr=document.getElementById("plclear");if(clr)clr.onclick=function(){clr.disabled=true;var fin=function(){state.plMine=null;state.pass=null;state.passLoaded=true;render()};if(!db||!state.uid){fin();return}db.collection("planInterest").doc(state.uid).delete().then(fin).catch(function(){clr.disabled=false})};
     if(bg)bg.onclick=function(e){if(e.target===bg){state.plPick=null;render()}};
     if(ok)ok.onclick=function(){var pick=state.plPick,opt=document.getElementById("plopt").checked,msg=document.getElementById("plmsg");ok.disabled=true;msg.textContent="Saving...";
       var done=function(){state.plMine=pick;state.pass=pick;state.passLoaded=true;state.plPick=null;render();window.scrollTo(0,0)};

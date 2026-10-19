@@ -135,7 +135,7 @@ service cloud.firestore {
         && request.resource.data.keys().hasOnly(['plan', 'optIn', 'at'])
         && request.resource.data.plan in ['trip', 'month', 'sem']
         && request.resource.data.optIn is bool;
-      allow delete: if false;
+      allow delete: if verifiedUoA() && request.auth.uid == uid;
     }
 
     // Trip photos: students send them, the owner approves. Only approved photos are readable by students.
