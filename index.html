@@ -1253,7 +1253,7 @@ try{nzxTheme();matchMedia("(prefers-color-scheme: dark)").addEventListener("chan
     Array.prototype.forEach.call(app.querySelectorAll(".lk[data-mode]"),function(b){b.onclick=function(){applyLook(getLook(),getSize(),b.dataset.mode);render()}});
   }
   /* ---------- Ref 46 Entry 2: "Join this trip" needs a pass. OFF on the live site until the team decides; the demo copy turns it on. ---------- */
-  var PASS_GATE=false;
+  var PASS_GATE=true;
   function hasPass(){return state.pass==="month"||state.pass==="sem"}
   function loadPass(cb){if(!PASS_GATE||!db||!state.uid||state.passLoaded){cb&&cb();return}
     db.collection("planInterest").doc(state.uid).get().then(function(d){state.passLoaded=true;state.pass=d.exists?d.data().plan:null;cb&&cb()}).catch(function(){state.passLoaded=true;cb&&cb()})}
